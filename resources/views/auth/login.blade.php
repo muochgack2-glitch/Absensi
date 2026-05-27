@@ -138,8 +138,8 @@
         </form>
 
         <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;">
-            <p><strong>Demo Credentials:</strong></p>
-            <p>Username: admin | Password: admin123</p>
+            <p><strong>MASUKAN AUTH LOGIN</strong></p>
+            <p>Username | Password</p>
         </div>
     </div>
 
