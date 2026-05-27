@@ -87,15 +87,44 @@ class ReportController extends Controller
             $totalPendaftar   = $pendaftars->count();
             $totalLunas       = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
             $totalBelumBayar  = $totalPendaftar - $totalLunas;
-            $totalBaruHariIni = $pendaftars->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count();
+            
+            // More reliable way to check if registered today
+            $today = \Carbon\Carbon::now()->startOfDay();
+            $tomorrow = \Carbon\Carbon::now()->addDay()->startOfDay();
+            $totalBaruHariIni = $pendaftars->filter(function($p) use ($today, $tomorrow) {
+                $regDate = $p->tgl_daftar ?? $p->created_at;
+                if (!$regDate) return false;
+                return $regDate->gte($today) && $regDate->lt($tomorrow);
+            })->count();
+            
+            \Log::debug('Dashboard stats query', [
+                'total_pendaftar' => $totalPendaftar,
+                'total_baru_hari_ini' => $totalBaruHariIni,
+                'today_start' => $today->toDateTimeString(),
+                'tomorrow_start' => $tomorrow->toDateTimeString(),
+                'sample_data' => $pendaftars->take(3)->map(fn($p) => [
+                    'id' => $p->id_pendaftar,
+                    'tgl_daftar' => $p->tgl_daftar?->toDateTimeString(),
+                    'created_at' => $p->created_at?->toDateTimeString(),
+                ])->toArray(),
+            ]);
+            
             $pctLunas         = $totalPendaftar > 0 ? round($totalLunas / $totalPendaftar * 100) : 0;
 
-            $perJurusanStats = $pendaftars->groupBy('jurusan')->map(function ($items, $jurusan) {
+            $today = \Carbon\Carbon::now()->startOfDay();
+            $tomorrow = \Carbon\Carbon::now()->addDay()->startOfDay();
+            
+            $perJurusanStats = $pendaftars->groupBy('jurusan')->map(function ($items, $jurusan) use ($today, $tomorrow) {
                 $lunas = $items->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+                $baruHariIni = $items->filter(function($p) use ($today, $tomorrow) {
+                    $regDate = $p->tgl_daftar ?? $p->created_at;
+                    if (!$regDate) return false;
+                    return $regDate->gte($today) && $regDate->lt($tomorrow);
+                })->count();
                 return [
                     'jurusan'          => $jurusan,
                     'totalPendaftar'   => $items->count(),
-                    'totalBaruHariIni' => $items->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count(),
+                    'totalBaruHariIni' => $baruHariIni,
                     'totalBelumBayar'  => $items->count() - $lunas,
                     'totalLunas'       => $lunas,
                 ];

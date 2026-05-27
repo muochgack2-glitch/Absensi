@@ -82,6 +82,7 @@ class RegistrationController extends Controller
                 'jurusan' => Jurusan::find($request->jurusan_id)?->kode ?? '-',
                 'nama_jaringan' => $request->nama_jaringan,
                 'gelombang' => $setting->gelombang_aktif,
+                'tgl_daftar' => now(),
                 'status_siswa' => 'Belum Daftar Ulang',
                 'status_data' => 'awal',
             ]);

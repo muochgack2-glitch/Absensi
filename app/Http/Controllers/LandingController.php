@@ -20,7 +20,15 @@ class LandingController extends Controller
         $totalDiterima  = Pendaftar::where('status_siswa', 'Diterima')->count();
         $totalBelumDaftarUlang = Pendaftar::where('status_siswa', '!=', 'Diterima')->count();
         $totalDataAwal = Pendaftar::where('status_data', 'awal')->count();
-        $totalBaruHariIni = Pendaftar::whereDate('created_at', today())->count();
+        
+        // Count new registrations today using reliable date range
+        $today = \Carbon\Carbon::now()->startOfDay();
+        $tomorrow = \Carbon\Carbon::now()->addDay()->startOfDay();
+        $totalBaruHariIni = Pendaftar::whereBetween('tgl_daftar', [$today, $tomorrow])->count();
+        if ($totalBaruHariIni === 0) {
+            // Fallback to created_at if tgl_daftar is not set
+            $totalBaruHariIni = Pendaftar::whereBetween('created_at', [$today, $tomorrow])->count();
+        }
 
         $stats = [
             'total_pendaftar' => $totalPendaftar,
