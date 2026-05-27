@@ -87,10 +87,11 @@ class ReportController extends Controller
             $totalPendaftar   = $pendaftars->count();
             $totalLunas       = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
             $totalBelumBayar  = $totalPendaftar - $totalLunas;
+            $tz = config('app.timezone', 'UTC');
+            $today = \Carbon\Carbon::now($tz)->startOfDay();
+            $tomorrow = \Carbon\Carbon::now($tz)->addDay()->startOfDay();
             
             // More reliable way to check if registered today
-            $today = \Carbon\Carbon::now()->startOfDay();
-            $tomorrow = \Carbon\Carbon::now()->addDay()->startOfDay();
             $totalBaruHariIni = $pendaftars->filter(function($p) use ($today, $tomorrow) {
                 $regDate = $p->tgl_daftar ?? $p->created_at;
                 if (!$regDate) return false;
@@ -111,8 +112,6 @@ class ReportController extends Controller
             
             $pctLunas         = $totalPendaftar > 0 ? round($totalLunas / $totalPendaftar * 100) : 0;
 
-            $today = \Carbon\Carbon::now()->startOfDay();
-            $tomorrow = \Carbon\Carbon::now()->addDay()->startOfDay();
             
             $perJurusanStats = $pendaftars->groupBy('jurusan')->map(function ($items, $jurusan) use ($today, $tomorrow) {
                 $lunas = $items->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
