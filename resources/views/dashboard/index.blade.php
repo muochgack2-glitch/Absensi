@@ -285,14 +285,48 @@
 
             async function loadStats() {
                 try {
-                    const res = await fetch('{{ route('report.stats') }}');
-                    if (!res.ok) return;
+                    // Use absolute path to avoid routing issues
+                    const statsUrl = '/laporan/stats';
+                    console.log('Loading stats from:', statsUrl);
+                    
+                    const res = await fetch(statsUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'  // Include cookies for session
+                    });
+                    
+                    // Debug: log response status
+                    console.log('Stats API Response Status:', res.status);
+                    console.log('Stats API Response Headers:', {
+                        'Content-Type': res.headers.get('Content-Type'),
+                        'X-Status': res.status
+                    });
+                    
+                    if (!res.ok) {
+                        const errorText = await res.text();
+                        console.error('Stats API HTTP Error:', res.status);
+                        console.error('Response body:', errorText.substring(0, 500));
+                        showErrorMessage(`HTTP ${res.status} - Periksa logs untuk detail`);
+                        return;
+                    }
+                    
                     const data = await res.json();
+                    console.log('Stats data received:', data);
+                    
+                    // Check for error in response
+                    if (data.error) {
+                        console.error('Stats API Error Response:', data.error, data.message);
+                        showErrorMessage('Error: ' + data.error);
+                        // Still show the data (0 values) so UI doesn't break
+                    }
 
-                    setCardValue('totalPendaftar', data.totalPendaftar);
-                    setCardValue('totalLunas', data.totalLunas);
-                    setCardValue('totalBelumBayar', data.totalBelumBayar);
-                    setCardValue('totalBaruHariIni', data.totalBaruHariIni);
+                    setCardValue('totalPendaftar', data.totalPendaftar || 0);
+                    setCardValue('totalLunas', data.totalLunas || 0);
+                    setCardValue('totalBelumBayar', data.totalBelumBayar || 0);
+                    setCardValue('totalBaruHariIni', data.totalBaruHariIni || 0);
 
                     setTrendBadge('totalPendaftar', data.deltaVsYesterday?.totalPendaftar);
                     setTrendBadge('totalBaruHariIni', data.deltaVsYesterday?.totalBaruHariIni);
@@ -309,8 +343,29 @@
                     const last = document.getElementById('lastUpdated');
                     if (last) last.textContent = `Update terakhir: ${data.updatedAt || '-'}`;
                 } catch (e) {
-                    console.error('Failed to load stats', e);
+                    console.error('Failed to load stats - Exception:', e);
+                    console.error('Error Stack:', e.stack);
+                    console.error('Error type:', e.constructor.name);
+                    showErrorMessage('Network error: ' + e.message);
+                    
+                    // Load fallback data from page if available
+                    loadFallbackData();
                 }
+            }
+
+            function loadFallbackData() {
+                // This will be populated if backend renders initial data
+                // For now, show a helpful message
+                const fallbackDiv = document.getElementById('lastUpdated');
+                if (fallbackDiv && !fallbackDiv.textContent.includes('Update terakhir:')) {
+                    console.log('Trying fallback data load...');
+                }
+            }
+
+            function showErrorMessage(message) {
+                const last = document.getElementById('lastUpdated');
+                if (last) last.textContent = message;
+                console.warn('Displaying error to user:', message);
             }
 
             loadStats();

@@ -75,40 +75,62 @@ class ReportController extends Controller
 
     public function stats(Request $request)
     {
-        $gelombang = $request->get('gelombang', 'all');
-        $jurusanId = $request->get('jurusan_id', 'all');
+        try {
+            $gelombang = $request->get('gelombang', 'all');
+            $jurusanId = $request->get('jurusan_id', 'all');
 
-        $query = Pendaftar::with('logistik');
-        if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
-        if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
-        $pendaftars = $query->get();
+            $query = Pendaftar::with('logistik');
+            if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
+            if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
+            $pendaftars = $query->get();
 
-        $totalPendaftar   = $pendaftars->count();
-        $totalLunas       = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
-        $totalBelumBayar  = $totalPendaftar - $totalLunas;
-        $totalBaruHariIni = $pendaftars->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count();
-        $pctLunas         = $totalPendaftar > 0 ? round($totalLunas / $totalPendaftar * 100) : 0;
+            $totalPendaftar   = $pendaftars->count();
+            $totalLunas       = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+            $totalBelumBayar  = $totalPendaftar - $totalLunas;
+            $totalBaruHariIni = $pendaftars->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count();
+            $pctLunas         = $totalPendaftar > 0 ? round($totalLunas / $totalPendaftar * 100) : 0;
 
-        $perJurusanStats = $pendaftars->groupBy('jurusan')->map(function ($items, $jurusan) {
-            $lunas = $items->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
-            return [
-                'jurusan'          => $jurusan,
-                'totalPendaftar'   => $items->count(),
-                'totalBaruHariIni' => $items->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count(),
-                'totalBelumBayar'  => $items->count() - $lunas,
-                'totalLunas'       => $lunas,
-            ];
-        })->sortKeys()->values();
+            $perJurusanStats = $pendaftars->groupBy('jurusan')->map(function ($items, $jurusan) {
+                $lunas = $items->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+                return [
+                    'jurusan'          => $jurusan,
+                    'totalPendaftar'   => $items->count(),
+                    'totalBaruHariIni' => $items->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count(),
+                    'totalBelumBayar'  => $items->count() - $lunas,
+                    'totalLunas'       => $lunas,
+                ];
+            })->sortKeys()->values();
 
-        return response()->json([
-            'totalPendaftar'   => $totalPendaftar,
-            'totalLunas'       => $totalLunas,
-            'totalBelumBayar'  => $totalBelumBayar,
-            'totalBaruHariIni' => $totalBaruHariIni,
-            'pctLunas'         => $pctLunas,
-            'perJurusanStats'  => $perJurusanStats,
-            'updatedAt'        => now()->format('H:i:s'),
-        ]);
+            return response()->json([
+                'totalPendaftar'   => $totalPendaftar,
+                'totalLunas'       => $totalLunas,
+                'totalBelumBayar'  => $totalBelumBayar,
+                'totalBaruHariIni' => $totalBaruHariIni,
+                'pctLunas'         => $pctLunas,
+                'perJurusanStats'  => $perJurusanStats,
+                'updatedAt'        => now()->format('H:i:s'),
+            ], 200, [
+                'Content-Type' => 'application/json; charset=utf-8',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Stats endpoint error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json([
+                'error' => 'Gagal mengambil data statistik',
+                'message' => $e->getMessage(),
+                'debug_class' => class_basename($e),
+                'totalPendaftar'   => 0,
+                'totalLunas'       => 0,
+                'totalBelumBayar'  => 0,
+                'totalBaruHariIni' => 0,
+                'pctLunas'         => 0,
+                'perJurusanStats'  => [],
+                'updatedAt'        => now()->format('H:i:s'),
+            ], 200, [
+                'Content-Type' => 'application/json; charset=utf-8',
+            ]);
+        }
     }
 
     public function exportExcel(Request $request)
