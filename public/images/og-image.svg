@@ -1,0 +1,75 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">SPMB 2026 - Sistem Penerimaan Murid Baru</title>
+  <desc id="desc">Gambar pratinjau sosial untuk landing page SPMB dengan nuansa gradien premium.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="120" y1="40" x2="1080" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E1B4B"/>
+      <stop offset="0.45" stop-color="#312E81"/>
+      <stop offset="1" stop-color="#6D28D9"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1020 120) rotate(128) scale(360 300)">
+      <stop stop-color="#22D3EE" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(230 520) rotate(-22) scale(320 260)">
+      <stop stop-color="#A855F7" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#A855F7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cardStroke" x1="320" y1="120" x2="960" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="pill" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glowA)"/>
+  <rect width="1200" height="630" fill="url(#glowB)"/>
+
+  <g opacity="0.18">
+    <circle cx="140" cy="120" r="3" fill="white"/>
+    <circle cx="260" cy="190" r="2" fill="white"/>
+    <circle cx="1080" cy="520" r="2.5" fill="white"/>
+    <circle cx="950" cy="88" r="2" fill="white"/>
+    <circle cx="710" cy="565" r="2" fill="white"/>
+  </g>
+
+  <g>
+    <rect x="120" y="95" width="960" height="440" rx="34" fill="white" fill-opacity="0.08"/>
+    <rect x="120.75" y="95.75" width="958.5" height="438.5" rx="33.25" stroke="url(#cardStroke)" stroke-opacity="0.8" stroke-width="1.5"/>
+
+    <rect x="172" y="156" width="94" height="94" rx="24" fill="url(#pill)"/>
+    <path d="M198 213.5V190.2C198 188.41 199.41 187 201.2 187H235.8C237.59 187 239 188.41 239 190.2V213.5" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M188 222.5H249" stroke="white" stroke-width="6" stroke-linecap="round"/>
+    <path d="M219 174L231 186" stroke="white" stroke-width="6" stroke-linecap="round"/>
+    <path d="M219 174L207 186" stroke="white" stroke-width="6" stroke-linecap="round"/>
+
+    <text x="290" y="192" fill="white" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="64" font-weight="800" letter-spacing="1.5">SPMB 2026</text>
+    <text x="290" y="246" fill="#EDE9FE" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="34" font-weight="600">Sistem Penerimaan Murid Baru</text>
+
+    <rect x="290" y="278" width="530" height="56" rx="28" fill="white" fill-opacity="0.12"/>
+    <text x="318" y="314" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="500">Daftar Online • Cepat • Transparan</text>
+
+    <g transform="translate(170 355)">
+      <rect width="250" height="140" rx="22" fill="white" fill-opacity="0.11"/>
+      <text x="24" y="42" fill="#E0E7FF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="600">Total Pendaftar</text>
+      <text x="24" y="96" fill="white" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="46" font-weight="800">500+</text>
+    </g>
+
+    <g transform="translate(450 355)">
+      <rect width="250" height="140" rx="22" fill="white" fill-opacity="0.11"/>
+      <text x="24" y="42" fill="#D1FAE5" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" font-weight="600">Verifikasi</text>
+      <text x="24" y="96" fill="white" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="46" font-weight="800">Real-time</text>
+    </g>
+
+    <g transform="translate(730 355)">
+      <rect width="300" height="140" rx="22" fill="white" fill-opacity="0.11"/>
+      <circle cx="48" cy="70" r="10" fill="#10B981"/>
+      <text x="74" y="78" fill="white" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">Gelombang Baru Dibuka</text>
+    </g>
+  </g>
+</svg>

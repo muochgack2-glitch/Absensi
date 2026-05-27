@@ -1,0 +1,249 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Jurusan;
+use App\Models\Pendaftar;
+use App\Models\LogistikBayar;
+use Illuminate\Http\Request;
+
+class ReportController extends Controller
+{
+    public function index(Request $request)
+    {
+        $gelombang  = $request->get('gelombang', 'all');
+        $jurusanId  = $request->get('jurusan_id', 'all');
+
+        $query = Pendaftar::with('logistik');
+        if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
+        if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
+        $pendaftars = $query->get();
+
+        $totalPendaftar  = $pendaftars->count();
+        $totalLunas      = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+        $totalBelumBayar = $totalPendaftar - $totalLunas;
+        $totalSelesai    = $pendaftars->filter(fn($p) => optional($p->logistik)->status_kaos === 'Sudah')->count();
+
+        $jurusanAktif = Jurusan::where('aktif', true)->orderBy('kode')->get();
+
+        $perJurusan = [];
+        foreach ($jurusanAktif as $j) {
+            $group = $pendaftars->where('jurusan', $j->kode);
+            $perJurusan[$j->kode] = [
+                'total'  => $group->count(),
+                'lunas'  => $group->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count(),
+                'selesai'=> $group->filter(fn($p) => optional($p->logistik)->status_kaos === 'Sudah')->count(),
+            ];
+        }
+
+        $perGelombang = $pendaftars->groupBy('gelombang')->map(fn($g) => [
+            'total' => $g->count(),
+            'lunas' => $g->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count(),
+        ])->sortKeys();
+
+        $perJaringan = $pendaftars
+            ->groupBy(fn($p) => $p->nama_jaringan ?: '(Langsung)')
+            ->map(function ($group, $nama) use ($jurusanAktif) {
+                $jurusanCounts = [];
+                foreach ($jurusanAktif as $j) {
+                    $jurusanCounts[$j->kode] = $group->where('jurusan', $j->kode)->count();
+                }
+                return [
+                    'nama'    => $nama,
+                    'total'   => $group->count(),
+                    'lunas'   => $group->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count(),
+                    'jurusan' => $jurusanCounts,
+                ];
+            })
+            ->sortByDesc('total')
+            ->values();
+
+        $perUkuranKaos = $pendaftars
+            ->filter(fn($p) => optional($p->logistik)->ukuran_kaos)
+            ->groupBy(fn($p) => $p->logistik->ukuran_kaos)
+            ->map->count()
+            ->sortKeys();
+
+        $gelombangOptions = Pendaftar::select('gelombang')->distinct()->orderBy('gelombang')->pluck('gelombang');
+
+        return view('reports.index', compact(
+            'pendaftars', 'totalPendaftar', 'totalLunas', 'totalBelumBayar', 'totalSelesai',
+            'perJurusan', 'perGelombang', 'perJaringan', 'perUkuranKaos',
+            'gelombangOptions', 'gelombang', 'jurusanId', 'jurusanAktif'
+        ));
+    }
+
+    public function stats(Request $request)
+    {
+        $gelombang = $request->get('gelombang', 'all');
+        $jurusanId = $request->get('jurusan_id', 'all');
+
+        $query = Pendaftar::with('logistik');
+        if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
+        if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
+        $pendaftars = $query->get();
+
+        $totalPendaftar   = $pendaftars->count();
+        $totalLunas       = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+        $totalBelumBayar  = $totalPendaftar - $totalLunas;
+        $totalBaruHariIni = $pendaftars->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count();
+        $pctLunas         = $totalPendaftar > 0 ? round($totalLunas / $totalPendaftar * 100) : 0;
+
+        $perJurusanStats = $pendaftars->groupBy('jurusan')->map(function ($items, $jurusan) {
+            $lunas = $items->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+            return [
+                'jurusan'          => $jurusan,
+                'totalPendaftar'   => $items->count(),
+                'totalBaruHariIni' => $items->filter(fn($p) => ($p->tgl_daftar ?? $p->created_at)?->isToday())->count(),
+                'totalBelumBayar'  => $items->count() - $lunas,
+                'totalLunas'       => $lunas,
+            ];
+        })->sortKeys()->values();
+
+        return response()->json([
+            'totalPendaftar'   => $totalPendaftar,
+            'totalLunas'       => $totalLunas,
+            'totalBelumBayar'  => $totalBelumBayar,
+            'totalBaruHariIni' => $totalBaruHariIni,
+            'pctLunas'         => $pctLunas,
+            'perJurusanStats'  => $perJurusanStats,
+            'updatedAt'        => now()->format('H:i:s'),
+        ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $gelombang = $request->get('gelombang', 'all');
+        $jurusanId = $request->get('jurusan_id', 'all');
+
+        $query = Pendaftar::with('logistik');
+        if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
+        if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
+        $pendaftars = $query->orderBy('no_registrasi')->get();
+
+        $filename = 'data-pendaftar-spmb-' . now()->format('Ymd-His') . '.csv';
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+        ];
+
+        $callback = function () use ($pendaftars) {
+            $h = fopen('php://output', 'w');
+            fprintf($h, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($h, ['No. Registrasi','NISN','Nama Lengkap','Asal Sekolah','Jurusan','Alamat','Nama Jaringan','Gelombang','Tanggal Daftar','Status Daftar Ulang','Ukuran Kaos','Status Kain','Status Kaos']);
+            foreach ($pendaftars as $p) {
+                fputcsv($h, [
+                    $p->no_registrasi, $p->nisn, $p->nama_lengkap, $p->asal_sekolah,
+                    $p->jurusan, $p->alamat, $p->nama_jaringan ?? '-',
+                    'Gelombang ' . $p->gelombang,
+                    $p->tgl_daftar->format('d-m-Y H:i'),
+                    optional($p->logistik)->status_bayar === 'Lunas' ? 'Sudah Daftar Ulang' : 'Belum Daftar Ulang',
+                    optional($p->logistik)->ukuran_kaos ?? '-',
+                    optional($p->logistik)->status_kain ?? '-',
+                    optional($p->logistik)->status_kaos ?? '-',
+                ]);
+            }
+            fclose($h);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function exportJaringanExcel(Request $request)
+    {
+        $pendaftars   = Pendaftar::with('logistik')->get();
+        $jurusanAktif = Jurusan::where('aktif', true)->orderBy('kode')->pluck('kode');
+
+        $perJaringan = $pendaftars
+            ->groupBy(fn($p) => $p->nama_jaringan ?: '(Langsung)')
+            ->map(function ($group, $nama) use ($jurusanAktif) {
+                $row = [$nama, $group->count()];
+                foreach ($jurusanAktif as $kode) {
+                    $row[] = $group->where('jurusan', $kode)->count();
+                }
+                $lunas = $group->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+                $row[] = $lunas;
+                $row[] = $group->count() - $lunas;
+                return $row;
+            })
+            ->sortByDesc(fn($r) => $r[1])
+            ->values();
+
+        $filename = 'rekap-jaringan-spmb-' . now()->format('Ymd-His') . '.csv';
+        $headers  = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($perJaringan, $pendaftars, $jurusanAktif) {
+            $h = fopen('php://output', 'w');
+            fprintf($h, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($h, ['Rekap Per Jaringan / Vendor - SPMB']);
+            fputcsv($h, ['Dicetak: ' . now()->format('d-m-Y H:i')]);
+            fputcsv($h, []);
+
+            $csvHeader = ['Nama Jaringan', 'Total'];
+            foreach ($jurusanAktif as $kode) { $csvHeader[] = $kode; }
+            $csvHeader[] = 'Sudah Daftar Ulang';
+            $csvHeader[] = 'Belum Daftar Ulang';
+            fputcsv($h, $csvHeader);
+
+            foreach ($perJaringan as $row) { fputcsv($h, $row); }
+            fputcsv($h, []);
+            fputcsv($h, ['TOTAL', $pendaftars->count()]);
+            fclose($h);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $gelombang = $request->get('gelombang', 'all');
+        $jurusanId = $request->get('jurusan_id', 'all');
+
+        $query = Pendaftar::with('logistik');
+        if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
+        if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
+        $pendaftars = $query->orderBy('no_registrasi')->get();
+
+        $jurusanAktif = Jurusan::where('aktif', true)->orderBy('kode')->get();
+
+        $perJurusan = [];
+        foreach ($jurusanAktif as $j) {
+            $group = $pendaftars->where('jurusan', $j->kode);
+            $perJurusan[$j->kode] = [
+                'total' => $group->count(),
+                'lunas' => $group->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count(),
+            ];
+        }
+
+        $perGelombang = $pendaftars->groupBy('gelombang')->map->count()->sortKeys();
+        $totalLunas   = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
+
+        $perJaringan = $pendaftars
+            ->groupBy(fn($p) => $p->nama_jaringan ?: '(Langsung)')
+            ->map(function ($group, $nama) use ($jurusanAktif) {
+                $jurusanCounts = [];
+                foreach ($jurusanAktif as $j) {
+                    $jurusanCounts[$j->kode] = $group->where('jurusan', $j->kode)->count();
+                }
+                return [
+                    'nama'    => $nama,
+                    'total'   => $group->count(),
+                    'lunas'   => $group->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count(),
+                    'jurusan' => $jurusanCounts,
+                ];
+            })
+            ->sortByDesc('total')
+            ->values();
+
+        $jurusan = $jurusanId !== 'all' ? (Jurusan::find($jurusanId)?->kode ?? 'all') : 'all';
+
+        return view('reports.pdf', compact(
+            'pendaftars', 'perJurusan', 'perGelombang', 'totalLunas',
+            'perJaringan', 'gelombang', 'jurusan', 'jurusanAktif'
+        ));
+    }
+}

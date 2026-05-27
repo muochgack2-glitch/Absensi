@@ -1,0 +1,206 @@
+Role: Bertindaklah sebagai Senior Full-stack Developer. Buatlah sistem informasi pendaftaran siswa baru (SPMB) berbasis Web (PHP/MySQL) dengan konsep One Day Service (ODS).
+
+1. STRUKTUR DATABASE (ERD LOGIC)
+Buatlah database dengan mesin InnoDB dan relasi yang kuat:
+
+Tabel admin: id_admin (PK), username (Varchar), password (Varchar/Hash), nama_petugas (Varchar).
+
+Tabel pendaftar: id_pendaftar (PK), no_registrasi (Unique), nisn (Unique), nama_lengkap, asal sekolah, alamat, jurusan (Enum: MPLB, AKL, BUSANA), nama_jaringan (Perekomendasi), gelombang (Int), tgl_daftar.
+
+Tabel logistik_bayar: id_logistik (PK), id_pendaftar (FK - Cascade), status_bayar (Enum: Belum, Lunas), ukuran_kaos (Varchar - Default NULL), status_kain (Enum: Belum, Sudah), status_kaos (Enum: Belum, Proses, Sudah).
+
+Tabel setting_system: id_setting, gelombang_aktif.
+
+2. LOGIKA PENOMORAN (AUTO-NUMBERING)
+Sistem harus men-generate nomor registrasi otomatis dengan format: SPMB-[TAHUN]-[URUTAN] (Contoh: SPMB-2026-0001). Nomor harus unik dan dicek secara otomatis di database agar tidak ada duplikasi.
+
+3. HALAMAN LOGIN & KEAMANAN
+Buat halaman Login Admin yang aman dengan enkripsi password (password_hash di PHP).
+
+Terapkan fungsi session di PHP. Jika user belum login sebagai admin, mereka tidak boleh menembus halaman dashboard admin ataupun mengakses file cetak dokumen (Protected Routes).
+
+4. ALUR KERJA SISTEM & INPUT BIODATA (WORKFLOW)
+Sistem harus mendukung tiga jalur input data pendaftar:
+
+Jalur Online (Oleh Siswa): Siswa mengisi formulir pendaftaran yang ringkas di halaman depan (Data Diri, Jurusan, Jaringan). setelah submit di beri akses cetak dan download bukti pendaftaran.
+
+Jalur Offline (Oleh Admin - BARU): Di dalam dashboard admin, sediakan menu "Tambah Pendaftar". Menu ini berupa formulir khusus bagi Admin untuk menginputkan langsung biodata siswa yang datang langsung ke sekolah secara manual. Saat disimpan, nomor registrasi otomatis ter-generate dan data logistik otomatis terbuat dengan status awal "Belum Lunas".
+
+Online Registration Form - Public Form (BARU): Halaman publik pendaftaran online tanpa login yang memungkinkan siswa mendaftar secara mandiri. Form ini bersifat terbuka (no authentication required) dan dapat diakses oleh siapa saja. Setelah submit, sistem akan menghasilkan nomor registrasi unik dan mengirimkan bukti pendaftaran melalui email atau WhatsApp. Data yang dikumpulkan: NISN, Nama Lengkap, Asal Sekolah, Alamat, Nomor Telepon/WhatsApp, Pilihan Jurusan, Perekomendasi (Jaringan), dan Foto Siswa. Data otomatis tersimpan di tabel pendaftar dengan status awal "Menunggu Verifikasi".
+
+5. PROSES DAFTAR ULANG (ADMIN MEJA 2)
+Saat siswa datang ke Meja 2 untuk verifikasi keuangan, Admin mencari data siswa tersebut.
+
+Sebelum status diubah menjadi Lunas, sistem wajib memunculkan Modal/Pop-up yang memaksa Admin memilih Ukuran Kaos (S/M/L/XL/XXL).
+
+Setelah ukuran dipilih dan disimpan, sistem mengupdate tabel logistik_bayar, mengubah status pembayaran menjadi Lunas, dan otomatis membuka jendela cetak Bukti Pengambilan Barang.
+
+6. LOGIKA LOGISTIK & VISUALISASI
+Kain: Dianggap stok tersedia (Status: Sudah Diambil setelah lunas).
+
+Kaos: Dianggap pesanan/inden (Status: Proses Pesan setelah lunas).
+
+Traffic Light System: Di dashboard admin, baris data siswa harus memiliki warna indikator:
+
+Merah: Belum Daftar Ulang/Bayar.
+
+Kuning: Sudah Bayar & Kaos dalam proses pesanan vendor.
+
+Hijau: Kaos sudah sampai dan diserahkan ke siswa.
+
+7. FITUR MONITORING & CETAK
+Rekap Vendor: Admin bisa menarik data total kebutuhan kaos per ukuran (Contoh: L = 50, XL = 20) untuk dipesan ke penjahit.
+
+Laporan Jaringan: Statistik jumlah pendaftar berdasarkan nama perekomendasi.
+
+3 Modul Cetak: Bukti Registrasi setengah A4(Kecil), Formulir Lengkap (A4), dan Bukti Ambil Barang setengah A4(Kecil(Struk Detail).
+
+7.1 PRINT TEMPLATES - 3 MODUL PDF (BARU)
+Sistem harus menyediakan 3 template PDF yang dapat dicetak dengan menggunakan DomPDF:
+
+Template 1: Bukti Registrasi (Ukuran: Setengah A4 / Struk Kecil)
+Format: Landscape atau Portrait (setengah A4)
+Konten: No. Registrasi (besar dan bold), NISN, Nama Lengkap, Asal Sekolah, Jurusan Pilihan, Nama Perekomendasi, Tanggal Pendaftaran, QR Code (QR dari No. Registrasi), Tanda tangan admin/petugas, Catatan: "Harap simpan bukti ini untuk verifikasi di Meja 2".
+Warna: Header biru sekolah, footer dengan logo sekolah.
+Fitur: Dapat dicetak langsung atau diunduh dalam format PDF.
+
+Template 2: Formulir Lengkap (Ukuran: A4)
+Format: Portrait (Full A4)
+Konten: Header resmi sekolah dengan logo, Nomor Registrasi, Data Lengkap Siswa (NISN, Nama, Tempat Tanggal Lahir, Jenis Kelamin, Agama, Asal Sekolah, Alamat, No. Telepon/WhatsApp), Pilihan Jurusan, Nama Perekomendasi/Jaringan, Data Orang Tua (jika diperlukan), Foto Siswa (terintegrasi/embedded), Kolom tanda tangan siswa dan admin, Tanggal cetak.
+Warna: Profesional dengan header biru sekolah, border rapi.
+Fitur: Dokumen lengkap untuk arsip di sekolah dan referensi siswa.
+
+Template 3: Bukti Pengambilan Barang / Struk Penerimaan (Ukuran: Setengah A4 / Struk Kecil)
+Format: Landscape atau Portrait (setengah A4, format Struk/Receipt)
+Konten: Header "BUKTI PENGAMBILAN BARANG / RECEIPT", No. Registrasi, Nama Siswa, Item Diterima (Kain - Status: Sudah Diambil, Kaos - Ukuran: [S/M/L/XL/XXL], Status: Sudah), Tanggal Pengambilan, Nama Penerima, Tanda Tangan Penerima, Tanda Tangan Petugas, Catatan: "Terima kasih atas pendaftaran Anda".
+Warna: Sederhana dengan background putih, border untuk pemisahan item.
+Fitur: Dapat dicetak double-sided (framed untuk 2 copies per halaman).
+
+Teknologi: DomPDF library untuk Laravel (installed via composer require barryvdh/laravel-dompdf).
+Implementasi: Controller method untuk generate & download PDF, routes untuk akses cetak, Blade template untuk layout PDF masing-masing template.
+
+8. TEKNIS PEMROGRAMAN
+menggunakan Laravel 12 + Livewire dengan tampilan modern profesional sekolah.
+Teknologi
+Laravel 12
+Livewire
+Bootstrap 5 / AdminLTE
+MySQL
+DataTables
+SweetAlert2
+DomPDF
+WhatsApp Gateway API
+Desain UI
+Modern, clean, profesional
+Warna biru sekolah
+Responsive mobile & desktop
+Sidebar admin modern
+Dashboard realtime tanpa reload
+Fitur Utama
+Login admin aman
+Session & middleware auth
+CRUD pendaftar
+Pendaftaran online siswa
+Tambah pendaftar manual oleh admin
+Auto nomor registrasi format:
+SPMB-TAHUN-0001
+Cetak PDF bukti pendaftaran
+Cetak formulir lengkap
+Cetak bukti pengambilan barang
+Traffic light system:
+Merah = belum bayar
+Kuning = proses kaos
+Hijau = selesai
+Modal popup ukuran kaos saat pelunasan
+Rekap ukuran kaos vendor
+Statistik jaringan/perekomendasi
+Fast search DataTables realtime
+QR Code registrasi
+Export Excel & PDF
+WhatsApp notifikasi otomatis
+Database
+
+Gunakan MySQL InnoDB dan relasi foreign key:
+
+admin
+pendaftar
+logistik_bayar
+setting_system
+Struktur
+
+Gunakan arsitektur MVC Laravel yang rapi:
+
+Models
+Controllers
+Livewire Components
+Middleware
+Migration
+Seeder
+Keamanan
+password_hash / bcrypt
+CSRF Protection
+Prepared Statement
+Protected Routes
+
+Instruksi Eksekusi:
+"Buatkan struktur file proyeknya terlebih dahulu, lalu buatkan script SQL untuk database di atas lengkap dengan contoh satu akun admin untuk uji coba login."
+Teknologi
+Laravel 12
+Livewire
+Bootstrap 5 / AdminLTE
+MySQL
+DataTables
+SweetAlert2
+DomPDF
+WhatsApp Gateway API
+Desain UI
+Modern, clean, profesional
+Warna biru sekolah
+Responsive mobile & desktop
+Sidebar admin modern
+Dashboard realtime tanpa reload
+Fitur Utama
+Login admin aman
+Session & middleware auth
+CRUD pendaftar
+Pendaftaran online siswa
+Tambah pendaftar manual oleh admin
+Auto nomor registrasi format:
+SPMB-TAHUN-0001
+Cetak PDF bukti pendaftaran
+Cetak formulir lengkap
+Cetak bukti pengambilan barang
+Traffic light system:
+Merah = belum bayar
+Kuning = proses kaos
+Hijau = selesai
+Modal popup ukuran kaos saat pelunasan
+Rekap ukuran kaos vendor
+Statistik jaringan/perekomendasi
+Fast search DataTables realtime
+QR Code registrasi
+Export Excel & PDF
+WhatsApp notifikasi otomatis
+Database
+
+Gunakan MySQL InnoDB dan relasi foreign key:
+
+admin
+pendaftar
+logistik_bayar
+setting_system
+Struktur
+
+Gunakan arsitektur MVC Laravel yang rapi:
+
+Models
+Controllers
+Livewire Components
+Middleware
+Migration
+Seeder
+Keamanan
+password_hash / bcrypt
+CSRF Protection
+Prepared Statement
+Protected Routes
