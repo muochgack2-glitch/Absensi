@@ -35,13 +35,63 @@
         .navbar-brand {
             display: inline-flex !important;
             align-items: center !important;
-            gap: 6px !important;
+            gap: 12px !important;
             min-height: 40px !important;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
             font-weight: 700 !important;
-            font-size: 20px !important;
+            font-size: 18px !important;
             line-height: 1.2 !important;
-            white-space: nowrap !important;
+            white-space: normal !important;
+            max-width: 340px !important;
+        }
+
+        .navbar-brand .brand-mark {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 14px;
+            display: inline-grid;
+            place-items: center;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        .navbar-brand .brand-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .navbar-brand .brand-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+            color: #f8fafc;
+        }
+
+        .navbar-brand .brand-subtitle {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            opacity: 0.85;
+            margin: 0;
+        }
+
+        .navbar-brand strong {
+            font-size: 1rem;
+            font-weight: 800;
+            line-height: 1.1;
+            display: block;
+            color: #ffffff;
+        }
+
+        .navbar-brand .brand-year {
+            font-size: 0.75rem;
+            opacity: 0.82;
+            margin: 0;
         }
 
         .sidebar {

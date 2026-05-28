@@ -1,7 +1,23 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{{ route('dashboard') }}">
-            <i class="fas fa-graduation-cap"></i> SPMB (Sistem Penerimaan Murid Baru)
+        @php
+            $settings = \App\Models\SettingSystem::instance()->toSettingsArray();
+            $logo = !empty($settings['school_logo']) ? asset('storage/' . $settings['school_logo']) : null;
+            $schoolName = $settings['school_name'] ?? 'SPMB (Sistem Penerimaan Murid Baru)';
+        @endphp
+        <a class="navbar-brand d-flex align-items-center gap-3" href="{{ route('dashboard') }}">
+            <span class="brand-mark">
+                @if($logo)
+                    <img src="{{ $logo }}" alt="Logo {{ $schoolName }}">
+                @else
+                    <i class="fas fa-graduation-cap"></i>
+                @endif
+            </span>
+            <span class="brand-text">
+                <small class="brand-subtitle">SISTEM PENERIMAAN MURID BARU</small>
+                <strong>{{ $schoolName }}</strong>
+                <small class="brand-year">{{ $settings['academic_year'] ?? '' }}</small>
+            </span>
         </a>
         <button class="btn btn-sm btn-outline-light admin-mobile-menu-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas">
             <i class="fas fa-bars"></i> Menu

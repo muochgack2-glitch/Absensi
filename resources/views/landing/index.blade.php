@@ -7,9 +7,9 @@
     $statusLabel = $registrationOpen ? 'Pendaftaran Dibuka' : 'Pendaftaran Ditutup';
     $statusClass = $registrationOpen ? 'is-open' : 'is-closed';
     $jurusanQuota = $jurusanQuota ?? [];
-    $rawContact = $settings['school_phone'] ?: ($settings['school_contact'] ?? '');
+    $rawContact = $settings['school_contact'] ?: ($settings['school_phone'] ?? '');
     $whatsappNumber = preg_replace('/\D+/', '', $rawContact);
-    if (str_starts_with($whatsappNumber, '0')) {
+    if ($whatsappNumber !== '' && str_starts_with($whatsappNumber, '0')) {
         $whatsappNumber = '62' . substr($whatsappNumber, 1);
     }
     $whatsappMessage = rawurlencode('Halo Panitia SPMB ' . $schoolName . ', saya ingin bertanya tentang pendaftaran.');
@@ -67,6 +67,18 @@
         .social-link[data-brand="tiktok"]:hover { background: rgba(255,255,255,0.18); color: #111; }
         .social-link[data-brand="whatsapp"]:hover { background: rgba(37,211,102,0.18); }
         .social-link[data-brand="globe"]:hover { background: rgba(248,250,252,0.18); }
+        .brand small {
+            display: block;
+            color: rgba(248,250,252,0.8);
+            line-height: 1.3;
+        }
+        .brand-subtitle {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.75rem;
+            margin-top: 2px;
+            color: rgba(248,250,252,0.7);
+        }
         @media (max-width: 780px) {
             .social-links { margin-top: 8px; }
         }
@@ -86,8 +98,9 @@
                 @endif
             </span>
             <span>
+                <small class="brand-subtitle">SISTEM PENERIMAAN MURID BARU</small>
                 <strong>{{ $schoolName }}</strong>
-                <small>SPMB {{ $settings['academic_year'] ?? '' }}</small>
+                <small class="brand-year">{{ $settings['academic_year'] ?? '' }}</small>
             </span>
         </a>
         <div class="nav-actions">
@@ -153,12 +166,6 @@
                     <li><i class="fas fa-image" aria-hidden="true"></i><span>Pas foto terbaru</span></li>
                     <li><i class="fas fa-folder-open" aria-hidden="true"></i><span>Berkas pendukung lain jika diminta panitia</span></li>
                 </ul>
-                @if($whatsappUrl)
-                    <a href="{{ $whatsappUrl }}" class="whatsapp-card-link" id="btnWhatsappPersyaratanHero" target="_blank" rel="noopener">
-                        <i class="fab fa-whatsapp" aria-hidden="true"></i>
-                        Tanya persyaratan ke panitia
-                    </a>
-                @endif
             </div>
         </div>
 
@@ -215,7 +222,7 @@
                 </div>
                 <ol class="steps-list">
                     <li>
-                        <strong>Daftar Online dari Rumah</strong>
+                        <strong>Daftar Online dari manapun</strong>
                         <span>Isi formulir pendaftaran, pilih jurusan, lalu kirim data awal secara online tanpa antre.</span>
                     </li>
                     <li>
@@ -223,7 +230,7 @@
                         <span>Sistem menerbitkan bukti pendaftaran untuk dipakai saat verifikasi dan cek status.</span>
                     </li>
                     <li>
-                        <strong>Datang untuk Verifikasi Cepat</strong>
+                        <strong>Datang untuk Verifikasi / Daftar Ulang </strong>
                         <span>Bawa berkas persyaratan ke panitia agar data, dokumen, dan pilihan jurusan divalidasi.</span>
                     </li>
                     <li>
