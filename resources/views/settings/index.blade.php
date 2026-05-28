@@ -316,13 +316,21 @@
                         <div class="tab-pane fade" id="pane-branding" role="tabpanel" aria-labelledby="tab-branding" tabindex="0">
                             <p class="section-title mb-3">Branding</p>
                             <div class="row g-3 mb-4">
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <label for="school_website" class="form-label">Website Sekolah</label>
                                     <input id="school_website" name="school_website" type="url" class="form-control" value="{{ old('school_website', $settings['school_website'] ?? '') }}" placeholder="https://...">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <label for="instagram_url" class="form-label">Instagram URL</label>
                                     <input id="instagram_url" name="instagram_url" type="url" class="form-control" value="{{ old('instagram_url', $settings['instagram_url'] ?? '') }}" placeholder="https://instagram.com/...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="school_youtube" class="form-label">YouTube Sekolah</label>
+                                    <input id="school_youtube" name="school_youtube" type="url" class="form-control" value="{{ old('school_youtube', $settings['school_youtube'] ?? '') }}" placeholder="https://www.youtube.com/...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="tiktok_url" class="form-label">TikTok Sekolah</label>
+                                    <input id="tiktok_url" name="tiktok_url" type="url" class="form-control" value="{{ old('tiktok_url', $settings['tiktok_url'] ?? '') }}" placeholder="https://www.tiktok.com/@...">
                                 </div>
                                 @php
                                     $themePresets = [

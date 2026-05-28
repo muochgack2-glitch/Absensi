@@ -14,9 +14,64 @@
     }
     $whatsappMessage = rawurlencode('Halo Panitia SPMB ' . $schoolName . ', saya ingin bertanya tentang pendaftaran.');
     $whatsappUrl = $whatsappNumber ? 'https://wa.me/' . $whatsappNumber . '?text=' . $whatsappMessage : null;
+    $websiteUrl = $settings['school_website'] ?? null;
+    $instagramUrl = $settings['instagram_url'] ?? null;
+    $youtubeUrl = $settings['school_youtube'] ?? null;
+    $tiktokUrl = $settings['tiktok_url'] ?? null;
 @endphp
 
 <main class="landing-shell">
+    <style>
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .nav-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .social-links {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .social-link {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.12);
+            color: #f8fafc;
+            text-decoration: none;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+            font-size: 16px;
+        }
+        .social-link:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.24);
+        }
+        .social-link[data-brand="globe"] { color: #f8fafc; }
+        .social-link[data-brand="instagram"] { color: #e1306c; }
+        .social-link[data-brand="youtube"] { color: #ff0000; }
+        .social-link[data-brand="tiktok"] { color: #ffffff; }
+        .social-link[data-brand="whatsapp"] { color: #25d366; }
+        .social-link[data-brand="instagram"]:hover { background: rgba(225,48,108,0.18); }
+        .social-link[data-brand="youtube"]:hover { background: rgba(255,0,0,0.18); }
+        .social-link[data-brand="tiktok"]:hover { background: rgba(255,255,255,0.18); color: #111; }
+        .social-link[data-brand="whatsapp"]:hover { background: rgba(37,211,102,0.18); }
+        .social-link[data-brand="globe"]:hover { background: rgba(248,250,252,0.18); }
+        @media (max-width: 780px) {
+            .social-links { margin-top: 8px; }
+        }
+    </style>
+
     <span class="orb orb-one"></span>
     <span class="orb orb-two"></span>
     <span class="orb orb-three"></span>
@@ -38,6 +93,33 @@
         <div class="nav-actions">
             <a href="#cek-status" id="navCekStatus">Cek Status</a>
             <a href="{{ route('login') }}" id="navLogin">Login</a>
+            <div class="social-links">
+                @if($websiteUrl)
+                    <a href="{{ $websiteUrl }}" target="_blank" rel="noopener" class="social-link" data-brand="globe" title="Website Sekolah" aria-label="Website Sekolah">
+                        <i class="fas fa-globe"></i>
+                    </a>
+                @endif
+                @if($instagramUrl)
+                    <a href="{{ $instagramUrl }}" target="_blank" rel="noopener" class="social-link" data-brand="instagram" title="Instagram Sekolah" aria-label="Instagram Sekolah">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                @endif
+                @if($youtubeUrl)
+                    <a href="{{ $youtubeUrl }}" target="_blank" rel="noopener" class="social-link" data-brand="youtube" title="YouTube Sekolah" aria-label="YouTube Sekolah">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                @endif
+                @if($tiktokUrl)
+                    <a href="{{ $tiktokUrl }}" target="_blank" rel="noopener" class="social-link" data-brand="tiktok" title="TikTok Sekolah" aria-label="TikTok Sekolah">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                @endif
+                @if($whatsappUrl)
+                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="social-link" data-brand="whatsapp" title="WhatsApp Panitia" aria-label="WhatsApp Panitia">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                @endif
+            </div>
         </div>
     </nav>
 

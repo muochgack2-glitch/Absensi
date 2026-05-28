@@ -35,15 +35,16 @@
             padding: 20px 22px;
             box-shadow: 0 8px 22px rgba(15,23,42,0.06);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 16px;
+            min-height: 128px;
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 14px 26px rgba(15,23,42,0.12); }
         .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-        .stat-value { font-size: 28px; font-weight: 800; color: #1e1b4b; line-height: 1; }
-        .stat-label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+        .stat-value { font-size: 28px; font-weight: 800; color: #1e1b4b; line-height: 1.05; }
+        .stat-label { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
 
         /* Filter bar */
         .filter-bar { background: rgba(255,255,255,0.9); border: 1px solid rgba(99,102,241,0.12); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 6px 16px rgba(15,23,42,0.05); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -143,7 +144,7 @@
             <div class="row g-3 mb-4">
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#eef2ff;">👥</div>
+                        <div class="stat-icon" style="background:#eef2ff; color:#4338ca;"><i class="fas fa-users"></i></div>
                         <div>
                             <div class="stat-value" id="totalPendaftar">{{ $totalPendaftar }}</div>
                             <div class="stat-label">Total Pendaftar</div>
@@ -152,7 +153,7 @@
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#d1fae5;">…</div>
+                        <div class="stat-icon" style="background:#d1fae5; color:#059669;"><i class="fas fa-check-circle"></i></div>
                         <div>
                             <div class="stat-value" id="totalLunas" style="color:#059669;">{{ $totalLunas }}</div>
                             <div class="stat-label">Sudah Daftar Ulang</div>
@@ -162,7 +163,7 @@
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#fee2e2;">⏳</div>
+                        <div class="stat-icon" style="background:#fee2e2; color:#dc2626;"><i class="fas fa-hourglass-half"></i></div>
                         <div>
                             <div class="stat-value" id="totalBelumBayar" style="color:#dc2626;">{{ $totalBelumBayar }}</div>
                             <div class="stat-label">Belum Daftar Ulang</div>
@@ -171,7 +172,7 @@
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#ede9fe;">…</div>
+                        <div class="stat-icon" style="background:#ede9fe; color:#7c3aed;"><i class="fas fa-clipboard-check"></i></div>
                         <div>
                             <div class="stat-value" id="totalSelesai" style="color:#7c3aed;">{{ $totalSelesai }}</div>
                             <div class="stat-label">Pendaftaran Selesai</div>
@@ -186,7 +187,7 @@
                 <div class="col-md-5">
                     <div class="section-card">
                         <div class="section-title">
-                            <span class="icon" style="background:#eef2ff;color:var(--primary);">📊</span>
+                            <span class="icon" style="background:#eef2ff;color:var(--primary);"><i class="fas fa-chart-bar"></i></span>
                             Distribusi per Jurusan
                         </div>
                         <canvas id="chartJurusan" height="200"></canvas>
@@ -197,7 +198,7 @@
                 <div class="col-md-7">
                     <div class="section-card">
                         <div class="section-title">
-                            <span class="icon" style="background:#d1fae5;color:#059669;">📈</span>
+                            <span class="icon" style="background:#d1fae5;color:#059669;"><i class="fas fa-chart-line"></i></span>
                             Pendaftar per Gelombang
                         </div>
                         <canvas id="chartGelombang" height="200"></canvas>
@@ -211,7 +212,7 @@
                 <div class="col-md-5">
                     <div class="section-card">
                         <div class="section-title">
-                            <span class="icon" style="background:#ede9fe;color:var(--secondary);">🎓</span>
+                            <span class="icon" style="background:#ede9fe;color:var(--secondary);"><i class="fas fa-graduation-cap"></i></span>
                             Rekap per Jurusan
                         </div>
                         <table class="stats-table">

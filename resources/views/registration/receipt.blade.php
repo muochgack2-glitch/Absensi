@@ -452,8 +452,14 @@
 
                 <!-- Contact -->
                 <div class="contact-footer">
-                    <i class="fas fa-phone"></i> (021) 1234-5678<br>
-                    <i class="fas fa-envelope"></i> info@spmb.sch.id<br>
+                    <i class="fas fa-phone"></i>
+                    {{ $settings['school_phone'] ?? $settings['school_contact'] ?? '(021) 1234-5678' }}<br>
+                    <i class="fas fa-envelope"></i>
+                    {{ $settings['school_email'] ?? 'info@spmb.sch.id' }}<br>
+                    @if (!empty($settings['school_website']))
+                        <i class="fas fa-globe"></i>
+                        <a href="{{ $settings['school_website'] }}" target="_blank">{{ $settings['school_website'] }}</a><br>
+                    @endif
                     <i class="fas fa-clock"></i> Senin - Jumat, 07:00 - 15:00 WIB
                 </div>
             </div>

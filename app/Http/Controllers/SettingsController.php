@@ -39,6 +39,8 @@ class SettingsController extends Controller
             'school_email'        => 'nullable|email|max:120',
             'school_website'      => 'nullable|url|max:255',
             'instagram_url'       => 'nullable|url|max:255',
+            'school_youtube'      => 'nullable|url|max:255',
+            'tiktok_url'          => 'nullable|url|max:255',
             'theme_preset'        => 'nullable|in:purple,blue,green,orange,red,slate',
             'theme_primary'       => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'theme_secondary'     => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],

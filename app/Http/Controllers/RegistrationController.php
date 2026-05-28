@@ -134,7 +134,9 @@ class RegistrationController extends Controller
                 ->withErrors(['error' => 'Silahkan daftar terlebih dahulu']);
         }
 
-        return view('registration.receipt', compact('registrationData'));
+        $settings = SettingSystem::instance()->toSettingsArray();
+
+        return view('registration.receipt', compact('registrationData', 'settings'));
     }
 
     /**
@@ -148,6 +150,8 @@ class RegistrationController extends Controller
             return redirect()->route('registration.form');
         }
 
-        return view('registration.print-receipt', compact('registrationData'));
+        $settings = SettingSystem::instance()->toSettingsArray();
+
+        return view('registration.print-receipt', compact('registrationData', 'settings'));
     }
 }
