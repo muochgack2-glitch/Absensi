@@ -93,9 +93,13 @@ class ReportController extends Controller
             
             // More reliable way to check if registered today
             $totalBaruHariIni = $pendaftars->filter(function($p) use ($today, $tomorrow) {
-                $regDate = $p->tgl_daftar ?? $p->created_at;
-                if (!$regDate) return false;
-                return $regDate->gte($today) && $regDate->lt($tomorrow);
+                if ($p->tgl_daftar && $p->tgl_daftar->gte($today) && $p->tgl_daftar->lt($tomorrow)) {
+                    return true;
+                }
+                if ($p->created_at && $p->created_at->gte($today) && $p->created_at->lt($tomorrow)) {
+                    return true;
+                }
+                return false;
             })->count();
             
             \Log::debug('Dashboard stats query', [
@@ -116,9 +120,13 @@ class ReportController extends Controller
             $perJurusanStats = $pendaftars->groupBy('jurusan')->map(function ($items, $jurusan) use ($today, $tomorrow) {
                 $lunas = $items->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
                 $baruHariIni = $items->filter(function($p) use ($today, $tomorrow) {
-                    $regDate = $p->tgl_daftar ?? $p->created_at;
-                    if (!$regDate) return false;
-                    return $regDate->gte($today) && $regDate->lt($tomorrow);
+                    if ($p->tgl_daftar && $p->tgl_daftar->gte($today) && $p->tgl_daftar->lt($tomorrow)) {
+                        return true;
+                    }
+                    if ($p->created_at && $p->created_at->gte($today) && $p->created_at->lt($tomorrow)) {
+                        return true;
+                    }
+                    return false;
                 })->count();
                 return [
                     'jurusan'          => $jurusan,

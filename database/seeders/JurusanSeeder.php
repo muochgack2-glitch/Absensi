@@ -12,7 +12,7 @@ class JurusanSeeder extends Seeder
         $items = [
             ['kode' => 'MPLB', 'nama' => 'Manajemen Perkantoran dan Layanan Bisnis', 'aktif' => true, 'kuota' => 0],
             ['kode' => 'AKL', 'nama' => 'Akuntansi dan Keuangan Lembaga', 'aktif' => true, 'kuota' => 0],
-            ['kode' => 'BUSANA', 'nama' => 'Tata Busana', 'aktif' => true, 'kuota' => 0],
+            ['kode' => 'BUSANA', 'nama' => 'Busana', 'aktif' => true, 'kuota' => 0],
         ];
 
         foreach ($items as $item) {

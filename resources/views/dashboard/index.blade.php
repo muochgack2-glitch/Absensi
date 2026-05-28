@@ -171,7 +171,7 @@
                         <h5><i class="fas fa-users"></i> Total Pendaftar</h5>
                         <div class="number" id="totalPendaftar">0</div>
                         <small class="text-muted">Semua angkatan</small>
-                        <div class="stat-meta"><span class="trend-badge" id="delta-totalPendaftar">±0 vs kemarin</span><svg class="sparkline" id="spark-totalPendaftar" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
+                        <div class="stat-meta"><span class="trend-badge" id="delta-totalPendaftar"></span><svg class="sparkline" id="spark-totalPendaftar" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -179,7 +179,7 @@
                         <h5><i class="fas fa-user-plus"></i> Pendaftar Baru (Hari Ini)</h5>
                         <div class="number" id="totalBaruHariIni">0</div>
                         <small class="text-muted">Pendaftaran masuk hari ini</small>
-                        <div class="stat-meta"><span class="trend-badge" id="delta-totalBaruHariIni">±0 vs kemarin</span><svg class="sparkline" id="spark-totalBaruHariIni" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
+                        <div class="stat-meta"><span class="trend-badge" id="delta-totalBaruHariIni"></span><svg class="sparkline" id="spark-totalBaruHariIni" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -187,7 +187,7 @@
                         <h5><i class="fas fa-clock"></i> Belum Daftar Ulang</h5>
                         <div class="number" id="totalBelumBayar">0</div>
                         <small class="text-muted">Menunggu verifikasi</small>
-                        <div class="stat-meta"><span class="trend-badge" id="delta-totalBelumBayar">±0 vs kemarin</span><svg class="sparkline" id="spark-totalBelumBayar" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
+                        <div class="stat-meta"><span class="trend-badge" id="delta-totalBelumBayar"></span><svg class="sparkline" id="spark-totalBelumBayar" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -195,7 +195,7 @@
                         <h5><i class="fas fa-check-circle"></i> Sudah Daftar Ulang</h5>
                         <div class="number" id="totalLunas">0</div>
                         <small class="text-muted">Kain diterima</small>
-                        <div class="stat-meta"><span class="trend-badge" id="delta-totalLunas">±0 vs kemarin</span><svg class="sparkline" id="spark-totalLunas" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
+                        <div class="stat-meta"><span class="trend-badge" id="delta-totalLunas"></span><svg class="sparkline" id="spark-totalLunas" viewBox="0 0 120 28" preserveAspectRatio="none"></svg></div>
                     </div>
                 </div>
         </div>
@@ -240,9 +240,15 @@
                 const el = document.getElementById(`delta-${metricKey}`);
                 if (!el) return;
                 const val = Number(deltaValue) || 0;
+                if (val === 0) {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                    return;
+                }
                 const sign = val > 0 ? '+' : '';
                 el.textContent = `${sign}${val} vs kemarin`;
-                el.style.color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#64748b');
+                el.style.display = 'inline-block';
+                el.style.color = val > 0 ? '#16a34a' : '#dc2626';
             }
 
             function renderSparkline(metricKey, values) {
@@ -513,9 +519,15 @@
                 const el = document.getElementById(`delta-${metricKey}`);
                 if (!el) return;
                 const val = Number(deltaValue) || 0;
+                if (val === 0) {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                    return;
+                }
                 const sign = val > 0 ? '+' : '';
                 el.textContent = `${sign}${val} vs kemarin`;
-                el.style.color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#64748b');
+                el.style.display = 'inline-block';
+                el.style.color = val > 0 ? '#16a34a' : '#dc2626';
             }
 
             function renderSparkline(metricKey, values) {

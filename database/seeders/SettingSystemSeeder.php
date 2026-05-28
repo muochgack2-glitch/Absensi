@@ -21,7 +21,7 @@ class SettingSystemSeeder extends Seeder
             'school_contact'      => '08985411895',
             'school_city'         => 'BLora',
             'school_phone'        => '0296531540',
-            'school_email'        => 'smkgriblora@gmail.com',
+            'school_email'        => 'smkgri1blora@gmail.com',
             'school_logo'         => '',
             'print_footer_text'   => '',
         ]);
