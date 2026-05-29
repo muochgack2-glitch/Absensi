@@ -10,27 +10,15 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     * Semua seeder menggunakan updateOrCreate sehingga aman dijalankan berulang kali
      */
     public function run(): void
     {
-        // Create test user if not exists
-        User::updateOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
-                'role' => 'panitia',
-                'status' => 'aktif',
-                'email_verified_at' => now(),
-            ]
-        );
-
         $this->call([
-            AdminSeeder::class,           // Create default admin & panitia
-            UserSeeder::class,            // Create admin & panitia from .env
-            SettingSystemSeeder::class,
-            JurusanSeeder::class,
-            PendaftarSeeder::class,
+            AdminSeeder::class,           // Create admin & panitia (both admins table & users table)
+            SettingSystemSeeder::class,   // System settings
+            JurusanSeeder::class,         // Jurusan/Program studi
+            PendaftarSeeder::class,       // Sample pendaftar data
         ]);
     }
 }

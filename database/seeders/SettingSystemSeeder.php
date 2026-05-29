@@ -9,21 +9,26 @@ class SettingSystemSeeder extends Seeder
 {
     public function run(): void
     {
-        SettingSystem::firstOrCreate([], [
-            'gelombang_aktif'     => 2,
-            'school_name'         => 'SMK PGRI BLORA',
-            'academic_year'       => date('Y') . '/' . (date('Y') + 1),
-            'registration_status' => 'open',
-            'registration_fee'    => 0,
-            'active_wave'         => 'Gelombang 2',
-            'principal_name'      => 'Meiranti Trisnaning Savitri, S.Pd',
-            'school_address'      => 'Jl. RA. Kartini 38 A Blora',
-            'school_contact'      => '08985411895',
-            'school_city'         => 'BLora',
-            'school_phone'        => '0296531540',
-            'school_email'        => 'smkgri1blora@gmail.com',
-            'school_logo'         => '',
-            'print_footer_text'   => '',
-        ]);
+        // Menggunakan updateOrCreate dengan id=1 sebagai key
+        // Sehingga setiap kali seed akan update data terbaru
+        SettingSystem::updateOrCreate(
+            ['id' => 1],
+            [
+                'gelombang_aktif'     => 2,
+                'school_name'         => 'SMK PGRI BLORA',
+                'academic_year'       => date('Y') . '/' . (date('Y') + 1),
+                'registration_status' => 'open',
+                'registration_fee'    => 0,
+                'active_wave'         => 'Gelombang 2',
+                'principal_name'      => 'Meiranti Trisnaning Savitri, S.Pd',
+                'school_address'      => 'Jl. RA. Kartini 38 A Blora',
+                'school_contact'      => '08985411895',
+                'school_city'         => 'Blora',
+                'school_phone'        => '0296531540',
+                'school_email'        => 'smkpgri1blora@gmail.com',
+                'school_logo'         => '',
+                'print_footer_text'   => '',
+            ]
+        );
     }
 }

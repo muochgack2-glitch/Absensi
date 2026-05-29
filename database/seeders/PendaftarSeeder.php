@@ -34,8 +34,8 @@ class PendaftarSeeder extends Seeder
     'jurusan' => 'AKL',
     'jurusan_id' => 2,
     'nama_jaringan' => 'PANITIA',
-    'gelombang' => 2,
-    'tgl_daftar' => '2026-05-28 00:53:17',
+    'gelombang' => 1,
+    'tgl_daftar' => '2026-03-28 00:53:17',
     'status_siswa' => 'Diterima',
     'status_data' => 'Awal',
     'logistik' => 

@@ -11,7 +11,8 @@ class AdminSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * Creates admin users in both Admin table (legacy) and Users table (new system)
+     * Creates/Updates admin users in both Admin table (legacy) and Users table (new system)
+     * Password akan selalu diupdate sesuai .env setiap kali seed dijalankan
      */
     public function run(): void
     {
