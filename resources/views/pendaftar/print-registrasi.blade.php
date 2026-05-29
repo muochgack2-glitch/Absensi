@@ -221,9 +221,9 @@
                 <td style="width:150px;padding:5px 0;font-weight:600;color:#475569;vertical-align:top;">Keterangan</td>
                 <td style="width:10px;padding:5px 0;vertical-align:top;">:</td>
                 <td style="padding:5px 0;">
-                    <div>1. {{ $pendaftar->status_siswa === 'Diterima' ? 'Diterima' : 'Tidak Diterima' }}</div>
-                    <div style="padding-left:16px;color:#475569;">Sebagai peserta didik baru {{ $schoolName }}</div>
-                    <div style="margin-top:5px;">2. Daftar Ulang Tanggal, ………………………</div>
+                    <div style="font-size:13px;">1. Diterima / Tidak Diterima</div>
+                    <div style="padding-left:13px;font-size:13px;">Sebagai Murid baru {{ $schoolName }}</div>
+                    <div style="margin-top:5px;font-size:13px;">2. Daftar Ulang Tanggal, ………………………</div>
                 </td>
             </tr>
         </table>

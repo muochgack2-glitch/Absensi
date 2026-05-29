@@ -20,10 +20,17 @@
                 <i class="fas fa-file-pdf"></i> Laporan & Cetak
             </a>
         </li>
+        @if(auth()->check() && auth()->user()->isAdministrator())
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.index') }}">
                 <i class="fas fa-cog"></i> Pengaturan Sistem
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                <i class="fas fa-user-shield"></i> Manajemen User
+            </a>
+        </li>
+        @endif
     </ul>
 </div>

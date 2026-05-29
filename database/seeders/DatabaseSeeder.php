@@ -13,14 +13,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create test user if not exists
+        User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                'role' => 'panitia',
+                'status' => 'aktif',
+                'email_verified_at' => now(),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
         $this->call([
-            AdminSeeder::class,
+            AdminSeeder::class,           // Create default admin & panitia
+            UserSeeder::class,            // Create admin & panitia from .env
+            TestUserSeeder::class,        // Create additional test users
             SettingSystemSeeder::class,
             JurusanSeeder::class,
             PendaftarSeeder::class,

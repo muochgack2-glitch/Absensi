@@ -29,7 +29,7 @@
                     <div class="user-avatar"><i class="fas fa-user"></i></div>
                     <div>
                         <small>Selamat datang,</small>
-                        <div style="font-weight: 600;">{{ Session::get('admin_name') }}</div>
+                        <div style="font-weight: 600;">{{ auth()->user()->name ?? 'User' }}</div>
                     </div>
                 </div>
                 <form action="{{ route('logout') }}" method="POST" style="margin-left: 15px;">

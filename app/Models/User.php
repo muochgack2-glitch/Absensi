@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'status',
+        'terakhir_login',
     ];
 
     /**
@@ -42,7 +45,48 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'terakhir_login' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relasi dengan UserActivityLog
+     */
+    public function activityLogs()
+    {
+        return $this->hasMany(UserActivityLog::class);
+    }
+
+    /**
+     * Check if user is administrator
+     */
+    public function isAdministrator(): bool
+    {
+        return $this->role === 'administrator';
+    }
+
+    /**
+     * Check if user is panitia
+     */
+    public function isPanitia(): bool
+    {
+        return $this->role === 'panitia';
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'aktif';
+    }
+
+    /**
+     * Update last login timestamp
+     */
+    public function updateLastLogin(): void
+    {
+        $this->update(['terakhir_login' => now()]);
     }
 }

@@ -34,6 +34,14 @@
             font-weight: 700;
             margin-bottom: 5px;
         }
+        .login-logo {
+            display: block;
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin: 0 auto 18px;
+            border-radius: 12px;
+        }
         .login-header p {
             color: #666;
             font-size: 14px;
@@ -88,7 +96,14 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>SPMB (Sistem Penerimaan Murid Baru)</h1>
+            @php
+                $schoolName = $settings['school_name'] ?? 'SPMB (Sistem Penerimaan Murid Baru)';
+                $logo = !empty($settings['school_logo']) ? asset('storage/' . $settings['school_logo']) : null;
+            @endphp
+            @if($logo)
+                <img src="{{ $logo }}" alt="Logo {{ $schoolName }}" class="login-logo">
+            @endif
+            <h1>{{ $schoolName }}</h1>
             <p>Sistem Penerimaan Murid Baru</p>
         </div>
 
@@ -104,17 +119,17 @@
             @csrf
             
             <div class="form-group">
-                <label for="username">Username</label>
+                <label for="email">Email</label>
                 <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    class="form-control @error('username') is-invalid @enderror"
-                    value="{{ old('username') }}"
-                    placeholder="Masukkan username"
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-control @error('email') is-invalid @enderror"
+                    value="{{ old('email') }}"
+                    placeholder="admin@spmb.local"
                     required
                 >
-                @error('username')
+                @error('email')
                     <span class="error-message">{{ $message }}</span>
                 @enderror
             </div>
@@ -138,8 +153,9 @@
         </form>
 
         <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;">
-            <p><strong>MASUKAN AUTH LOGIN</strong></p>
-            <p>Username | Password</p>
+            <p><strong>TEST LOGIN</strong></p>
+            <p>Admin: admin@spmb.local / admin123</p>
+            <p>Panitia: panitia@spmb.local / panitia123</p>
         </div>
     </div>
 

@@ -33,28 +33,70 @@
         }
         .size-selector {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
             margin: 20px 0;
         }
         .size-btn {
-            padding: 15px;
+            padding: 20px 15px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 12px;
             background: white;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             font-weight: 600;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            position: relative;
+        }
+        .size-btn > div:first-of-type {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+        .size-btn small {
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
         }
         .size-btn:hover {
             border-color: var(--primary);
             background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
         .size-btn.selected {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border-color: var(--primary);
+            box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.3);
+        }
+        .size-btn.selected > div:first-of-type {
+            color: white;
+        }
+        .size-btn.selected small {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .size-btn.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
         }
         .rollback-card {
             border: 1px solid rgba(239, 68, 68, 0.2);
@@ -170,7 +212,6 @@
                                     <div>
                                         <input type="radio" id="size_s" name="ukuran_kaos" value="S" required style="display: none;">
                                         <label for="size_s" class="size-btn">
-                                            <i class="fas fa-check" style="display: none;"></i>
                                             <div>S</div>
                                             <small>Kecil</small>
                                         </label>
@@ -200,7 +241,14 @@
                                         <input type="radio" id="size_xxl" name="ukuran_kaos" value="XXL" required style="display: none;">
                                         <label for="size_xxl" class="size-btn">
                                             <div>XXL</div>
-                                            <small>Extra</small>
+                                            <small>Extra Besar</small>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" id="size_jumbo" name="ukuran_kaos" value="JUMBO" required style="display: none;">
+                                        <label for="size_jumbo" class="size-btn">
+                                            <div>JUMBO</div>
+                                            <small>Jumbo</small>
                                         </label>
                                     </div>
                                 </div>

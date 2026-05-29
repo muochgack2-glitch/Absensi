@@ -211,7 +211,7 @@ class PendaftarController extends Controller
     public function processDaftarUlang(Request $request, $id)
     {
         $request->validate([
-            'ukuran_kaos' => 'required|in:S,M,L,XL,XXL',
+            'ukuran_kaos' => 'required|in:S,M,L,XL,XXL,JUMBO',
         ]);
 
         $pendaftar = Pendaftar::findOrFail($id);

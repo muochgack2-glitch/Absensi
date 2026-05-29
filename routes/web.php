@@ -6,6 +6,7 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -60,11 +61,25 @@ Route::middleware('admin')->group(function () {
     // Real‑time stats endpoint
     Route::get('/laporan/stats', [ReportController::class, 'stats'])->name('report.stats');
 
-    // Settings
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
-    Route::post('/settings/jurusan', [SettingsController::class, 'storeJurusan'])->name('settings.jurusan.store');
-    Route::put('/settings/jurusan/{jurusan}', [SettingsController::class, 'updateJurusan'])->name('settings.jurusan.update');
-    Route::delete('/settings/jurusan/{jurusan}', [SettingsController::class, 'destroyJurusan'])->name('settings.jurusan.destroy');
+    // Settings - Only for Administrator
+    Route::middleware('ensureAdmin')->group(function () {
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/jurusan', [SettingsController::class, 'storeJurusan'])->name('settings.jurusan.store');
+        Route::put('/settings/jurusan/{jurusan}', [SettingsController::class, 'updateJurusan'])->name('settings.jurusan.update');
+        Route::delete('/settings/jurusan/{jurusan}', [SettingsController::class, 'destroyJurusan'])->name('settings.jurusan.destroy');
+
+        // User Management - Only for Administrator
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [UserManagementController::class, 'index'])->name('index');
+            Route::get('/create', [UserManagementController::class, 'create'])->name('create');
+            Route::post('/', [UserManagementController::class, 'store'])->name('store');
+            Route::get('/{user}/edit', [UserManagementController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
+            Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy');
+            Route::get('/{user}/activity', [UserManagementController::class, 'activityLog'])->name('activity-log');
+            Route::post('/{user}/reactivate', [UserManagementController::class, 'reactivate'])->name('reactivate');
+        });
+    });
 });
 
