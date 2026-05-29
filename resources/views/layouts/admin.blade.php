@@ -100,6 +100,25 @@
             min-height: 100vh !important;
             padding: 20px 0 !important;
             flex: 0 0 250px !important;
+            transition: all 0.3s ease !important;
+            overflow: hidden !important;
+        }
+
+        .sidebar.collapsed {
+            width: 70px !important;
+            flex: 0 0 70px !important;
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0 !important;
+            width: 0 !important;
+            display: inline-block !important;
+            overflow: hidden !important;
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center !important;
+            padding: 12px 10px !important;
         }
 
         .sidebar .nav-link {
@@ -109,6 +128,19 @@
             border-left: 3px solid transparent !important;
             border-radius: 0 !important;
             transition: all 0.3s !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            white-space: nowrap !important;
+        }
+
+        .sidebar .nav-link i {
+            min-width: 20px !important;
+            text-align: center !important;
+        }
+
+        .sidebar .nav-text {
+            transition: opacity 0.3s ease, width 0.3s ease !important;
         }
 
         .sidebar .nav-link:hover {
@@ -311,6 +343,74 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    // Sidebar Toggle Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('adminSidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const mainContent = document.querySelector('.main-content');
+        
+        // Load saved state from localStorage
+        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (sidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+        
+        // Initialize Bootstrap tooltips for collapsed state
+        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: sidebar.classList.contains('collapsed') ? 'hover' : 'manual'
+            });
+        });
+        
+        // Toggle sidebar on button click
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                
+                // Save state to localStorage
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+                
+                // Update tooltips
+                tooltipList.forEach(function(tooltip) {
+                    if (isCollapsed) {
+                        tooltip.enable();
+                    } else {
+                        tooltip.disable();
+                    }
+                });
+                
+                // Update toggle button icon
+                const icon = toggleBtn.querySelector('i');
+                if (isCollapsed) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-angles-right');
+                } else {
+                    icon.classList.remove('fa-angles-right');
+                    icon.classList.add('fa-bars');
+                }
+            });
+            
+            // Set initial icon state
+            const icon = toggleBtn.querySelector('i');
+            if (sidebarCollapsed) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-angles-right');
+            }
+        }
+        
+        // Disable tooltips initially if sidebar is expanded
+        if (!sidebarCollapsed) {
+            tooltipList.forEach(function(tooltip) {
+                tooltip.disable();
+            });
+        }
+    });
+    </script>
+    
     @stack('scripts')
 </body>
 </html>

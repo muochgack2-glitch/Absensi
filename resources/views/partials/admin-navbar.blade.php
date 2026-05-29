@@ -5,6 +5,12 @@
             $logo = !empty($settings['school_logo']) ? asset('storage/' . $settings['school_logo']) : null;
             $schoolName = $settings['school_name'] ?? 'SPMB (Sistem Penerimaan Murid Baru)';
         @endphp
+        
+        <!-- Tombol Toggle Sidebar (Desktop) -->
+        <button class="btn btn-sm btn-outline-light me-3 d-none d-lg-inline-flex" type="button" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
         <a class="navbar-brand d-flex align-items-center gap-3" href="{{ route('dashboard') }}">
             <span class="brand-mark">
                 @if($logo)
@@ -32,10 +38,6 @@
                         <div style="font-weight: 600;">{{ auth()->user()->name ?? 'User' }}</div>
                     </div>
                 </div>
-                <form action="{{ route('logout') }}" method="POST" style="margin-left: 15px;">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-light admin-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </form>
             </div>
         </div>
     </div>
