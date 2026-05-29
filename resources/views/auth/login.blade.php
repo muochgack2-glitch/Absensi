@@ -153,9 +153,7 @@
         </form>
 
         <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;">
-            <p><strong>TEST LOGIN</strong></p>
-            <p>Admin: admin@spmb.local / admin123</p>
-            <p>Panitia: panitia@spmb.local / panitia123</p>
+            <p><strong>GUNANKAN EMAIL DAN PASSWORD</strong></p>
         </div>
     </div>
 

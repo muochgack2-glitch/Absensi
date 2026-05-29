@@ -28,7 +28,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,           // Create default admin & panitia
             UserSeeder::class,            // Create admin & panitia from .env
-            TestUserSeeder::class,        // Create additional test users
             SettingSystemSeeder::class,
             JurusanSeeder::class,
             PendaftarSeeder::class,
