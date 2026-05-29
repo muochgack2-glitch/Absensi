@@ -9,10 +9,10 @@ class SettingSystemSeeder extends Seeder
 {
     public function run(): void
     {
-        // Menggunakan updateOrCreate dengan id=1 sebagai key
+        // Menggunakan updateOrCreate dengan id_setting=1 sebagai key
         // Sehingga setiap kali seed akan update data terbaru
         SettingSystem::updateOrCreate(
-            ['id' => 1],
+            ['id_setting' => 1],
             [
                 'gelombang_aktif'     => 2,
                 'school_name'         => 'SMK PGRI BLORA',
