@@ -40,9 +40,6 @@
                             <button class="btn btn-sm btn-outline-primary" onclick="refreshStatus()">
                                 <i class="fas fa-sync-alt me-1"></i>Refresh
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="showQRCode()" id="qrButton" style="display: none;">
-                                <i class="fas fa-qrcode me-1"></i>Lihat QR Code
-                            </button>
                         </div>
                     </div>
                     <div id="statusDetails" class="mt-3" style="display: none;">
@@ -62,6 +59,37 @@
                             <div class="col-md-3">
                                 <small class="text-muted d-block">Server URL</small>
                                 <strong class="text-muted small">{{ config('app.wa_server_url', 'http://localhost:3000') }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- QR Code Section (Auto-show when status = 'qr') -->
+                    <div id="qrSection" class="mt-4" style="display: none;">
+                        <div class="alert alert-warning border-0">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="alert-heading mb-2">
+                                        <i class="fas fa-qrcode me-2"></i>Scan QR Code untuk Menghubungkan WhatsApp
+                                    </h6>
+                                    <p class="mb-2 small">WhatsApp belum terhubung. Scan QR code di bawah dengan aplikasi WhatsApp Anda.</p>
+                                    <ol class="mb-0 small ps-3">
+                                        <li>Buka WhatsApp di HP</li>
+                                        <li>Tap menu (⋮) → "Perangkat Tertaut"</li>
+                                        <li>Tap "Tautkan Perangkat"</li>
+                                        <li>Scan QR code di samping</li>
+                                    </ol>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div id="qrCodeDisplay" class="bg-white p-3 rounded">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2 mb-0 small text-muted">Loading QR...</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="refreshQRInline()">
+                                        <i class="fas fa-sync-alt me-1"></i>Refresh QR
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -279,7 +307,7 @@ function refreshStatus() {
 function updateStatusUI(data) {
     const statusDiv = document.getElementById('connectionStatus');
     const detailsDiv = document.getElementById('statusDetails');
-    const qrButton = document.getElementById('qrButton');
+    const qrSection = document.getElementById('qrSection');
     
     if (!data.success) {
         statusDiv.innerHTML = `
@@ -289,7 +317,7 @@ function updateStatusUI(data) {
             <small class="text-muted d-block mt-1">${data.message || 'Server tidak dapat dijangkau'}</small>
         `;
         detailsDiv.style.display = 'none';
-        qrButton.style.display = 'none';
+        qrSection.style.display = 'none';
         return;
     }
     
@@ -302,17 +330,19 @@ function updateStatusUI(data) {
         badgeClass = 'success';
         icon = 'check-circle';
         text = 'Connected';
-        qrButton.style.display = 'none';
+        qrSection.style.display = 'none';
     } else if (status === 'qr') {
         badgeClass = 'warning';
         icon = 'qrcode';
         text = 'Waiting QR Scan';
-        qrButton.style.display = 'inline-block';
+        qrSection.style.display = 'block';
+        // Auto-load QR code
+        refreshQRInline();
     } else {
         badgeClass = 'danger';
         icon = 'times-circle';
         text = 'Disconnected';
-        qrButton.style.display = 'none';
+        qrSection.style.display = 'none';
     }
     
     statusDiv.innerHTML = `
@@ -327,6 +357,43 @@ function updateStatusUI(data) {
     document.getElementById('lastUpdate').textContent = new Date(data.data.timestamp).toLocaleTimeString('id-ID');
     
     detailsDiv.style.display = 'block';
+}
+
+function refreshQRInline() {
+    const qrDisplay = document.getElementById('qrCodeDisplay');
+    qrDisplay.innerHTML = `
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 mb-0 small text-muted">Loading QR...</p>
+    `;
+    
+    fetch('{{ route("whatsapp.qr") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.qr) {
+                qrDisplay.innerHTML = `
+                    <img src="${data.data.qr}" alt="QR Code" class="img-fluid" style="max-width: 250px;">
+                    <p class="mt-2 mb-0 small text-muted">Scan dengan WhatsApp</p>
+                `;
+            } else {
+                qrDisplay.innerHTML = `
+                    <div class="alert alert-warning mb-0 small">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        ${data.data?.message || data.message || 'QR tidak tersedia'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching QR:', error);
+            qrDisplay.innerHTML = `
+                <div class="alert alert-danger mb-0 small">
+                    <i class="fas fa-times-circle me-1"></i>
+                    Gagal memuat QR
+                </div>
+            `;
+        });
 }
 
 function showQRCode() {
