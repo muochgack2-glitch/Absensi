@@ -1,0 +1,402 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\WhatsAppLog;
+use App\Models\WhatsAppTemplate;
+use App\Models\WhatsAppSetting;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Exception;
+
+class WhatsAppService
+{
+    /**
+     * WhatsApp server URL
+     */
+    protected string $serverUrl;
+
+    /**
+     * Connection timeout
+     */
+    protected int $timeout;
+
+    /**
+     * Retry attempts
+     */
+    protected int $retryAttempts;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->serverUrl = WhatsAppSetting::getServerUrl();
+        $this->timeout = WhatsAppSetting::getTimeout();
+        $this->retryAttempts = WhatsAppSetting::getRetryAttempts();
+    }
+
+    /**
+     * Get WhatsApp server status
+     * 
+     * @return array
+     */
+    public function getStatus(): array
+    {
+        try {
+            $response = Http::timeout($this->timeout)
+                ->get("{$this->serverUrl}/status");
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Failed to get status',
+                'error' => $response->body(),
+            ];
+        } catch (Exception $e) {
+            Log::error('WhatsApp status check failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Connection failed',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Get QR code for WhatsApp authentication
+     * 
+     * @return array
+     */
+    public function getQRCode(): array
+    {
+        try {
+            $response = Http::timeout($this->timeout)
+                ->get("{$this->serverUrl}/qr");
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Failed to get QR code',
+                'error' => $response->body(),
+            ];
+        } catch (Exception $e) {
+            Log::error('WhatsApp QR code fetch failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Connection failed',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Send single WhatsApp message
+     * 
+     * @param string $phone Phone number
+     * @param string $message Message content
+     * @param array $options Additional options (pendaftar_id, template_id, sent_by, type)
+     * @return array
+     */
+    public function send(string $phone, string $message, array $options = []): array
+    {
+        // Create log entry
+        $log = WhatsAppLog::create([
+            'phone' => $phone,
+            'message' => $message,
+            'status' => 'pending',
+            'type' => $options['type'] ?? 'manual',
+            'pendaftar_id' => $options['pendaftar_id'] ?? null,
+            'template_id' => $options['template_id'] ?? null,
+            'sent_by' => $options['sent_by'] ?? auth()->id(),
+        ]);
+
+        try {
+            $response = Http::timeout($this->timeout)
+                ->retry($this->retryAttempts, 1000)
+                ->post("{$this->serverUrl}/send", [
+                    'phone' => $phone,
+                    'message' => $message,
+                ]);
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+                
+                // Mark as sent
+                $log->markAsSent($responseData);
+
+                Log::info('WhatsApp message sent', [
+                    'phone' => $phone,
+                    'log_id' => $log->id,
+                ]);
+
+                return [
+                    'success' => true,
+                    'message' => 'Message sent successfully',
+                    'data' => $responseData,
+                    'log_id' => $log->id,
+                ];
+            }
+
+            // Mark as failed
+            $errorMessage = $response->json()['message'] ?? 'Failed to send message';
+            $log->markAsFailed($errorMessage, $response->json());
+
+            Log::error('WhatsApp message send failed', [
+                'phone' => $phone,
+                'error' => $errorMessage,
+                'log_id' => $log->id,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => $errorMessage,
+                'log_id' => $log->id,
+            ];
+        } catch (Exception $e) {
+            // Mark as failed
+            $log->markAsFailed($e->getMessage());
+
+            Log::error('WhatsApp message send exception', [
+                'phone' => $phone,
+                'error' => $e->getMessage(),
+                'log_id' => $log->id,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Connection failed',
+                'error' => $e->getMessage(),
+                'log_id' => $log->id,
+            ];
+        }
+    }
+
+    /**
+     * Send message using template
+     * 
+     * @param string $phone Phone number
+     * @param string $templateName Template name
+     * @param array $data Data for template variables
+     * @param array $options Additional options
+     * @return array
+     */
+    public function sendWithTemplate(string $phone, string $templateName, array $data, array $options = []): array
+    {
+        try {
+            // Get template
+            $template = WhatsAppTemplate::where('name', $templateName)
+                ->where('is_active', true)
+                ->firstOrFail();
+
+            // Parse template with data
+            $message = $template->parse($data);
+
+            // Increment template usage
+            $template->incrementUsage();
+
+            // Send message
+            $options['template_id'] = $template->id;
+            return $this->send($phone, $message, $options);
+
+        } catch (Exception $e) {
+            Log::error('WhatsApp template send failed', [
+                'phone' => $phone,
+                'template' => $templateName,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Template not found or inactive',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Send bulk messages
+     * 
+     * @param array $messages Array of ['phone' => '...', 'message' => '...']
+     * @param array $options Additional options
+     * @return array
+     */
+    public function sendBulk(array $messages, array $options = []): array
+    {
+        $results = [];
+        $successCount = 0;
+        $failedCount = 0;
+
+        foreach ($messages as $item) {
+            $phone = $item['phone'] ?? null;
+            $message = $item['message'] ?? null;
+
+            if (!$phone || !$message) {
+                $results[] = [
+                    'phone' => $phone,
+                    'success' => false,
+                    'error' => 'Phone and message are required',
+                ];
+                $failedCount++;
+                continue;
+            }
+
+            $result = $this->send($phone, $message, $options);
+            
+            $results[] = [
+                'phone' => $phone,
+                'success' => $result['success'],
+                'log_id' => $result['log_id'] ?? null,
+                'error' => $result['error'] ?? null,
+            ];
+
+            if ($result['success']) {
+                $successCount++;
+            } else {
+                $failedCount++;
+            }
+
+            // Delay between messages to avoid rate limiting
+            if (count($messages) > 1) {
+                sleep(1);
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => "Sent {$successCount} messages, {$failedCount} failed",
+            'total' => count($messages),
+            'success_count' => $successCount,
+            'failed_count' => $failedCount,
+            'results' => $results,
+        ];
+    }
+
+    /**
+     * Send message to pendaftar using template
+     * 
+     * @param \App\Models\Pendaftar $pendaftar
+     * @param string $templateName
+     * @return array
+     */
+    public function sendToPendaftar($pendaftar, string $templateName): array
+    {
+        // Prepare data for template
+        $data = [
+            'nama' => $pendaftar->nama_lengkap,
+            'no_pendaftaran' => $pendaftar->no_pendaftaran,
+            'jurusan' => $pendaftar->jurusan->nama_jurusan ?? 'N/A',
+            'portal_url' => url('/'),
+            'sekolah' => config('app.name', 'SMK PGRI Blora'),
+        ];
+
+        return $this->sendWithTemplate(
+            $pendaftar->no_hp_wali,
+            $templateName,
+            $data,
+            [
+                'pendaftar_id' => $pendaftar->id,
+                'type' => 'auto_registration',
+            ]
+        );
+    }
+
+    /**
+     * Check if WhatsApp server is connected
+     * 
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        $status = $this->getStatus();
+        
+        if (!$status['success']) {
+            return false;
+        }
+
+        return ($status['data']['status'] ?? '') === 'connected';
+    }
+
+    /**
+     * Check if auto send is enabled
+     * 
+     * @return bool
+     */
+    public function isAutoSendEnabled(): bool
+    {
+        return WhatsAppSetting::isAutoSendEnabled();
+    }
+
+    /**
+     * Logout from WhatsApp
+     * 
+     * @return array
+     */
+    public function logout(): array
+    {
+        try {
+            $response = Http::timeout($this->timeout)
+                ->post("{$this->serverUrl}/logout");
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => 'Logged out successfully',
+                    'data' => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Failed to logout',
+                'error' => $response->body(),
+            ];
+        } catch (Exception $e) {
+            Log::error('WhatsApp logout failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Connection failed',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Get statistics
+     * 
+     * @return array
+     */
+    public function getStatistics(): array
+    {
+        return [
+            'total_sent' => WhatsAppLog::sent()->count(),
+            'total_failed' => WhatsAppLog::failed()->count(),
+            'total_pending' => WhatsAppLog::pending()->count(),
+            'sent_today' => WhatsAppLog::sent()->today()->count(),
+            'failed_today' => WhatsAppLog::failed()->today()->count(),
+            'total_templates' => WhatsAppTemplate::count(),
+            'active_templates' => WhatsAppTemplate::active()->count(),
+        ];
+    }
+}

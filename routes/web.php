@@ -94,6 +94,41 @@ Route::middleware('admin')->group(function () {
             Route::get('/{user}/activity', [UserManagementController::class, 'activityLog'])->name('activity-log');
             Route::post('/{user}/reactivate', [UserManagementController::class, 'reactivate'])->name('reactivate');
         });
+
+        // WhatsApp Gateway - Only for Administrator
+        Route::prefix('whatsapp')->name('whatsapp.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\WhatsAppController::class, 'index'])->name('index');
+            Route::get('/status', [\App\Http\Controllers\WhatsAppController::class, 'status'])->name('status');
+            Route::get('/qr', [\App\Http\Controllers\WhatsAppController::class, 'qrCode'])->name('qr');
+            
+            // Send message
+            Route::get('/send', [\App\Http\Controllers\WhatsAppController::class, 'sendPage'])->name('send');
+            Route::post('/send', [\App\Http\Controllers\WhatsAppController::class, 'send'])->name('send.submit');
+            Route::post('/send-template', [\App\Http\Controllers\WhatsAppController::class, 'sendWithTemplate'])->name('send.template');
+            
+            // Logs
+            Route::get('/logs', [\App\Http\Controllers\WhatsAppController::class, 'logs'])->name('logs');
+            
+            // Templates
+            Route::get('/templates', [\App\Http\Controllers\WhatsAppController::class, 'templates'])->name('templates');
+            Route::get('/templates/create', [\App\Http\Controllers\WhatsAppController::class, 'createTemplate'])->name('templates.create');
+            Route::post('/templates', [\App\Http\Controllers\WhatsAppController::class, 'storeTemplate'])->name('templates.store');
+            Route::get('/templates/{id}/edit', [\App\Http\Controllers\WhatsAppController::class, 'editTemplate'])->name('templates.edit');
+            Route::put('/templates/{id}', [\App\Http\Controllers\WhatsAppController::class, 'updateTemplate'])->name('templates.update');
+            Route::delete('/templates/{id}', [\App\Http\Controllers\WhatsAppController::class, 'deleteTemplate'])->name('templates.delete');
+            Route::get('/templates/{id}/preview', [\App\Http\Controllers\WhatsAppController::class, 'previewTemplate'])->name('templates.preview');
+            
+            // Settings
+            Route::get('/settings', [\App\Http\Controllers\WhatsAppController::class, 'settings'])->name('settings');
+            Route::post('/settings', [\App\Http\Controllers\WhatsAppController::class, 'updateSettings'])->name('settings.update');
+            
+            // Broadcast
+            Route::get('/broadcast', [\App\Http\Controllers\WhatsAppController::class, 'broadcastPage'])->name('broadcast');
+            Route::post('/broadcast', [\App\Http\Controllers\WhatsAppController::class, 'sendBroadcast'])->name('broadcast.send');
+            
+            // Logout
+            Route::post('/logout', [\App\Http\Controllers\WhatsAppController::class, 'logout'])->name('logout');
+        });
     });
 });
 
