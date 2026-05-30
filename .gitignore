@@ -21,3 +21,10 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# WhatsApp Gateway
+/whatsapp-server/node_modules
+/whatsapp-server/spmb-wa-session
+/whatsapp-server/auth_info
+/whatsapp-server/*.log
+/whatsapp-server/logs
