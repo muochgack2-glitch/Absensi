@@ -17,15 +17,18 @@ return new class extends Migration
             $table->text('message'); // Isi pesan
             $table->enum('status', ['pending', 'sent', 'failed'])->default('pending'); // Status pengiriman
             $table->string('type', 50)->default('manual'); // Type: manual, auto_registration, broadcast, reminder
-            $table->foreignId('pendaftar_id')->nullable()->constrained('pendaftars')->onDelete('set null'); // Relasi ke pendaftar (jika ada)
-            $table->foreignId('template_id')->nullable()->constrained('whatsapp_templates')->onDelete('set null'); // Template yang digunakan
-            $table->foreignId('sent_by')->nullable()->constrained('users')->onDelete('set null'); // User yang mengirim (untuk manual send)
+            $table->unsignedBigInteger('pendaftar_id')->nullable(); // Relasi ke pendaftar (jika ada)
+            $table->unsignedBigInteger('template_id')->nullable(); // Template yang digunakan
+            $table->unsignedBigInteger('sent_by')->nullable(); // User yang mengirim (untuk manual send)
             $table->text('error_message')->nullable(); // Error message jika gagal
             $table->timestamp('sent_at')->nullable(); // Waktu terkirim
             $table->json('metadata')->nullable(); // Data tambahan (response dari API, dll)
             $table->timestamps();
             
             // Indexes untuk performa query
+            $table->index('pendaftar_id');
+            $table->index('template_id');
+            $table->index('sent_by');
             $table->index('status');
             $table->index('type');
             $table->index('sent_at');
