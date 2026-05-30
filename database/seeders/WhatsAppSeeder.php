@@ -1,0 +1,196 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+class WhatsAppSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $now = Carbon::now();
+
+        // Seed WhatsApp Settings
+        $settings = [
+            [
+                'key' => 'wa_server_url',
+                'value' => 'http://localhost:3000',
+                'type' => 'string',
+                'group' => 'connection',
+                'label' => 'WhatsApp Server URL',
+                'description' => 'URL endpoint WhatsApp Gateway server',
+                'is_public' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'key' => 'wa_auto_send_enabled',
+                'value' => 'true',
+                'type' => 'boolean',
+                'group' => 'general',
+                'label' => 'Auto Send Enabled',
+                'description' => 'Aktifkan pengiriman otomatis saat pendaftaran',
+                'is_public' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'key' => 'wa_timeout',
+                'value' => '10',
+                'type' => 'integer',
+                'group' => 'connection',
+                'label' => 'Connection Timeout',
+                'description' => 'Timeout koneksi ke WhatsApp server (detik)',
+                'is_public' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'key' => 'wa_retry_attempts',
+                'value' => '3',
+                'type' => 'integer',
+                'group' => 'connection',
+                'label' => 'Retry Attempts',
+                'description' => 'Jumlah percobaan ulang jika gagal kirim',
+                'is_public' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'key' => 'wa_rate_limit',
+                'value' => '20',
+                'type' => 'integer',
+                'group' => 'advanced',
+                'label' => 'Rate Limit (per minute)',
+                'description' => 'Maksimal pesan per menit untuk mencegah spam',
+                'is_public' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'key' => 'wa_log_retention_days',
+                'value' => '90',
+                'type' => 'integer',
+                'group' => 'advanced',
+                'label' => 'Log Retention Days',
+                'description' => 'Berapa lama log disimpan (hari)',
+                'is_public' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ];
+
+        DB::table('whatsapp_settings')->insert($settings);
+
+        // Seed WhatsApp Templates
+        $templates = [
+            [
+                'name' => 'welcome_registration',
+                'label' => 'Pesan Selamat Datang - Pendaftaran Berhasil',
+                'message' => "Assalamu'alaikum {nama},\n\nSelamat! Pendaftaran Anda telah berhasil.\n\n📋 *Detail Pendaftaran:*\nNo. Pendaftaran: {no_pendaftaran}\nNama: {nama}\nJurusan: {jurusan}\n\n✅ Silakan login ke portal SPMB untuk melengkapi data dan melakukan pembayaran.\n\n🔗 Portal: {portal_url}\n\nTerima kasih telah mendaftar di {sekolah}.\n\nWassalamu'alaikum",
+                'description' => 'Pesan otomatis yang dikirim setelah pendaftar berhasil registrasi',
+                'type' => 'registration',
+                'is_active' => true,
+                'auto_send' => true,
+                'variables' => json_encode([
+                    'nama' => 'Nama lengkap pendaftar',
+                    'no_pendaftaran' => 'Nomor pendaftaran',
+                    'jurusan' => 'Nama jurusan yang dipilih',
+                    'portal_url' => 'URL portal SPMB',
+                    'sekolah' => 'Nama sekolah',
+                ]),
+                'usage_count' => 0,
+                'last_used_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => 'payment_reminder',
+                'label' => 'Pengingat Pembayaran',
+                'message' => "Assalamu'alaikum {nama},\n\n⏰ *Pengingat Pembayaran*\n\nKami ingatkan bahwa pembayaran pendaftaran Anda belum kami terima.\n\n📋 Detail:\nNo. Pendaftaran: {no_pendaftaran}\nNama: {nama}\nJurusan: {jurusan}\n\n💰 Silakan segera melakukan pembayaran dan upload bukti pembayaran melalui portal SPMB.\n\n🔗 Portal: {portal_url}\n\nTerima kasih.\n\nWassalamu'alaikum",
+                'description' => 'Pengingat untuk pendaftar yang belum melakukan pembayaran',
+                'type' => 'payment',
+                'is_active' => true,
+                'auto_send' => false,
+                'variables' => json_encode([
+                    'nama' => 'Nama lengkap pendaftar',
+                    'no_pendaftaran' => 'Nomor pendaftaran',
+                    'jurusan' => 'Nama jurusan yang dipilih',
+                    'portal_url' => 'URL portal SPMB',
+                ]),
+                'usage_count' => 0,
+                'last_used_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => 'payment_confirmed',
+                'label' => 'Konfirmasi Pembayaran Diterima',
+                'message' => "Assalamu'alaikum {nama},\n\n✅ *Pembayaran Dikonfirmasi*\n\nPembayaran Anda telah kami terima dan dikonfirmasi.\n\n📋 Detail:\nNo. Pendaftaran: {no_pendaftaran}\nNama: {nama}\nJurusan: {jurusan}\n\n📝 Langkah selanjutnya:\n1. Lengkapi biodata di portal SPMB\n2. Upload dokumen yang diperlukan\n3. Tunggu informasi jadwal tes\n\n🔗 Portal: {portal_url}\n\nTerima kasih.\n\nWassalamu'alaikum",
+                'description' => 'Notifikasi setelah pembayaran dikonfirmasi oleh admin',
+                'type' => 'payment',
+                'is_active' => true,
+                'auto_send' => false,
+                'variables' => json_encode([
+                    'nama' => 'Nama lengkap pendaftar',
+                    'no_pendaftaran' => 'Nomor pendaftaran',
+                    'jurusan' => 'Nama jurusan yang dipilih',
+                    'portal_url' => 'URL portal SPMB',
+                ]),
+                'usage_count' => 0,
+                'last_used_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => 'test_schedule',
+                'label' => 'Pemberitahuan Jadwal Tes',
+                'message' => "Assalamu'alaikum {nama},\n\n📅 *Jadwal Tes Masuk*\n\nBerikut jadwal tes masuk Anda:\n\n📋 Detail:\nNo. Pendaftaran: {no_pendaftaran}\nNama: {nama}\nJurusan: {jurusan}\n\n📅 Tanggal: {tanggal_tes}\n⏰ Waktu: {waktu_tes}\n📍 Tempat: {tempat_tes}\n\n📝 Yang perlu dibawa:\n- Kartu peserta (download di portal)\n- KTP/Kartu Pelajar\n- Alat tulis\n\n🔗 Portal: {portal_url}\n\nSemoga sukses!\n\nWassalamu'alaikum",
+                'description' => 'Pemberitahuan jadwal tes masuk kepada pendaftar',
+                'type' => 'notification',
+                'is_active' => true,
+                'auto_send' => false,
+                'variables' => json_encode([
+                    'nama' => 'Nama lengkap pendaftar',
+                    'no_pendaftaran' => 'Nomor pendaftaran',
+                    'jurusan' => 'Nama jurusan yang dipilih',
+                    'tanggal_tes' => 'Tanggal tes',
+                    'waktu_tes' => 'Waktu tes',
+                    'tempat_tes' => 'Lokasi tes',
+                    'portal_url' => 'URL portal SPMB',
+                ]),
+                'usage_count' => 0,
+                'last_used_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => 'acceptance_announcement',
+                'label' => 'Pengumuman Kelulusan',
+                'message' => "Assalamu'alaikum {nama},\n\n🎉 *SELAMAT!*\n\nKami dengan senang hati mengumumkan bahwa Anda *DITERIMA* di {sekolah}!\n\n📋 Detail:\nNo. Pendaftaran: {no_pendaftaran}\nNama: {nama}\nJurusan: {jurusan}\n\n📝 Langkah selanjutnya:\n1. Download surat penerimaan di portal\n2. Lakukan daftar ulang sesuai jadwal\n3. Siapkan dokumen yang diperlukan\n\n🔗 Portal: {portal_url}\n\nSelamat bergabung dengan keluarga besar {sekolah}!\n\nWassalamu'alaikum",
+                'description' => 'Pengumuman kelulusan untuk pendaftar yang diterima',
+                'type' => 'notification',
+                'is_active' => true,
+                'auto_send' => false,
+                'variables' => json_encode([
+                    'nama' => 'Nama lengkap pendaftar',
+                    'no_pendaftaran' => 'Nomor pendaftaran',
+                    'jurusan' => 'Nama jurusan yang dipilih',
+                    'sekolah' => 'Nama sekolah',
+                    'portal_url' => 'URL portal SPMB',
+                ]),
+                'usage_count' => 0,
+                'last_used_at' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ];
+
+        DB::table('whatsapp_templates')->insert($templates);
+    }
+}

@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SettingSystemSeeder::class,   // System settings
             JurusanSeeder::class,         // Jurusan/Program studi
             PendaftarSeeder::class,       // Sample pendaftar data
+            WhatsAppSeeder::class,        // WhatsApp templates & settings
         ]);
     }
 }

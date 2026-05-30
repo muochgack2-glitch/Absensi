@@ -13,7 +13,17 @@ return new class extends Migration
     {
         Schema::create('whatsapp_settings', function (Blueprint $table) {
             $table->id();
+            $table->string('key', 100)->unique(); // Setting key (e.g., wa_server_url, auto_send_enabled)
+            $table->text('value')->nullable(); // Setting value
+            $table->string('type', 50)->default('string'); // Type: string, boolean, integer, json
+            $table->string('group', 50)->default('general'); // Group: general, connection, notification, advanced
+            $table->string('label', 200); // Label untuk admin UI
+            $table->text('description')->nullable(); // Deskripsi setting
+            $table->boolean('is_public')->default(false); // Apakah bisa diakses tanpa auth
             $table->timestamps();
+            
+            // Index
+            $table->index('group');
         });
     }
 
