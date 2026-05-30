@@ -457,35 +457,25 @@ input {
 }
 
 .steps-list {
-    list-style: none;
+    list-style: decimal;
+    list-style-position: outside;
     display: grid;
     gap: 12px;
-    counter-reset: step;
+    padding-left: 28px;
 }
 
 .steps-list li {
     position: relative;
-    padding: 13px 13px 13px 52px;
+    padding: 13px 16px;
     border-radius: 18px;
     background: rgba(255, 255, 255, .74);
     border: 1px solid rgba(226, 232, 240, .9);
-    counter-increment: step;
 }
 
-.steps-list li::before {
-    content: counter(step);
-    position: absolute;
-    left: 13px;
-    top: 13px;
-    width: 28px;
-    height: 28px;
-    display: grid;
-    place-items: center;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 13px;
+.steps-list li::marker {
+    color: var(--primary);
     font-weight: 900;
-    background: linear-gradient(135deg, var(--gold), var(--primary));
+    font-size: 16px;
 }
 
 .steps-list strong {
@@ -558,44 +548,47 @@ dd {
 .stats-section {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 16px;
     margin: 34px 0;
 }
 
 .stats-section .stat-card {
-    padding: 18px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, .78);
-    border: 1px solid rgba(255, 255, 255, .22);
-    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.1);
+    padding: 20px 18px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    box-shadow: none;
 }
 
 .stats-section .stat-card h5 {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
-    color: #475569;
+    margin-bottom: 12px;
+    color: #64748b;
     font-size: 13px;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .stats-section .stat-card h5 i {
-    color: var(--primary);
-    font-size: 14px;
+    color: #64748b;
+    font-size: 16px;
 }
 
 .stats-section .stat-card strong {
     display: block;
-    font-size: clamp(28px, 4vw, 38px);
+    font-size: clamp(32px, 4vw, 42px);
     letter-spacing: -.04em;
     color: #0f172a;
+    font-weight: 800;
 }
 
 .stats-section .stat-card span {
     display: block;
     margin-top: 6px;
-    color: var(--muted);
+    color: #94a3b8;
     font-weight: 600;
     font-size: 12px;
 }
@@ -638,6 +631,7 @@ dd {
     gap: 13px;
     margin-top: 22px;
     list-style: none;
+    padding-left: 0;
 }
 
 .school-list li {
@@ -721,6 +715,7 @@ dd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     list-style: none;
+    padding-left: 0;
 }
 
 .requirements-list li {
@@ -894,12 +889,49 @@ dd {
         align-items: stretch;
     }
 
+    .topbar {
+        padding: 12px;
+    }
+
+    .brand {
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .brand strong {
+        font-size: 14px;
+    }
+
+    .brand small {
+        font-size: 11px;
+    }
+
+    .brand-subtitle {
+        font-size: 0.65rem;
+    }
+
     .nav-actions {
         width: 100%;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .nav-actions a {
         text-align: center;
+        width: 100%;
+    }
+
+    .social-links {
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 4px;
+    }
+
+    .social-link {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
     }
 
     .hero-copy,
@@ -921,6 +953,18 @@ dd {
         grid-template-columns: 1fr;
     }
 
+    .stats-section {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-card strong {
+        font-size: 28px;
+    }
+
     dl div,
     .quota-item {
         flex-direction: column;
@@ -935,5 +979,19 @@ dd {
         left: 10px;
         bottom: 12px;
         justify-content: center;
+    }
+
+    .steps-list {
+        padding-left: 20px;
+    }
+
+    .steps-list li {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .btn {
+        min-height: 54px;
+        font-size: 16px;
     }
 }

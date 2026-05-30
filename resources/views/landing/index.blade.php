@@ -12,7 +12,7 @@
     if ($whatsappNumber !== '' && str_starts_with($whatsappNumber, '0')) {
         $whatsappNumber = '62' . substr($whatsappNumber, 1);
     }
-    $whatsappMessage = rawurlencode('Halo Panitia SPMB ' . $schoolName . ', saya ingin bertanya tentang pendaftaran.');
+    $whatsappMessage = rawurlencode('Halo Pak ilham, Panitia SPMB ' . $schoolName . ', saya ingin bertanya tentang pendaftaran.');
     $whatsappUrl = $whatsappNumber ? 'https://wa.me/' . $whatsappNumber . '?text=' . $whatsappMessage : null;
     $websiteUrl = $settings['school_website'] ?? null;
     $instagramUrl = $settings['instagram_url'] ?? null;
@@ -329,4 +329,120 @@
         </a>
     @endif
 </main>
+
+<script>
+// Scroll Reveal Animation
+document.addEventListener('DOMContentLoaded', function() {
+    // Add scroll-reveal class to elements
+    const revealElements = document.querySelectorAll('.stats-section, .info-grid > *, .support-grid > *, .requirements-card, .registration-steps');
+    
+    revealElements.forEach(el => {
+        el.classList.add('scroll-reveal');
+    });
+    
+    // Intersection Observer for scroll reveal
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    revealElements.forEach(el => {
+        observer.observe(el);
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href !== '#' && href !== '') {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    });
+    
+    // Counter animation for stats
+    const animateCounter = (element, target, duration = 2000) => {
+        const start = 0;
+        const increment = target / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target.toLocaleString('id-ID');
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString('id-ID');
+            }
+        }, 16);
+    };
+    
+    // Observe stats cards for counter animation
+    const statsObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const strong = entry.target.querySelector('strong');
+                if (strong) {
+                    const value = parseInt(strong.textContent.replace(/\D/g, ''));
+                    if (!isNaN(value)) {
+                        animateCounter(strong, value);
+                    }
+                }
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    document.querySelectorAll('.stat-card').forEach(card => {
+        statsObserver.observe(card);
+    });
+    
+    // Add loading state to form submission
+    const statusForm = document.querySelector('.status-form');
+    if (statusForm) {
+        statusForm.addEventListener('submit', function() {
+            const button = this.querySelector('button[type="submit"]');
+            if (button) {
+                button.classList.add('loading');
+                button.disabled = true;
+            }
+        });
+    }
+    
+    // Parallax effect for hero section (disabled to prevent overlap)
+    /*
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(function() {
+                const scrolled = window.pageYOffset;
+                const heroSection = document.querySelector('.hero-section');
+                if (heroSection && scrolled < window.innerHeight) {
+                    heroSection.style.transform = 'translateY(' + (scrolled * 0.5) + 'px)';
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+    */
+});
+</script>
+
 @endsection

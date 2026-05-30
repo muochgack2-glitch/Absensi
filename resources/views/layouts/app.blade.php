@@ -7,6 +7,7 @@
     @include('partials.meta')
     @include('partials.theme-vars')
     <link href="{{ asset('css/landing.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/landing-modern.css') }}?v={{ time() }}" rel="stylesheet">
 </head>
 <body>
     @yield('content')
