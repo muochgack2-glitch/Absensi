@@ -50,6 +50,51 @@
         </li>
         @if(auth()->check() && auth()->user()->isAdministrator())
         <li class="nav-item has-submenu">
+            <a class="nav-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}" href="#" data-bs-toggle="collapse" data-bs-target="#whatsappSubmenu" aria-expanded="{{ request()->routeIs('whatsapp.*') ? 'true' : 'false' }}" title="WhatsApp Gateway">
+                <i class="fab fa-whatsapp"></i> 
+                <span class="nav-text">WhatsApp Gateway</span>
+                <i class="fas fa-chevron-down submenu-arrow"></i>
+            </a>
+            <ul class="submenu collapse {{ request()->routeIs('whatsapp.*') ? 'show' : '' }}" id="whatsappSubmenu">
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('whatsapp.index') ? 'active' : '' }}" href="{{ route('whatsapp.index') }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('whatsapp.send') ? 'active' : '' }}" href="{{ route('whatsapp.send') }}">
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="nav-text">Kirim Pesan</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('whatsapp.broadcast') ? 'active' : '' }}" href="{{ route('whatsapp.broadcast') }}">
+                        <i class="fas fa-bullhorn"></i>
+                        <span class="nav-text">Broadcast</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('whatsapp.logs') ? 'active' : '' }}" href="{{ route('whatsapp.logs') }}">
+                        <i class="fas fa-history"></i>
+                        <span class="nav-text">Log Pesan</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('whatsapp.templates*') ? 'active' : '' }}" href="{{ route('whatsapp.templates') }}">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="nav-text">Template Pesan</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('whatsapp.settings') ? 'active' : '' }}" href="{{ route('whatsapp.settings') }}">
+                        <i class="fas fa-cog"></i>
+                        <span class="nav-text">Pengaturan</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item has-submenu">
             <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="#" data-bs-toggle="collapse" data-bs-target="#settingsSubmenu" aria-expanded="{{ request()->routeIs('settings.*') ? 'true' : 'false' }}" title="Pengaturan Sistem">
                 <i class="fas fa-cog"></i> 
                 <span class="nav-text">Pengaturan Sistem</span>
