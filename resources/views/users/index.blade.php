@@ -141,22 +141,26 @@
                                     </a>
                                     @if(auth()->user()->id !== $user->id)
                                         @if($user->status === 'nonaktif')
-                                            <form action="{{ route('users.reactivate', $user) }}" method="POST" 
-                                                  class="d-inline" onsubmit="return confirm('Aktifkan pengguna ini?')">
+                                            <form id="reactivate-form-{{ $user->id }}" action="{{ route('users.reactivate', $user) }}" method="POST" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-outline-success" title="Aktifkan">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
                                             </form>
+                                            <button type="button" class="btn btn-outline-success" title="Aktifkan"
+                                                    onclick="Modal.confirm('Aktifkan pengguna <strong>{{ $user->name }}</strong>?', function() {
+                                                        document.getElementById('reactivate-form-{{ $user->id }}').submit();
+                                                    }, { type: 'success', title: 'Aktifkan Pengguna', confirmText: 'Ya, Aktifkan', cancelText: 'Batal' })">
+                                                <i class="fas fa-check"></i>
+                                            </button>
                                         @else
-                                            <form action="{{ route('users.destroy', $user) }}" method="POST" 
-                                                  class="d-inline" onsubmit="return confirm('Deaktifkan pengguna ini?')">
+                                            <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-outline-danger" title="Deaktifkan">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
                                             </form>
+                                            <button type="button" class="btn btn-outline-danger" title="Deaktifkan"
+                                                    onclick="Modal.confirm('Deaktifkan pengguna <strong>{{ $user->name }}</strong>?<br><small class=\'text-muted\'>Pengguna tidak akan bisa login setelah dinonaktifkan.</small>', function() {
+                                                        document.getElementById('delete-form-{{ $user->id }}').submit();
+                                                    }, { type: 'danger', title: 'Deaktifkan Pengguna', confirmText: 'Ya, Deaktifkan', cancelText: 'Batal' })">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         @endif
                                     @else
                                         <button type="button" class="btn btn-outline-secondary disabled" 
@@ -187,3 +191,20 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Show success/error modal if session exists
+    @if (session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            Modal.alert('{{ addslashes(session('success')) }}', 'Berhasil!', 'success');
+        });
+    @endif
+
+    @if (session('error'))
+        document.addEventListener('DOMContentLoaded', function() {
+            Modal.alert('{{ addslashes(session('error')) }}', 'Gagal!', 'danger');
+        });
+    @endif
+</script>
+@endpush

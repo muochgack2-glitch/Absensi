@@ -299,7 +299,12 @@
                                                 <td>
                                                     <div class="d-flex gap-2 flex-wrap">
                                                         <button type="submit" form="jurusan-edit-{{ $jurusan->id }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-save me-1"></i>Simpan</button>
-                                                        <button type="submit" form="jurusan-delete-{{ $jurusan->id }}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash me-1"></i>Hapus</button>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                onclick="Modal.confirm('Hapus jurusan <strong>{{ $jurusan->nama_jurusan }}</strong>?<br><small class=\'text-muted\'>Data jurusan akan dihapus permanen.</small>', function() {
+                                                                    document.getElementById('jurusan-delete-{{ $jurusan->id }}').submit();
+                                                                }, { type: 'danger', title: 'Hapus Jurusan', confirmText: 'Ya, Hapus', cancelText: 'Batal' })">
+                                                            <i class="fas fa-trash me-1"></i>Hapus
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -430,7 +435,20 @@
 
 @push('scripts')
 <script>
-                        (function () {
+    // Show success/error modal if session exists
+    @if (session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            Modal.alert('{{ addslashes(session('success')) }}', 'Berhasil!', 'success');
+        });
+    @endif
+
+    @if (session('error'))
+        document.addEventListener('DOMContentLoaded', function() {
+            Modal.alert('{{ addslashes(session('error')) }}', 'Gagal!', 'danger');
+        });
+    @endif
+
+    (function () {
                             var key = 'settings_active_tab';
                             var el = document.getElementById('settingsTabs');
                             if (!el || !window.bootstrap) return;
