@@ -10,6 +10,8 @@ class WhatsAppLog extends Model
 {
     use HasFactory;
 
+    protected $table = 'whatsapp_logs';
+
     protected $fillable = [
         'phone',
         'message',

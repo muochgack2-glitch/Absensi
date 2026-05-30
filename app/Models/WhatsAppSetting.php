@@ -10,6 +10,8 @@ class WhatsAppSetting extends Model
 {
     use HasFactory;
 
+    protected $table = 'whatsapp_settings';
+
     protected $fillable = [
         'key',
         'value',
