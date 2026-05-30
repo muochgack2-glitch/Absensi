@@ -9,6 +9,8 @@ use App\Models\SettingSystem;
 use Illuminate\Http\Request;
 use Twilio\Rest\Client;
 use Illuminate\Support\Carbon;
+use App\Exports\PendaftarExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PendaftarController extends Controller
 {
@@ -323,5 +325,25 @@ class PendaftarController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Export pendaftar to Excel
+     */
+    public function exportExcel()
+    {
+        $filename = 'Data_Pendaftar_' . date('Y-m-d_His') . '.xlsx';
+        return Excel::download(new PendaftarExport, $filename);
+    }
+
+    /**
+     * Export pendaftar to PDF
+     */
+    public function exportPdf()
+    {
+        $pendaftars = Pendaftar::with(['logistik', 'masterJurusan'])->get();
+        $settings = SettingSystem::first();
+        
+        return view('pendaftar.export-pdf', compact('pendaftars', 'settings'));
     }
 }
