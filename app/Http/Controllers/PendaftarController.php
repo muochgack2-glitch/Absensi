@@ -179,6 +179,7 @@ class PendaftarController extends Controller
             'no_hp_ortu' => 'nullable|string|max:20',
             'nama_wali' => 'nullable|string|max:100',
             'pekerjaan_wali' => 'nullable|string|max:100',
+            'no_hp_wali' => 'nullable|string|max:20',
             'alamat_wali' => 'nullable|string|max:255',
             'jurusan_id' => 'required|exists:jurusan,id',
             'nama_jaringan' => 'nullable|string|max:100',
@@ -290,5 +291,37 @@ class PendaftarController extends Controller
     {
         $pendaftar = Pendaftar::with(['logistik', 'masterJurusan'])->findOrFail($id);
         return view('pendaftar.print-ambil-barang', compact('pendaftar'));
+    }
+
+    /**
+     * Bulk delete pendaftar
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:pendaftar,id_pendaftar'
+        ]);
+
+        try {
+            $ids = $request->ids;
+            
+            // Delete related logistik records first
+            LogistikBayar::whereIn('id_pendaftar', $ids)->delete();
+            
+            // Delete pendaftar records
+            $count = Pendaftar::whereIn('id_pendaftar', $ids)->delete();
+
+            return response()->json([
+                'success' => true,
+                'count' => $count,
+                'message' => "Berhasil menghapus {$count} pendaftar"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

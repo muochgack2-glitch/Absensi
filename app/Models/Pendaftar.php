@@ -43,6 +43,7 @@ class Pendaftar extends Model
         'no_hp_ortu',
         'nama_wali',
         'pekerjaan_wali',
+        'no_hp_wali',
         'alamat_wali',
         'jurusan',
         'jurusan_id',
