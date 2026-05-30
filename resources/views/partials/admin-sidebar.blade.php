@@ -54,25 +54,21 @@
     </ul>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function confirmLogout(event) {
     event.preventDefault();
     
-    Swal.fire({
-        title: 'Konfirmasi Logout',
-        text: 'Apakah Anda yakin ingin keluar dari sistem?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Keluar',
-        cancelButtonText: 'Batal',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
+    Modal.confirm(
+        'Apakah Anda yakin ingin keluar dari sistem?',
+        function() {
             document.getElementById('logoutForm').submit();
+        },
+        {
+            title: 'Konfirmasi Logout',
+            confirmText: 'Ya, Keluar',
+            cancelText: 'Batal',
+            type: 'warning'
         }
-    });
+    );
 }
 </script>
