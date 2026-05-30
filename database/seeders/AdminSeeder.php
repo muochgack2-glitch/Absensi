@@ -19,7 +19,7 @@ class AdminSeeder extends Seeder
         $adminName = env('ADMIN_NAME', 'Administrator Sistem');
         $adminUsername = env('ADMIN_USERNAME', 'admin');
         $adminPassword = env('ADMIN_PASSWORD', 'admin123');
-        $adminEmail = env('ADMIN_EMAIL', 'admin@spmb.local');
+        $adminEmail = env('ADMIN_EMAIL', 'admin@spmb.pgri');
 
         // Create/Update in Admin table (legacy system - for backward compatibility)
         Admin::updateOrCreate(
@@ -43,10 +43,10 @@ class AdminSeeder extends Seeder
         );
 
         // Create/Update Panitia in Users table (new system)
-        $panitiaName = env('PANITIA_NAME', 'Panitia Pendaftaran');
+        $panitiaName = env('PANITIA_NAME', 'Panitia SPMB');
         $panitiaUsername = env('PANITIA_USERNAME', 'panitia1');
         $panitiaPassword = env('PANITIA_PASSWORD', 'panitia123');
-        $panitiaEmail = env('PANITIA_EMAIL', 'panitia@spmb.local');
+        $panitiaEmail = env('PANITIA_EMAIL', 'panitia@spmb.pgri');
 
         // Create/Update in Admin table (legacy system)
         Admin::updateOrCreate(

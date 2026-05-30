@@ -149,4 +149,20 @@ class SettingsController extends Controller
 
         return redirect()->route('settings.index')->with('success', 'Jurusan berhasil dihapus.');
     }
+    
+    public function updateTahunAjaran(Request $request)
+    {
+        $validated = $request->validate([
+            'tahun_ajaran' => 'required|string|max:20',
+        ]);
+
+        $setting = SettingSystem::instance();
+        $setting->update(['academic_year' => $validated['tahun_ajaran']]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tahun pelajaran berhasil diperbarui',
+            'tahun_ajaran' => $validated['tahun_ajaran']
+        ]);
+    }
 }

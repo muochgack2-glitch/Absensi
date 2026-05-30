@@ -300,7 +300,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
     animation: fadeIn 0.3s ease-out;
     z-index: 1;
 }
@@ -336,9 +337,9 @@
 }
 
 .modal-content {
-    background: var(--bg-primary);
+    background: #ffffff;
     border-radius: var(--radius-2xl);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     position: relative;
     z-index: 3;
@@ -381,6 +382,8 @@
 
 .modal-body {
     padding: var(--space-6);
+    background: #ffffff;
+    color: #1e293b;
 }
 
 .modal-footer {
@@ -471,6 +474,7 @@
 .modal-modern .modal-body {
     position: relative;
     z-index: 5;
+    background: #ffffff;
 }
 
 .modal-modern button {

@@ -1,12 +1,29 @@
 <div class="sidebar" id="adminSidebar">
-    <!-- Sidebar Brand -->
+    <!-- Sidebar Brand with Logo -->
     <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-            <i class="fas fa-graduation-cap"></i>
-        </div>
+        @php
+            $settings = \App\Models\SettingSystem::instance()->toSettingsArray();
+            $schoolLogo = $settings['school_logo'] ?? null;
+        @endphp
+        
+        @if($schoolLogo)
+            <div class="sidebar-brand-logo">
+                <img src="{{ asset('storage/' . $schoolLogo) }}" alt="Logo Sekolah">
+            </div>
+        @else
+            <div class="sidebar-brand-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+        @endif
+        
         <div class="sidebar-brand-text">
             SPMB
         </div>
+        
+        <!-- Toggle Button in Sidebar -->
+        <button class="sidebar-toggle-btn d-none d-lg-flex" type="button" id="sidebarToggle" title="Toggle Sidebar">
+            <i class="fas fa-circle"></i>
+        </button>
     </div>
 
     <!-- Sidebar Navigation -->
@@ -32,10 +49,38 @@
             </a>
         </li>
         @if(auth()->check() && auth()->user()->isAdministrator())
-        <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="{{ route('settings.index') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Pengaturan Sistem">
-                <i class="fas fa-cog"></i> <span class="nav-text">Pengaturan Sistem</span>
+        <li class="nav-item has-submenu">
+            <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="#" data-bs-toggle="collapse" data-bs-target="#settingsSubmenu" aria-expanded="{{ request()->routeIs('settings.*') ? 'true' : 'false' }}" title="Pengaturan Sistem">
+                <i class="fas fa-cog"></i> 
+                <span class="nav-text">Pengaturan Sistem</span>
+                <i class="fas fa-chevron-down submenu-arrow"></i>
             </a>
+            <ul class="submenu collapse {{ request()->routeIs('settings.*') ? 'show' : '' }}" id="settingsSubmenu">
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('settings.index') && request()->input('tab') == 'profil' ? 'active' : '' }}" href="{{ route('settings.index') }}?tab=profil">
+                        <i class="fas fa-school"></i>
+                        <span class="nav-text">Profil Sekolah</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('settings.index') && request()->input('tab') == 'pendaftaran' ? 'active' : '' }}" href="{{ route('settings.index') }}?tab=pendaftaran">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="nav-text">Pendaftaran</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('settings.index') && request()->input('tab') == 'branding' ? 'active' : '' }}" href="{{ route('settings.index') }}?tab=branding">
+                        <i class="fas fa-palette"></i>
+                        <span class="nav-text">Branding</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('settings.index') && request()->input('tab') == 'dokumen' ? 'active' : '' }}" href="{{ route('settings.index') }}?tab=dokumen">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="nav-text">Dokumen</span>
+                    </a>
+                </li>
+            </ul>
         </li>
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Manajemen User">

@@ -18,7 +18,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ asset('css/modern-utilities.css') }}" rel="stylesheet">
     <style>
         :root {
             --primary: var(--theme-primary, #6366f1);
@@ -692,7 +691,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/modal.js') }}"></script>
     <script>
         // NISN input - only numbers
         document.getElementById('nisn').addEventListener('input', function(e) {
@@ -701,51 +699,17 @@
 
         // Form submission with validation
         document.getElementById('registrationForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
             const nisn = document.getElementById('nisn').value;
             if (nisn.length !== 10) {
-                if (typeof Modal !== 'undefined') {
-                    Modal.alert('NISN harus 10 digit!', 'Peringatan', 'warning');
-                } else {
-                    alert('NISN harus 10 digit!');
-                }
+                e.preventDefault();
+                alert('NISN harus 10 digit!');
                 return false;
             }
 
-            // Get form data
-            const namaLengkap = document.getElementById('nama_lengkap').value;
-            const asalSekolah = document.getElementById('asal_sekolah').value;
-            const jurusanSelect = document.getElementById('jurusan_id');
-            const jurusanText = jurusanSelect.options[jurusanSelect.selectedIndex].text;
-            
-            const formElement = this;
+            // Disable button to prevent double submit
             const btn = document.getElementById('submitBtn');
-            
-            // Show confirmation if Modal is available
-            if (typeof Modal !== 'undefined') {
-                Modal.confirm(
-                    '<div style="text-align: left;"><p style="margin-bottom: 12px;">Pastikan data berikut sudah benar:</p><table style="width: 100%; font-size: 14px;"><tr><td style="padding: 6px 0; color: #64748b;">NISN</td><td style="padding: 6px 0; font-weight: 600;">: ' + nisn + '</td></tr><tr><td style="padding: 6px 0; color: #64748b;">Nama</td><td style="padding: 6px 0; font-weight: 600;">: ' + namaLengkap + '</td></tr><tr><td style="padding: 6px 0; color: #64748b;">Asal Sekolah</td><td style="padding: 6px 0; font-weight: 600;">: ' + asalSekolah + '</td></tr><tr><td style="padding: 6px 0; color: #64748b;">Jurusan</td><td style="padding: 6px 0; font-weight: 600;">: ' + jurusanText + '</td></tr></table><p style="margin-top: 12px; font-size: 13px; color: #64748b;"><i class="fas fa-info-circle"></i> Data yang sudah dikirim tidak dapat diubah.</p></div>',
-                    function() {
-                        btn.disabled = true;
-                        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-                        formElement.submit();
-                    },
-                    {
-                        title: 'Konfirmasi Pendaftaran',
-                        confirmText: 'Ya, Daftar Sekarang',
-                        cancelText: 'Periksa Lagi',
-                        type: 'info'
-                    }
-                );
-            } else {
-                // Fallback if Modal not loaded
-                if (confirm('Apakah data sudah benar?\n\nNISN: ' + nisn + '\nNama: ' + namaLengkap + '\nAsal Sekolah: ' + asalSekolah + '\nJurusan: ' + jurusanText)) {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-                    formElement.submit();
-                }
-            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
         });
 
         // Add entrance animations to fields

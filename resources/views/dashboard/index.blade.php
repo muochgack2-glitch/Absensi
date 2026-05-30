@@ -3,43 +3,21 @@
 @section('title', 'Dashboard - SPMB (Sistem Penerimaan Murid Baru)')
 
 @push('styles')
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-    /* Modern Dashboard Styles - Inspired by eRapor8 */
-    body { 
-        font-family: 'Inter', sans-serif !important;
-        background-color: #f8fafc !important;
-    }
-
-    /* Page Transitions */
+    /* Modern Dashboard Styles */
     .dashboard-content {
-        animation: zoomFadeIn 0.35s ease-out;
+        animation: fadeIn 0.3s ease-out;
     }
 
-    @keyframes zoomFadeIn {
+    @keyframes fadeIn {
         from {
             opacity: 0;
-            transform: scale(0.97);
+            transform: translateY(10px);
         }
         to {
             opacity: 1;
-            transform: scale(1);
+            transform: translateY(0);
         }
-    }
-
-    /* Modern Card Styling */
-    .card {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: #ffffff;
-        overflow: hidden;
-    }
-
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
     }
 
     /* Dashboard Header */
@@ -52,216 +30,30 @@
         font-weight: 700;
         color: #1e293b;
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
     .dashboard-header .subtitle {
         color: #64748b;
         font-size: 14px;
-        margin-top: 4px;
+        margin-top: 8px;
     }
 
-    /* Stat Cards */
-    .stat-card {
-        position: relative;
-        padding: 24px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        border-left: 4px solid;
+    /* Update Info */
+    .update-info {
+        text-align: right;
+        margin-bottom: 20px;
     }
 
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, currentColor, transparent);
-        opacity: 0.1;
-    }
-
-    .stat-card.blue { border-left-color: #3b82f6; }
-    .stat-card.yellow { border-left-color: #f59e0b; }
-    .stat-card.red { border-left-color: #ef4444; }
-    .stat-card.green { border-left-color: #10b981; }
-
-    .stat-card .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        margin-bottom: 16px;
-        color: #ffffff;
-    }
-
-    .stat-card.blue .stat-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-    .stat-card.yellow .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
-    .stat-card.red .stat-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
-    .stat-card.green .stat-icon { background: linear-gradient(135deg, #10b981, #059669); }
-
-    .stat-card .stat-label {
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #64748b;
-        margin-bottom: 8px;
-    }
-
-    .stat-card .stat-value {
-        font-size: 36px;
-        font-weight: 800;
-        color: #1e293b;
-        line-height: 1;
-        margin-bottom: 12px;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .stat-card .stat-description {
-        font-size: 13px;
-        color: #94a3b8;
-        margin-top: auto;
-    }
-
-    .stat-card .stat-meta {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid #f1f5f9;
-    }
-
-    .trend-badge {
+    .update-info small {
         font-size: 12px;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 6px;
-        background: #f1f5f9;
-    }
-
-    .sparkline {
-        width: 80px;
-        height: 24px;
-        margin-left: auto;
-    }
-
-    /* Section Cards */
-    .section-card {
-        padding: 28px;
-    }
-
-    .section-card .section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 24px;
-    }
-
-    .section-card .section-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .section-card .section-title i {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: #ffffff;
-        font-size: 14px;
-    }
-
-    .live-badge {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: #ffffff;
+        color: #94a3b8;
+        font-weight: 500;
         display: inline-flex;
         align-items: center;
         gap: 6px;
-    }
-
-    .live-badge::before {
-        content: '';
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #ffffff;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    /* Modern Table */
-    .modern-table {
-        margin: 0;
-    }
-
-    .modern-table thead th {
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #64748b;
-        background: #f8fafc;
-        border-bottom: 2px solid #e2e8f0;
-        padding: 12px 16px;
-    }
-
-    .modern-table tbody td {
-        padding: 14px 16px;
-        color: #475569;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .modern-table tbody tr {
-        transition: background-color 0.2s;
-    }
-
-    .modern-table tbody tr:hover {
-        background-color: #f8fafc;
-    }
-
-    /* Badges */
-    .badge-modern {
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
-
-    .badge-modern.badge-success {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .badge-modern.badge-danger {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .badge-modern.badge-primary {
-        background: #dbeafe;
-        color: #1e40af;
     }
 
     /* Metric Badges */
@@ -291,16 +83,22 @@
         color: #475569;
     }
 
-    /* Update Info */
-    .update-info {
-        text-align: right;
-        margin-bottom: 20px;
+    /* Network Stats Item */
+    .network-stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid #f1f5f9;
     }
 
-    .update-info small {
-        font-size: 12px;
-        color: #94a3b8;
-        font-weight: 500;
+    .network-stat-item:last-child {
+        border-bottom: none;
+    }
+
+    .network-stat-item strong {
+        color: #1e293b;
+        font-size: 14px;
     }
 
     /* Responsive */
@@ -308,32 +106,6 @@
         .dashboard-header h2 {
             font-size: 24px;
         }
-
-        .stat-card .stat-value {
-            font-size: 28px;
-        }
-
-        .section-card {
-            padding: 20px;
-        }
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 48px 24px;
-        color: #94a3b8;
-    }
-
-    .empty-state i {
-        font-size: 48px;
-        margin-bottom: 16px;
-        opacity: 0.5;
-    }
-
-    .empty-state p {
-        margin: 0;
-        font-size: 14px;
     }
 </style>
 @endpush
@@ -341,189 +113,239 @@
 @section('content')
 <div class="dashboard-content">
     @if (Session::has('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px; border-left: 4px solid #10b981;">
-            <i class="fas fa-check-circle me-2"></i>{{ Session::get('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <x-alert type="success" dismissible="true">
+            {{ Session::get('success') }}
+        </x-alert>
     @endif
 
     <!-- Dashboard Header -->
     <div class="dashboard-header">
-        <h2>Dashboard</h2>
-        <div class="subtitle">Selamat datang di Sistem Penerimaan Murid Baru</div>
+        <h2>
+            <i class="fas fa-chart-line text-primary"></i>
+            Dashboard
+        </h2>
+        <div class="subtitle">
+            <i class="fas fa-info-circle me-1"></i>
+            Selamat datang di Sistem Penerimaan Murid Baru
+        </div>
     </div>
 
     <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-6 col-lg-3">
-            <div class="card stat-card blue">
-                <div class="stat-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-label">Total Pendaftar</div>
-                <div class="stat-value" id="totalPendaftar">0</div>
-                <div class="stat-description">Semua angkatan</div>
-                <div class="stat-meta">
-                    <span class="trend-badge" id="delta-totalPendaftar"></span>
-                    <svg class="sparkline" id="spark-totalPendaftar" viewBox="0 0 120 28" preserveAspectRatio="none"></svg>
-                </div>
-            </div>
+            <x-stat-card 
+                icon="fas fa-users" 
+                label="Total Pendaftar" 
+                value="0" 
+                color="blue"
+                description="Semua angkatan"
+                id="totalPendaftar"
+            >
+                <x-slot:sparkline>
+                    <svg class="sparkline" id="spark-totalPendaftar" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
+                </x-slot:sparkline>
+            </x-stat-card>
         </div>
         <div class="col-md-6 col-lg-3">
-            <div class="card stat-card yellow">
-                <div class="stat-icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <div class="stat-label">Pendaftar Baru</div>
-                <div class="stat-value" id="totalBaruHariIni">0</div>
-                <div class="stat-description">Hari ini</div>
-                <div class="stat-meta">
-                    <span class="trend-badge" id="delta-totalBaruHariIni"></span>
-                    <svg class="sparkline" id="spark-totalBaruHariIni" viewBox="0 0 120 28" preserveAspectRatio="none"></svg>
-                </div>
-            </div>
+            <x-stat-card 
+                icon="fas fa-user-plus" 
+                label="Pendaftar Baru" 
+                value="0" 
+                color="yellow"
+                description="Hari ini"
+                id="totalBaruHariIni"
+            >
+                <x-slot:sparkline>
+                    <svg class="sparkline" id="spark-totalBaruHariIni" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
+                </x-slot:sparkline>
+            </x-stat-card>
         </div>
         <div class="col-md-6 col-lg-3">
-            <div class="card stat-card red">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-label">Belum Daftar Ulang</div>
-                <div class="stat-value" id="totalBelumBayar">0</div>
-                <div class="stat-description">Menunggu verifikasi</div>
-                <div class="stat-meta">
-                    <span class="trend-badge" id="delta-totalBelumBayar"></span>
-                    <svg class="sparkline" id="spark-totalBelumBayar" viewBox="0 0 120 28" preserveAspectRatio="none"></svg>
-                </div>
-            </div>
+            <x-stat-card 
+                icon="fas fa-clock" 
+                label="Belum Daftar Ulang" 
+                value="0" 
+                color="red"
+                description="Menunggu verifikasi"
+                id="totalBelumBayar"
+            >
+                <x-slot:sparkline>
+                    <svg class="sparkline" id="spark-totalBelumBayar" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
+                </x-slot:sparkline>
+            </x-stat-card>
         </div>
         <div class="col-md-6 col-lg-3">
-            <div class="card stat-card green">
-                <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-label">Sudah Daftar Ulang</div>
-                <div class="stat-value" id="totalLunas">0</div>
-                <div class="stat-description">Terverifikasi</div>
-                <div class="stat-meta">
-                    <span class="trend-badge" id="delta-totalLunas"></span>
-                    <svg class="sparkline" id="spark-totalLunas" viewBox="0 0 120 28" preserveAspectRatio="none"></svg>
-                </div>
-            </div>
+            <x-stat-card 
+                icon="fas fa-check-circle" 
+                label="Sudah Daftar Ulang" 
+                value="0" 
+                color="green"
+                description="Terverifikasi"
+                id="totalLunas"
+            >
+                <x-slot:sparkline>
+                    <svg class="sparkline" id="spark-totalLunas" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
+                </x-slot:sparkline>
+            </x-stat-card>
         </div>
     </div>
 
     <!-- Update Info -->
     <div class="update-info">
-        <small id="lastUpdated">Update terakhir: -</small>
+        <small>
+            <i class="fas fa-sync-alt me-1"></i>
+            <span id="lastUpdated">Update terakhir: -</span>
+        </small>
     </div>
 
     <!-- Per Jurusan Stats -->
-    <div class="card section-card mb-4">
-        <div class="section-header">
-            <h5 class="section-title">
-                <i class="fas fa-layer-group"></i>
-                Statistik Per Jurusan
-            </h5>
-            <span class="live-badge">LIVE</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table modern-table">
-                <thead>
-                    <tr>
-                        <th>Jurusan</th>
-                        <th class="text-center">Total</th>
-                        <th class="text-center">Hari Ini</th>
-                        <th class="text-center">Belum</th>
-                        <th class="text-center">Sudah</th>
-                    </tr>
-                </thead>
-                <tbody id="perJurusanStatsBody">
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-4">Memuat data...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <x-section-card title="Statistik Per Jurusan" icon="fas fa-layer-group" badge="LIVE" class="mb-4">
+        <x-table>
+            <x-slot:header>
+                <tr>
+                    <th>
+                        <i class="fas fa-graduation-cap me-1 text-muted"></i>
+                        Jurusan
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-users me-1 text-muted"></i>
+                        Total
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-calendar-day me-1 text-muted"></i>
+                        Hari Ini
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-hourglass-half me-1 text-muted"></i>
+                        Belum
+                    </th>
+                    <th class="text-center">
+                        <i class="fas fa-check-double me-1 text-muted"></i>
+                        Sudah
+                    </th>
+                </tr>
+            </x-slot:header>
+            
+            <tbody id="perJurusanStatsBody">
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        Memuat data...
+                    </td>
+                </tr>
+            </tbody>
+        </x-table>
+    </x-section-card>
 
     <!-- Recent Activity & Network Stats -->
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card section-card">
-                <div class="section-header">
-                    <h5 class="section-title">
-                        <i class="fas fa-list"></i>
-                        Pendaftar Terbaru
-                    </h5>
-                </div>
-                <div class="table-responsive">
-                    <table class="table modern-table">
-                        <thead>
-                            <tr>
-                                <th>No. Registrasi</th>
-                                <th>Nama</th>
-                                <th>Status</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($recentPendaftars as $p)
-                                @php
-                                    $status = optional($p->logistik)->status_bayar === 'Lunas'
-                                        ? 'Sudah Daftar Ulang'
-                                        : 'Belum Daftar Ulang';
-                                    $badgeClass = optional($p->logistik)->status_bayar === 'Lunas'
-                                        ? 'badge-success'
-                                        : 'badge-danger';
-                                @endphp
-                                <tr>
-                                    <td><strong>{{ $p->no_registrasi }}</strong></td>
-                                    <td>{{ $p->nama_lengkap }}</td>
-                                    <td><span class="badge-modern {{ $badgeClass }}">{{ $status }}</span></td>
-                                    <td class="text-center">
-                                        <a href="{{ route('pendaftar.daftar-ulang', $p->id_pendaftar) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4">
-                                        <div class="empty-state">
-                                            <i class="fas fa-inbox"></i>
-                                            <p>Belum ada data pendaftar</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <x-section-card title="Pendaftar Terbaru" icon="fas fa-list-ul">
+                <x-slot:actions>
+                    <x-button 
+                        variant="primary" 
+                        size="sm" 
+                        icon="fas fa-plus" 
+                        href="{{ route('pendaftar.create') }}"
+                    >
+                        Tambah Pendaftar
+                    </x-button>
+                </x-slot:actions>
+                
+                <x-table>
+                    <x-slot:header>
+                        <tr>
+                            <th>
+                                <i class="fas fa-hashtag me-1 text-muted"></i>
+                                No. Registrasi
+                            </th>
+                            <th>
+                                <i class="fas fa-user me-1 text-muted"></i>
+                                Nama
+                            </th>
+                            <th>
+                                <i class="fas fa-info-circle me-1 text-muted"></i>
+                                Status
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-cog me-1 text-muted"></i>
+                                Aksi
+                            </th>
+                        </tr>
+                    </x-slot:header>
+                    
+                    @forelse ($recentPendaftars as $p)
+                        @php
+                            $status = optional($p->logistik)->status_bayar === 'Lunas'
+                                ? 'Sudah Daftar Ulang'
+                                : 'Belum Daftar Ulang';
+                            $badgeClass = optional($p->logistik)->status_bayar === 'Lunas'
+                                ? 'badge-success'
+                                : 'badge-danger';
+                            $badgeIcon = optional($p->logistik)->status_bayar === 'Lunas'
+                                ? 'fa-check-circle'
+                                : 'fa-clock';
+                        @endphp
+                        <tr>
+                            <td>
+                                <strong class="text-primary">{{ $p->no_registrasi }}</strong>
+                            </td>
+                            <td>{{ $p->nama_lengkap }}</td>
+                            <td>
+                                <span class="badge bg-{{ optional($p->logistik)->status_bayar === 'Lunas' ? 'success' : 'danger' }} bg-opacity-10 text-{{ optional($p->logistik)->status_bayar === 'Lunas' ? 'success' : 'danger' }}">
+                                    <i class="fas {{ $badgeIcon }} me-1"></i>
+                                    {{ $status }}
+                                </span>
+                            </td>
+                            <td>
+                                <x-table-actions align="center">
+                                    <x-icon-button 
+                                        icon="fas fa-eye" 
+                                        variant="info" 
+                                        size="sm" 
+                                        tooltip="Lihat Detail"
+                                        href="{{ route('pendaftar.daftar-ulang', $p->id_pendaftar) }}"
+                                    />
+                                </x-table-actions>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="p-0">
+                                <x-empty-state 
+                                    icon="fas fa-inbox" 
+                                    message="Belum ada data pendaftar"
+                                    description="Pendaftar baru akan muncul di sini"
+                                />
+                            </td>
+                        </tr>
+                    @endforelse
+                </x-table>
+            </x-section-card>
         </div>
+        
         <div class="col-lg-4">
-            <div class="card section-card">
-                <div class="section-header">
-                    <h5 class="section-title">
-                        <i class="fas fa-chart-pie"></i>
-                        Statistik Jaringan
-                    </h5>
-                </div>
+            <x-section-card title="Statistik Jaringan" icon="fas fa-chart-pie">
                 @forelse ($perJaringanDashboard as $j)
-                    <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                    <div class="network-stat-item">
                         <div>
-                            <strong style="color: #1e293b;">{{ $j->nama_jaringan }}</strong>
+                            <i class="fas fa-network-wired text-primary me-2"></i>
+                            <strong>{{ $j->nama_jaringan }}</strong>
                         </div>
-                        <span class="badge-modern badge-primary">{{ $j->total }}</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-users me-1"></i>
+                            {{ $j->total }}
+                        </span>
                     </div>
                 @empty
-                    <div class="empty-state">
-                        <i class="fas fa-chart-pie"></i>
-                        <p>Belum ada data jaringan</p>
-                    </div>
+                    <x-empty-state 
+                        icon="fas fa-chart-pie" 
+                        message="Belum ada data jaringan"
+                        description="Data jaringan akan muncul di sini"
+                        size="sm"
+                    />
                 @endforelse
-            </div>
+            </x-section-card>
         </div>
     </div>
 </div>
@@ -561,25 +383,44 @@
     }
 
     function setCardValue(elementId, value) {
-        const el = document.getElementById(elementId);
-        if (!el) return;
-        animateCounter(el, value);
+        // Find the stat-value element within the card
+        const card = document.getElementById(elementId);
+        if (!card) return;
+        
+        const valueEl = card.querySelector('.stat-value');
+        if (!valueEl) return;
+        
+        animateCounter(valueEl, value);
     }
 
     function setTrendBadge(metricKey, deltaValue) {
-        const el = document.getElementById(`delta-${metricKey}`);
-        if (!el) return;
+        const card = document.getElementById(metricKey);
+        if (!card) return;
+        
+        // Find or create trend badge in stat-meta
+        let trendEl = card.querySelector('.trend-badge');
+        if (!trendEl) {
+            const metaEl = card.querySelector('.stat-meta');
+            if (metaEl) {
+                trendEl = document.createElement('span');
+                trendEl.className = 'trend-badge';
+                metaEl.insertBefore(trendEl, metaEl.firstChild);
+            }
+        }
+        
+        if (!trendEl) return;
+        
         const val = Number(deltaValue) || 0;
         if (val === 0) {
-            el.textContent = '';
-            el.style.display = 'none';
+            trendEl.textContent = '';
+            trendEl.style.display = 'none';
             return;
         }
         const sign = val > 0 ? '+' : '';
-        el.textContent = `${sign}${val} vs kemarin`;
-        el.style.display = 'inline-block';
-        el.style.color = val > 0 ? '#10b981' : '#ef4444';
-        el.style.fontWeight = '600';
+        trendEl.textContent = `${sign}${val} vs kemarin`;
+        trendEl.style.display = 'inline-block';
+        trendEl.style.color = val > 0 ? '#10b981' : '#ef4444';
+        trendEl.style.fontWeight = '600';
     }
 
     function renderSparkline(metricKey, values) {
@@ -602,7 +443,7 @@
         if (!tbody) return;
 
         if (!rows.length) {
-            tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-layer-group"></i><p>Belum ada data jurusan</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-0"><div style="text-align: center; padding: 48px 24px; color: #94a3b8;"><i class="fas fa-layer-group" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">Belum ada data jurusan</p></div></td></tr>`;
             return;
         }
 
@@ -610,7 +451,7 @@
             const jur = r.jurusan ?? '-';
             return `
             <tr>
-                <td><span class="jurusan-chip">${jur}</span></td>
+                <td><span class="jurusan-chip"><i class="fas fa-graduation-cap me-1"></i>${jur}</span></td>
                 <td class="text-center"><span class="metric-badge metric-total">${r.totalPendaftar ?? 0}</span></td>
                 <td class="text-center"><span class="metric-badge metric-today">${r.totalBaruHariIni ?? 0}</span></td>
                 <td class="text-center"><span class="metric-badge metric-belum">${r.totalBelumBayar ?? 0}</span></td>

@@ -31,6 +31,10 @@ Route::middleware('admin')->group(function () {
         return view('demo.modals');
     })->name('demo.modals');
     
+    Route::get('/demo/modals-preview', function () {
+        return view('demo.modals-preview');
+    })->name('demo.modals-preview');
+    
     Route::get('/dashboard', function () {
         $recentPendaftars = \App\Models\Pendaftar::with('logistik')
             ->latest('id_pendaftar')
@@ -74,6 +78,7 @@ Route::middleware('admin')->group(function () {
     Route::middleware('ensureAdmin')->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/tahun-ajaran', [SettingsController::class, 'updateTahunAjaran'])->name('settings.update-tahun-ajaran');
         Route::post('/settings/jurusan', [SettingsController::class, 'storeJurusan'])->name('settings.jurusan.store');
         Route::put('/settings/jurusan/{jurusan}', [SettingsController::class, 'updateJurusan'])->name('settings.jurusan.update');
         Route::delete('/settings/jurusan/{jurusan}', [SettingsController::class, 'destroyJurusan'])->name('settings.jurusan.destroy');

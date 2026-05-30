@@ -11,6 +11,18 @@
     <link href="{{ asset('css/modern-utilities.css') }}" rel="stylesheet">
     @stack('styles')
     @include('partials.admin-theme-vars')
+    
+    <!-- Prevent Sidebar Flash - Load State Before Render -->
+    <script>
+        // Load sidebar state immediately before page renders
+        (function() {
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebarCollapsed && window.innerWidth >= 992) {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        })();
+    </script>
+    
     <style>
         html {
             overflow-y: scroll;
@@ -36,18 +48,57 @@
             min-height: 100vh !important;
             padding: 0 !important;
             flex: 0 0 250px !important;
-            transition: all 0.3s ease !important;
-            overflow: hidden !important;
+            transition: none !important; /* Disable transition on page load */
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
             position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
             z-index: 1000;
         }
+        
+        /* Enable transitions after page load */
+        .sidebar.transitions-enabled {
+            transition: all 0.3s ease !important;
+        }
 
         .sidebar.collapsed {
             width: 70px !important;
             flex: 0 0 70px !important;
+        }
+        
+        /* Pre-collapsed state from localStorage (before JS runs) */
+        html.sidebar-collapsed .sidebar {
+            width: 70px !important;
+            flex: 0 0 70px !important;
+        }
+        
+        html.sidebar-collapsed .sidebar .nav-text {
+            opacity: 0 !important;
+            width: 0 !important;
+            display: inline-block !important;
+            overflow: hidden !important;
+        }
+        
+        html.sidebar-collapsed .sidebar .nav-link {
+            justify-content: center !important;
+            padding: 12px 10px !important;
+        }
+        
+        html.sidebar-collapsed .sidebar .sidebar-brand {
+            padding: 20px 10px;
+            justify-content: center;
+        }
+        
+        html.sidebar-collapsed .sidebar .sidebar-brand-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        html.sidebar-collapsed .main-wrapper {
+            margin-left: 70px !important;
         }
 
         .sidebar.collapsed .nav-text {
@@ -71,11 +122,60 @@
             gap: 12px;
             min-height: 80px;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .sidebar.collapsed .sidebar-brand {
             padding: 20px 10px;
             justify-content: center;
+        }
+        
+        /* Sidebar Toggle Button in Sidebar */
+        .sidebar-toggle-btn {
+            position: absolute;
+            right: 20px;
+            top: 30px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+            z-index: 10;
+            font-size: 10px;
+            padding: 0;
+            opacity: 1;
+        }
+        
+        .sidebar-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 1);
+        }
+        
+        /* When collapsed, hide the button */
+        .sidebar.collapsed .sidebar-toggle-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* Show button when collapsed sidebar is hovered */
+        .sidebar.collapsed:hover .sidebar-toggle-btn {
+            opacity: 1;
+            pointer-events: auto;
+            right: 20px;
+        }
+        
+        /* Hide toggle button on mobile */
+        @media (max-width: 991px) {
+            .sidebar-toggle-btn {
+                display: none !important;
+            }
         }
 
         .sidebar-brand-icon {
@@ -90,11 +190,30 @@
             font-size: 20px;
             flex-shrink: 0;
         }
+        
+        .sidebar-brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 4px;
+        }
 
         .sidebar-brand-text {
             color: #ffffff;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 24px;
             line-height: 1.2;
             transition: opacity 0.3s ease;
         }
@@ -103,6 +222,44 @@
             opacity: 0;
             width: 0;
             overflow: hidden;
+        }
+        
+        .sidebar.collapsed .sidebar-brand-logo,
+        .sidebar.collapsed .sidebar-brand-icon {
+            display: flex;
+        }
+        
+        /* Hover Expanded State (when collapsed sidebar is hovered) */
+        .sidebar.collapsed:hover {
+            width: 250px !important;
+            flex: 0 0 250px !important;
+            z-index: 1001 !important;
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        .sidebar.collapsed:hover .nav-text {
+            opacity: 1 !important;
+            width: auto !important;
+        }
+        
+        .sidebar.collapsed:hover .nav-link {
+            justify-content: flex-start !important;
+            padding: 12px 20px !important;
+        }
+        
+        .sidebar.collapsed:hover .sidebar-brand {
+            padding: 20px;
+            justify-content: flex-start;
+        }
+        
+        .sidebar.collapsed:hover .sidebar-brand-text {
+            opacity: 1;
+            width: auto;
+        }
+        
+        /* Keep toggle button in same position when hover */
+        .sidebar.collapsed:hover .sidebar-toggle-btn {
+            right: 21px;  /* Stay in same position */
         }
 
         /* Sidebar Navigation */
@@ -121,6 +278,8 @@
             align-items: center !important;
             gap: 12px !important;
             white-space: nowrap !important;
+            cursor: pointer !important; /* Add cursor pointer */
+            user-select: none !important; /* Prevent text selection */
         }
 
         .sidebar .nav-link i {
@@ -135,22 +294,109 @@
         .sidebar .nav-link:hover {
             background-color: rgba(255,255,255,0.1) !important;
             border-left-color: var(--primary) !important;
+            cursor: pointer !important; /* Ensure cursor on hover */
         }
 
         .sidebar .nav-link.active {
             background: var(--primary) !important;
             border-left-color: white !important;
             box-shadow: none !important;
+            cursor: pointer !important;
+        }
+
+        /* Submenu Dropdown Styles */
+        .sidebar .nav-item.has-submenu > .nav-link {
+            position: relative;
+        }
+
+        .sidebar .submenu-arrow {
+            position: absolute;
+            right: 20px;
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar .nav-link[aria-expanded="true"] .submenu-arrow {
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .submenu-arrow {
+            display: none;
+        }
+
+        .sidebar .submenu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar .submenu li {
+            margin: 0;
+        }
+
+        .sidebar .submenu-link {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 10px 20px 10px 45px !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            text-decoration: none !important;
+            transition: all 0.3s !important;
+            font-size: 14px !important;
+            white-space: nowrap !important;
+            cursor: pointer !important;
+        }
+
+        .sidebar .submenu-link i {
+            min-width: 18px !important;
+            text-align: center !important;
+            font-size: 14px !important;
+        }
+
+        .sidebar .submenu-link:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            padding-left: 50px !important;
+        }
+
+        .sidebar .submenu-link.active {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+
+        /* Hide submenu when sidebar collapsed */
+        .sidebar.collapsed .submenu {
+            display: none !important;
+        }
+
+        /* Show submenu on hover when collapsed */
+        .sidebar.collapsed:hover .submenu.show {
+            display: block !important;
+        }
+
+        .sidebar.collapsed:hover .submenu-arrow {
+            display: inline-block;
+        }
+
+        .sidebar.collapsed:hover .nav-link[aria-expanded="true"] .submenu-arrow {
+            transform: rotate(180deg);
         }
 
         /* Main Content Area */
         .main-wrapper {
             flex: 1;
             margin-left: 250px;
-            transition: margin-left 0.3s ease;
+            transition: none; /* Disable transition on page load */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+        }
+        
+        /* Enable transitions after page load */
+        .main-wrapper.transitions-enabled {
+            transition: margin-left 0.3s ease;
         }
 
         .sidebar.collapsed + .main-wrapper {
@@ -184,6 +430,13 @@
             line-height: 1.2 !important;
             white-space: normal !important;
             max-width: 340px !important;
+            text-decoration: none !important;
+            color: #ffffff !important;
+            transition: opacity 0.3s !important;
+        }
+        
+        .navbar-brand:hover {
+            opacity: 0.9;
         }
 
         .navbar-brand .brand-mark {
@@ -202,6 +455,13 @@
             height: 100%;
             object-fit: contain;
             border-radius: 12px;
+            padding: 4px;
+            background: rgba(255,255,255,0.95);
+        }
+        
+        .navbar-brand .brand-mark i {
+            font-size: 20px;
+            color: #ffffff;
         }
 
         .navbar-brand .brand-text {
@@ -234,23 +494,42 @@
             opacity: 0.82;
             margin: 0;
         }
-
-        /* Sidebar Toggle Button */
-        .sidebar-toggle {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
+        
+        /* Navbar Title (Static + Dynamic) */
+        .navbar-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
             color: #ffffff;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+        }
+        
+        .navbar-title-main {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar-title-sub {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.95;
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            gap: 8px;
         }
-
-        .sidebar-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
+        
+        .school-name {
+            font-weight: 600;
+        }
+        
+        .separator {
+            opacity: 0.6;
+        }
+        
+        .year-text {
+            font-weight: 500;
         }
 
         /* Content Area */
@@ -330,6 +609,19 @@
                 white-space: normal !important;
                 line-height: 1.25 !important;
             }
+            
+            .navbar-title {
+                max-width: calc(100vw - 200px);
+            }
+            
+            .navbar-title-main {
+                font-size: 13px;
+            }
+            
+            .navbar-title-sub {
+                font-size: 11px;
+                flex-wrap: wrap;
+            }
 
             .main-content {
                 max-width: none;
@@ -398,10 +690,13 @@
         const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (sidebarCollapsed && window.innerWidth >= 992) {
             sidebar.classList.add('collapsed');
-            if (mainWrapper) {
-                mainWrapper.style.marginLeft = '70px';
-            }
         }
+        
+        // Enable transitions after initial state is set
+        setTimeout(function() {
+            sidebar.classList.add('transitions-enabled');
+            mainWrapper.classList.add('transitions-enabled');
+        }, 50);
         
         // Initialize Bootstrap tooltips for collapsed state
         let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -417,13 +712,15 @@
                 sidebar.classList.toggle('collapsed');
                 const isCollapsed = sidebar.classList.contains('collapsed');
                 
-                // Update main wrapper margin
-                if (mainWrapper) {
-                    mainWrapper.style.marginLeft = isCollapsed ? '70px' : '250px';
-                }
-                
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', isCollapsed);
+                
+                // Update HTML class for CSS
+                if (isCollapsed) {
+                    document.documentElement.classList.add('sidebar-collapsed');
+                } else {
+                    document.documentElement.classList.remove('sidebar-collapsed');
+                }
                 
                 // Update tooltips
                 tooltipList.forEach(function(tooltip) {
@@ -433,24 +730,7 @@
                         tooltip.disable();
                     }
                 });
-                
-                // Update toggle button icon
-                const icon = toggleBtn.querySelector('i');
-                if (isCollapsed) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-angles-right');
-                } else {
-                    icon.classList.remove('fa-angles-right');
-                    icon.classList.add('fa-bars');
-                }
             });
-            
-            // Set initial icon state
-            const icon = toggleBtn.querySelector('i');
-            if (sidebarCollapsed) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-angles-right');
-            }
         }
 
         // Mobile menu toggle
