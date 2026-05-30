@@ -4,160 +4,64 @@
 
 @push('styles')
 <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-        body { font-family: 'Inter', sans-serif !important; }
-        .page-header-card {
-            background: linear-gradient(135deg, #ffffff, #f8fbff);
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-            padding: 22px 24px;
-            margin-bottom: 20px;
+    .dashboard-content {
+        animation: zoomFadeIn 0.35s ease-out;
+    }
+
+    @keyframes zoomFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.97);
         }
-        .page-title {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            color: #1e293b;
-            margin: 0;
+        to {
+            opacity: 1;
+            transform: scale(1);
         }
-        .page-subtitle {
-            margin-top: 6px;
-            color: #64748b;
-            font-size: 14px;
-        }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-        .summary-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 18px;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-        }
-        .summary-label {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            color: #64748b;
-        }
-        .summary-value {
-            margin-top: 10px;
-            font-size: 30px;
-            font-weight: 800;
-            line-height: 1;
-            color: #0f172a;
-        }
-        .summary-subtext {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-        .summary-card.is-danger .summary-value { color: #b91c1c; }
-        .summary-card.is-success .summary-value { color: #166534; }
-        .summary-card.is-info .summary-value { color: #1d4ed8; }
-        .summary-card.is-neutral .summary-value { color: #334155; }
-        .data-panel {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-            overflow: hidden;
-        }
-        .data-panel-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 16px 18px;
-            border-bottom: 1px solid #e2e8f0;
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-        }
-        .data-panel-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0;
-        }
-        .data-panel-subtitle {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 2px;
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        .table-shell {
-            padding: 18px;
-        }
-        #pendaftarTable thead th {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            color: #64748b;
-            white-space: nowrap;
-        }
-        #pendaftarTable tbody td {
-            vertical-align: middle;
-            font-size: 13px;
-        }
-        #pendaftarTable tbody tr:hover {
-            background: #f8fafc;
-        }
-        .reg-code {
-            font-weight: 800;
-            color: #0f172a;
-            font-variant-numeric: tabular-nums;
-        }
-        .jurusan-pill,
-        .size-pill,
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-        .jurusan-pill { background: #e0e7ff; color: #3730a3; }
-        .size-pill { background: #e0f2fe; color: #075985; }
-        .status-red {
-            background-color: #fee2e2;
-            color: #b91c1c;
-        }
-        .status-green {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 10px;
-        }
-        .empty-state {
-            padding: 28px 16px;
-        }
-        @media (max-width: 992px) {
-            .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (max-width: 576px) {
-            .page-header-card { padding: 18px; }
-            .page-title { font-size: 23px; }
-            .summary-grid { grid-template-columns: 1fr; }
-            .table-shell { padding: 12px; }
-        }
+    }
+
+    #pendaftarTable thead th {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #64748b;
+        white-space: nowrap;
+    }
+    #pendaftarTable tbody td {
+        vertical-align: middle;
+        font-size: 13px;
+    }
+    #pendaftarTable tbody tr:hover {
+        background: #f8fafc;
+    }
+    .reg-code {
+        font-weight: 800;
+        color: #0f172a;
+        font-variant-numeric: tabular-nums;
+    }
+    .jurusan-pill,
+    .size-pill,
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .jurusan-pill { background: #e0e7ff; color: #3730a3; }
+    .size-pill { background: #e0f2fe; color: #075985; }
+    .status-red {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+    .status-green {
+        background-color: #dcfce7;
+        color: #166534;
+    }
 </style>
 @endpush
 
@@ -169,58 +73,94 @@
     $totalDataAwal = $pendaftars->where('status_data', 'awal')->count();
 @endphp
 
-<div class="page-header-card d-flex justify-content-between align-items-center gap-3 flex-wrap">
-                <div>
-                    <h2 class="page-title">Data Pendaftar</h2>
-                    <p class="page-subtitle">Kelola daftar calon siswa, status pendaftaran, dan akses cepat ke dokumen penting.</p>
-                </div>
-                <a href="{{ route('pendaftar.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i> Tambah Pendaftar
-                </a>
-            </div>
+<div class="dashboard-content">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="mb-2">Data Pendaftar</h2>
+            <p class="text-muted mb-0">Kelola daftar calon siswa, status pendaftaran, dan akses cepat ke dokumen penting.</p>
+        </div>
+        <x-button variant="primary" icon="fas fa-plus" href="{{ route('pendaftar.create') }}">
+            Tambah Pendaftar
+        </x-button>
+    </div>
 
-            <div class="summary-grid">
-                <div class="summary-card is-neutral">
-                    <div class="summary-label">Total Pendaftar</div>
-                    <div class="summary-value">{{ $totalPendaftar }}</div>
-                    <div class="summary-subtext">Data pada halaman ini</div>
-                </div>
-                <div class="summary-card is-danger">
-                    <div class="summary-label">Belum Daftar Ulang</div>
-                    <div class="summary-value">{{ $totalBelumDaftarUlang }}</div>
-                    <div class="summary-subtext">Perlu ditindaklanjuti</div>
-                </div>
-                <div class="summary-card is-success">
-                    <div class="summary-label">Diterima</div>
-                    <div class="summary-value">{{ $totalDiterima }}</div>
-                    <div class="summary-subtext">Sudah diverifikasi</div>
-                </div>
-                <div class="summary-card is-info">
-                    <div class="summary-label">Data Awal</div>
-                    <div class="summary-value">{{ $totalDataAwal }}</div>
-                    <div class="summary-subtext">Perlu biodata lengkap</div>
-                </div>
-            </div>
+    <!-- Summary Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <x-stat-card 
+                icon="fas fa-users" 
+                label="Total Pendaftar" 
+                value="{{ $totalPendaftar }}"
+                color="blue"
+                description="Data pada halaman ini"
+            />
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <x-stat-card 
+                icon="fas fa-hourglass-half" 
+                label="Belum Daftar Ulang" 
+                value="{{ $totalBelumDaftarUlang }}"
+                color="red"
+                description="Perlu ditindaklanjuti"
+            />
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <x-stat-card 
+                icon="fas fa-check-circle" 
+                label="Diterima" 
+                value="{{ $totalDiterima }}"
+                color="green"
+                description="Sudah diverifikasi"
+            />
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <x-stat-card 
+                icon="fas fa-clipboard-list" 
+                label="Data Awal" 
+                value="{{ $totalDataAwal }}"
+                color="yellow"
+                description="Perlu biodata lengkap"
+            />
+        </div>
+    </div>
 
-            @if (Session::has('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle"></i> {{ Session::get('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+    @if (Session::has('success'))
+        <x-alert type="success" dismissible="true">
+            {{ Session::get('success') }}
+        </x-alert>
+    @endif
 
-            <div class="data-panel">
-                <div class="data-panel-head">
-                    <div>
-                        <h3 class="data-panel-title">Daftar Pendaftar</h3>
-                        <div class="data-panel-subtitle">Gunakan aksi cepat untuk edit biodata, cetak bukti, atau lanjut ke formulir lengkap.</div>
-                    </div>
-                </div>
-                <div class="table-shell">
+    <!-- Data Table -->
+    <x-section-card title="Daftar Pendaftar" icon="fas fa-list">
+        <x-slot:actions>
+            <small class="text-muted">Gunakan aksi cepat untuk edit biodata, cetak bukti, atau lanjut ke formulir lengkap</small>
+        </x-slot:actions>
                 <div class="table-responsive">
+                    <!-- Bulk Actions Bar -->
+                    <div id="bulkActionsBar" style="display: none; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; margin-bottom: 1rem; border: 2px solid #dee2e6;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <i class="fas fa-check-square text-primary me-2"></i>
+                                <strong><span id="selectedCount">0</span> pendaftar dipilih</strong>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()">
+                                    <i class="fas fa-trash me-1"></i> Hapus Terpilih
+                                </button>
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="clearSelection()">
+                                    <i class="fas fa-times me-1"></i> Batal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <table class="table table-hover" id="pendaftarTable">
                         <thead class="table-light">
                             <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" id="selectAll" title="Pilih Semua">
+                                </th>
                                 <th style="width: 80px;">No. Registrasi</th>
                                 <th>Nama Lengkap</th>
                                 <th style="width: 100px;">Jurusan</th>
@@ -244,6 +184,9 @@
                                     }
                                 @endphp
                                 <tr>
+                                    <td>
+                                        <input type="checkbox" class="select-item" value="{{ $p->id_pendaftar }}" onchange="updateBulkActionsBar()">
+                                    </td>
                                     <td><span class="reg-code">{{ $p->no_registrasi }}</span></td>
                                     <td>
                                         <div class="fw-semibold text-dark">{{ $p->nama_lengkap }}</div>
@@ -271,17 +214,31 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="d-flex gap-2 flex-wrap">
-                                            <a href="{{ route('pendaftar.edit', $p->id_pendaftar) }}" class="btn btn-sm btn-info" title="Edit Biodata">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <a href="{{ route('pendaftar.print.registrasi', $p->id_pendaftar) }}" target="_blank" class="btn btn-sm btn-primary" title="Cetak Bukti Registrasi">
-                                                <i class="fas fa-id-card"></i> Bukti Daftar
-                                            </a>
-                                            <a href="{{ route('pendaftar.print.formulir', $p->id_pendaftar) }}" target="_blank" class="btn btn-sm btn-success" title="Cetak Formulir Lengkap">
-                                                <i class="fas fa-file-lines"></i> Formulir
-                                            </a>
-                                        </div>
+                                        <x-table-actions align="start">
+                                            <x-icon-button 
+                                                icon="fas fa-edit" 
+                                                variant="info" 
+                                                size="sm"
+                                                href="{{ route('pendaftar.edit', $p->id_pendaftar) }}"
+                                                tooltip="Edit Biodata"
+                                            />
+                                            <x-icon-button 
+                                                icon="fas fa-id-card" 
+                                                variant="primary" 
+                                                size="sm"
+                                                href="{{ route('pendaftar.print.registrasi', $p->id_pendaftar) }}"
+                                                target="_blank"
+                                                tooltip="Cetak Bukti Registrasi"
+                                            />
+                                            <x-icon-button 
+                                                icon="fas fa-file-lines" 
+                                                variant="success" 
+                                                size="sm"
+                                                href="{{ route('pendaftar.print.formulir', $p->id_pendaftar) }}"
+                                                target="_blank"
+                                                tooltip="Cetak Formulir Lengkap"
+                                            />
+                                        </x-table-actions>
                                     </td>
                                 </tr>
                             @empty
@@ -295,20 +252,19 @@
                         </tbody>
                     </table>
                 </div>
-                </div>
-            </div>
+            </x-section-card>
 
             <!-- Pagination -->
             <div class="mt-4">
                 {{ $pendaftars->links() }}
             </div>
+</div>
 @endsection
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
         $(document).ready(function () {
             $('#pendaftarTable').DataTable({
@@ -320,32 +276,36 @@
                     zeroRecords: 'Tidak ada data yang ditemukan',
                     emptyTable: 'Belum ada data pendaftar'
                 },
-                columnDefs: [{ orderable: false, targets: -1 }]
+                columnDefs: [
+                    { orderable: false, targets: [0, -1] } // Disable sorting for checkbox and action columns
+                ]
             });
 
             @if (Session::has('created_pendaftar_id'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Data sudah dibuat',
-                    html: 'Pendaftar <strong>{{ addslashes(Session::get('created_pendaftar_name')) }}</strong><br>No. Registrasi: <strong>{{ Session::get('created_pendaftar_no') }}</strong><br><br>Apakah ingin melengkapi biodata sekarang?',
-                    showCancelButton: true,
-                    confirmButtonText: 'Edit Data Lengkap',
-                    cancelButtonText: 'Tidak, nanti saja',
-                    confirmButtonColor: 'var(--theme-primary)',
-                    cancelButtonColor: '#64748b'
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                Modal.confirm(
+                    'Pendaftar <strong>{{ addslashes(Session::get('created_pendaftar_name')) }}</strong><br>No. Registrasi: <strong>{{ Session::get('created_pendaftar_no') }}</strong><br><br>Apakah ingin melengkapi biodata sekarang?',
+                    function() {
                         window.location.href = '{{ route('pendaftar.edit', Session::get('created_pendaftar_id')) }}';
+                    },
+                    {
+                        title: 'Data Sudah Dibuat',
+                        confirmText: 'Edit Data Lengkap',
+                        cancelText: 'Tidak, nanti saja',
+                        type: 'success'
                     }
-                });
+                );
             @elseif (Session::has('rollback_success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Rollback Berhasil',
-                    html: '{!! addslashes(Session::get('success')) !!}',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: 'var(--theme-primary)'
-                });
+                Modal.alert(
+                    '{!! addslashes(Session::get('success')) !!}',
+                    'Rollback Berhasil',
+                    'success'
+                );
+            @elseif (Session::has('success'))
+                Modal.alert(
+                    '{{ addslashes(Session::get('success')) }}',
+                    'Berhasil',
+                    'success'
+                );
             @endif
 
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -353,5 +313,102 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
+
+        // Select All functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.select-item');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateBulkActionsBar();
+        });
+
+        // Update bulk actions bar
+        function updateBulkActionsBar() {
+            const selected = document.querySelectorAll('.select-item:checked');
+            const count = selected.length;
+            const selectAll = document.getElementById('selectAll');
+            const totalCheckboxes = document.querySelectorAll('.select-item').length;
+            
+            // Update "Select All" checkbox state
+            if (count === 0) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            } else if (count === totalCheckboxes) {
+                selectAll.checked = true;
+                selectAll.indeterminate = false;
+            } else {
+                selectAll.checked = false;
+                selectAll.indeterminate = true;
+            }
+            
+            // Show/hide bulk actions bar
+            if (count > 0) {
+                document.getElementById('bulkActionsBar').style.display = 'block';
+                document.getElementById('selectedCount').textContent = count;
+            } else {
+                document.getElementById('bulkActionsBar').style.display = 'none';
+            }
+        }
+
+        // Clear selection
+        function clearSelection() {
+            document.querySelectorAll('.select-item').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+            updateBulkActionsBar();
+        }
+
+        // Bulk delete
+        function bulkDelete() {
+            const selected = Array.from(document.querySelectorAll('.select-item:checked'))
+                                  .map(cb => cb.value);
+            
+            if (selected.length === 0) {
+                Modal.alert('Tidak ada pendaftar yang dipilih', 'Peringatan', 'warning');
+                return;
+            }
+            
+            Modal.confirm(
+                `Yakin ingin menghapus <strong>${selected.length} pendaftar</strong>?<br><small class="text-muted">Data yang dihapus tidak dapat dikembalikan.</small>`,
+                function() {
+                    // Show loading
+                    const bulkActionsBar = document.getElementById('bulkActionsBar');
+                    bulkActionsBar.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Menghapus...</div>';
+                    
+                    // Send request to server
+                    fetch('{{ route('pendaftar.bulk-delete') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ ids: selected })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Modal.alert(
+                                `Berhasil menghapus ${data.count} pendaftar`,
+                                'Sukses',
+                                'success'
+                            );
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            Modal.alert(data.message || 'Terjadi kesalahan', 'Error', 'danger');
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Modal.alert('Terjadi kesalahan saat menghapus data', 'Error', 'danger');
+                        location.reload();
+                    });
+                },
+                {
+                    title: 'Konfirmasi Hapus',
+                    confirmText: 'Ya, Hapus',
+                    cancelText: 'Batal',
+                    type: 'danger'
+                }
+            );
+        }
     </script>
 @endpush
