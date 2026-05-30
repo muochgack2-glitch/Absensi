@@ -1,4 +1,15 @@
 <div class="sidebar" id="adminSidebar">
+    <!-- Sidebar Brand -->
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="sidebar-brand-text">
+            SPMB
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
     <ul class="nav flex-column">
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard">

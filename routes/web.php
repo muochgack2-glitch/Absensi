@@ -25,6 +25,12 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 // Protected admin routes
 Route::middleware('admin')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Demo routes for UI components
+    Route::get('/demo/modals', function () {
+        return view('demo.modals');
+    })->name('demo.modals');
+    
     Route::get('/dashboard', function () {
         $recentPendaftars = \App\Models\Pendaftar::with('logistik')
             ->latest('id_pendaftar')
@@ -43,6 +49,7 @@ Route::middleware('admin')->group(function () {
 
     // Pendaftar routes
     Route::resource('pendaftar', PendaftarController::class);
+    Route::post('/pendaftar/bulk-delete', [PendaftarController::class, 'bulkDelete'])->name('pendaftar.bulk-delete');
     Route::get('/verifikasi-daftar-ulang', [PendaftarController::class, 'verificationIndex'])->name('pendaftar.verification-index');
     Route::get('/pendaftar/{id}/daftar-ulang-verification', [PendaftarController::class, 'showDaftarUlangVerification'])->name('pendaftar.daftar-ulang');
     Route::post('/pendaftar/{id}/process-daftar-ulang', [PendaftarController::class, 'processDaftarUlang'])->name('pendaftar.process-daftar-ulang');

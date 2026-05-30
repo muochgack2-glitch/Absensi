@@ -2,41 +2,25 @@
     <div class="container-fluid">
         @php
             $settings = \App\Models\SettingSystem::instance()->toSettingsArray();
-            $logo = !empty($settings['school_logo']) ? asset('storage/' . $settings['school_logo']) : null;
-            $schoolName = $settings['school_name'] ?? 'SPMB (Sistem Penerimaan Murid Baru)';
         @endphp
         
-        <!-- Tombol Toggle Sidebar (Desktop) -->
-        <button class="btn btn-sm btn-outline-light me-3 d-none d-lg-inline-flex" type="button" id="sidebarToggle">
+        <!-- Sidebar Toggle Button (Desktop) -->
+        <button class="sidebar-toggle me-3 d-none d-lg-flex" type="button" id="sidebarToggle">
             <i class="fas fa-bars"></i>
         </button>
         
-        <a class="navbar-brand d-flex align-items-center gap-3" href="{{ route('dashboard') }}">
-            <span class="brand-mark">
-                @if($logo)
-                    <img src="{{ $logo }}" alt="Logo {{ $schoolName }}">
-                @else
-                    <i class="fas fa-graduation-cap"></i>
-                @endif
-            </span>
-            <span class="brand-text">
-                <small class="brand-subtitle">SISTEM PENERIMAAN MURID BARU</small>
-                <strong>{{ $schoolName }}</strong>
-                <small class="brand-year">{{ $settings['academic_year'] ?? '' }}</small>
-            </span>
-        </a>
-        <button class="btn btn-sm btn-outline-light admin-mobile-menu-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebarOffcanvas" aria-controls="adminSidebarOffcanvas">
+        <!-- Mobile Menu Button -->
+        <button class="btn btn-sm btn-outline-light admin-mobile-menu-btn d-lg-none" type="button">
             <i class="fas fa-bars"></i> Menu
         </button>
-        <div class="navbar-collapse d-none d-lg-flex" id="navbarNav">
-            <div class="ms-auto d-flex align-items-center">
-                <button type="button" class="admin-theme-toggle me-3" data-admin-theme-toggle></button>
-                <div class="user-info">
-                    <div class="user-avatar"><i class="fas fa-user"></i></div>
-                    <div>
-                        <small>Selamat datang,</small>
-                        <div style="font-weight: 600;">{{ auth()->user()->name ?? 'User' }}</div>
-                    </div>
+        
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <button type="button" class="admin-theme-toggle" data-admin-theme-toggle></button>
+            <div class="user-info">
+                <div class="user-avatar"><i class="fas fa-user"></i></div>
+                <div class="d-none d-md-block">
+                    <small>Selamat datang,</small>
+                    <div style="font-weight: 600;">{{ auth()->user()->name ?? 'User' }}</div>
                 </div>
             </div>
         </div>
