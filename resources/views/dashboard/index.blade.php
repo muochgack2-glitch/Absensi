@@ -468,18 +468,36 @@
 
     async function loadStats() {
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
             const res = await fetch('{{ route('report.stats') }}', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken || ''
                 },
                 credentials: 'same-origin'
             });
             
             if (!res.ok) {
-                console.error('Stats API HTTP Error:', res.status, res.statusText);
+                const errorText = await res.text();
+                console.error('Stats API HTTP Error:', res.status, res.statusText, errorText);
+                
+                // Check if redirected to login
+                if (res.status === 401 || res.status === 419 || errorText.includes('login')) {
+                    renderPerJurusanStats([], 'Sesi berakhir. Silakan refresh halaman.');
+                    return;
+                }
+                
                 renderPerJurusanStats([], `HTTP Error: ${res.status} ${res.statusText}`);
+                return;
+            }
+            
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.error('Invalid content type:', contentType);
+                renderPerJurusanStats([], 'Response bukan JSON. Cek server logs.');
                 return;
             }
             
