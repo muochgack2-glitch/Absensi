@@ -438,9 +438,14 @@
         svg.innerHTML = `<polyline points="${points}" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"></polyline>`;
     }
 
-    function renderPerJurusanStats(rows = []) {
+    function renderPerJurusanStats(rows = [], error = null) {
         const tbody = document.getElementById('perJurusanStatsBody');
         if (!tbody) return;
+
+        if (error) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-0"><div style="text-align: center; padding: 48px 24px; color: #ef4444;"><i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px; font-weight: 600;">Gagal memuat data</p><p style="margin: 8px 0 0; font-size: 12px; color: #94a3b8;">${error}</p></div></td></tr>`;
+            return;
+        }
 
         if (!rows.length) {
             tbody.innerHTML = `<tr><td colspan="5" class="p-0"><div style="text-align: center; padding: 48px 24px; color: #94a3b8;"><i class="fas fa-layer-group" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">Belum ada data jurusan</p></div></td></tr>`;
@@ -473,11 +478,19 @@
             });
             
             if (!res.ok) {
-                console.error('Stats API HTTP Error:', res.status);
+                console.error('Stats API HTTP Error:', res.status, res.statusText);
+                renderPerJurusanStats([], `HTTP Error: ${res.status} ${res.statusText}`);
                 return;
             }
             
             const data = await res.json();
+            
+            // Check if response has error
+            if (data.error) {
+                console.error('Stats API Error:', data.error, data.message);
+                renderPerJurusanStats([], data.message || data.error);
+                return;
+            }
 
             setCardValue('totalPendaftar', data.totalPendaftar || 0);
             setCardValue('totalLunas', data.totalLunas || 0);
@@ -500,6 +513,7 @@
             if (last) last.textContent = `Update terakhir: ${data.updatedAt || '-'}`;
         } catch (e) {
             console.error('Failed to load stats:', e);
+            renderPerJurusanStats([], `Error: ${e.message}`);
         }
     }
 
