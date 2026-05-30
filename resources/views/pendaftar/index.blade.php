@@ -80,9 +80,28 @@
             <h2 class="mb-2">Data Pendaftar</h2>
             <p class="text-muted mb-0">Kelola daftar calon siswa, status pendaftaran, dan akses cepat ke dokumen penting.</p>
         </div>
-        <x-button variant="primary" icon="fas fa-plus" href="{{ route('pendaftar.create') }}">
-            Tambah Pendaftar
-        </x-button>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-download me-2"></i> Export
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="{{ route('pendaftar.export.excel') }}">
+                            <i class="fas fa-file-excel text-success me-2"></i> Export ke Excel (.xlsx)
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('pendaftar.export.pdf') }}" target="_blank">
+                            <i class="fas fa-file-pdf text-danger me-2"></i> Export ke PDF
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <x-button variant="primary" icon="fas fa-plus" href="{{ route('pendaftar.create') }}">
+                Tambah Pendaftar
+            </x-button>
+        </div>
     </div>
 
     <!-- Summary Stats -->

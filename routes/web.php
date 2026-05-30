@@ -50,6 +50,8 @@ Route::middleware('admin')->group(function () {
     // Pendaftar routes
     Route::resource('pendaftar', PendaftarController::class);
     Route::post('/pendaftar/bulk-delete', [PendaftarController::class, 'bulkDelete'])->name('pendaftar.bulk-delete');
+    Route::get('/pendaftar-export/excel', [PendaftarController::class, 'exportExcel'])->name('pendaftar.export.excel');
+    Route::get('/pendaftar-export/pdf', [PendaftarController::class, 'exportPdf'])->name('pendaftar.export.pdf');
     Route::get('/verifikasi-daftar-ulang', [PendaftarController::class, 'verificationIndex'])->name('pendaftar.verification-index');
     Route::get('/pendaftar/{id}/daftar-ulang-verification', [PendaftarController::class, 'showDaftarUlangVerification'])->name('pendaftar.daftar-ulang');
     Route::post('/pendaftar/{id}/process-daftar-ulang', [PendaftarController::class, 'processDaftarUlang'])->name('pendaftar.process-daftar-ulang');
