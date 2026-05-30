@@ -14,6 +14,7 @@ const HOST = process.env.HOST || 'localhost';
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public')); // Serve static files from public folder
 
 // Global variables
 let sock = null;
