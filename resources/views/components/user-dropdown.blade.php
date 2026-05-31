@@ -173,7 +173,7 @@
         border: 1px solid var(--border-light);
         border-radius: var(--radius-xl);
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        margin-top: 8px;
+        margin-top: 12px !important;
         overflow: hidden;
     }
 
