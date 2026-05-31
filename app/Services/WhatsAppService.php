@@ -130,6 +130,13 @@ class WhatsAppService
         ]);
 
         try {
+            Log::info('Attempting to send WhatsApp message', [
+                'phone' => $phone,
+                'message_length' => strlen($message),
+                'log_id' => $log->id,
+                'server_url' => $this->serverUrl,
+            ]);
+
             $response = Http::timeout($this->timeout)
                 ->retry($this->retryAttempts, 1000)
                 ->post("{$this->serverUrl}/send", [
@@ -137,15 +144,41 @@ class WhatsAppService
                     'message' => $message,
                 ]);
 
+            Log::info('WhatsApp server response', [
+                'status_code' => $response->status(),
+                'body' => $response->body(),
+                'log_id' => $log->id,
+            ]);
+
             if ($response->successful()) {
                 $responseData = $response->json();
+                
+                // Check if server actually sent the message
+                if (isset($responseData['success']) && $responseData['success'] === false) {
+                    // Server returned success HTTP code but message failed
+                    $errorMessage = $responseData['message'] ?? 'Message failed on WhatsApp server';
+                    $log->markAsFailed($errorMessage, $responseData);
+
+                    Log::warning('WhatsApp server returned success=false', [
+                        'phone' => $phone,
+                        'response' => $responseData,
+                        'log_id' => $log->id,
+                    ]);
+
+                    return [
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'log_id' => $log->id,
+                    ];
+                }
                 
                 // Mark as sent
                 $log->markAsSent($responseData);
 
-                Log::info('WhatsApp message sent', [
+                Log::info('WhatsApp message sent successfully', [
                     'phone' => $phone,
                     'log_id' => $log->id,
+                    'response' => $responseData,
                 ]);
 
                 return [
@@ -162,7 +195,9 @@ class WhatsAppService
 
             Log::error('WhatsApp message send failed', [
                 'phone' => $phone,
+                'status_code' => $response->status(),
                 'error' => $errorMessage,
+                'response' => $response->json(),
                 'log_id' => $log->id,
             ]);
 
@@ -178,12 +213,13 @@ class WhatsAppService
             Log::error('WhatsApp message send exception', [
                 'phone' => $phone,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'log_id' => $log->id,
             ]);
 
             return [
                 'success' => false,
-                'message' => 'Connection failed',
+                'message' => 'Connection failed: ' . $e->getMessage(),
                 'error' => $e->getMessage(),
                 'log_id' => $log->id,
             ];
