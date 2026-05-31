@@ -470,7 +470,7 @@
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             
-            const res = await fetch('{{ route('dashboard.stats') }}', {
+            const res = await fetch('{{ route('dashboard.stats') }}?gelombang=all&jurusan_id=all', {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
