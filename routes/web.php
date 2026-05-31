@@ -55,6 +55,9 @@ Route::middleware('admin')->group(function () {
         return view('dashboard.index', compact('recentPendaftars', 'perJaringanDashboard'));
     })->name('dashboard');
 
+    // Dashboard stats endpoint - accessible by all authenticated users
+    Route::get('/dashboard/stats', [ReportController::class, 'stats'])->name('dashboard.stats');
+
     // Pendaftar routes - Only for Administrator and Panitia
     Route::middleware(['checkRole:administrator,panitia'])->group(function () {
         Route::resource('pendaftar', PendaftarController::class);
