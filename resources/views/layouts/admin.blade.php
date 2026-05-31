@@ -651,6 +651,16 @@
                 display: none !important;
             }
         }
+
+        /* User Dropdown Positioning Fix */
+        .user-dropdown-wrapper .dropdown-menu {
+            margin-top: 16px !important;
+        }
+
+        /* Ensure no weird boxes appear */
+        .navbar .container-fluid {
+            align-items: center;
+        }
     </style>
 </head>
 <body>
