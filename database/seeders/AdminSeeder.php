@@ -68,5 +68,21 @@ class AdminSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        // Create/Update Admin WhatsApp in Users table (new system)
+        $adminWaName = env('ADMIN_WA_NAME', 'Admin WhatsApp');
+        $adminWaPassword = env('ADMIN_WA_PASSWORD', 'adminwa123');
+        $adminWaEmail = env('ADMIN_WA_EMAIL', 'adminwa@spmb.pgri');
+
+        User::updateOrCreate(
+            ['email' => $adminWaEmail],
+            [
+                'name' => $adminWaName,
+                'password' => Hash::make($adminWaPassword),
+                'role' => 'admin_wa',
+                'status' => 'aktif',
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }
