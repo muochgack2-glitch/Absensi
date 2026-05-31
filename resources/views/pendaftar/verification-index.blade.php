@@ -25,7 +25,7 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: .06em;
-        color: #64748b;
+        color: var(--text-secondary);
         white-space: nowrap;
     }
     #verifikasiTable tbody td {
@@ -33,11 +33,11 @@
         font-size: 13px;
     }
     #verifikasiTable tbody tr:hover {
-        background: #f8fafc;
+        background: var(--bg-secondary);
     }
     .reg-code {
         font-weight: 800;
-        color: #0f172a;
+        color: var(--primary);
         font-variant-numeric: tabular-nums;
     }
     .status-badge {

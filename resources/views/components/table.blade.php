@@ -85,7 +85,7 @@
     
     /* Table Header */
     .table-modern thead th {
-        background: var(--gray-50);
+        background: var(--bg-secondary);
         color: var(--text-secondary);
         font-size: var(--text-xs);
         font-weight: var(--font-bold);
@@ -116,7 +116,7 @@
     }
     
     .table-hover tbody tr:hover {
-        background-color: var(--gray-50);
+        background-color: var(--bg-secondary);
     }
     
     /* Striped */

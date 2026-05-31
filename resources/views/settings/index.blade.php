@@ -13,14 +13,14 @@
 
         .settings-page-subtitle {
             font-size: 14px;
-            color: #64748b;
+            color: var(--text-secondary);
             margin-top: 4px;
         }
 
         .section-title {
             font-size: 15px;
             font-weight: 700;
-            color: #1e293b;
+            color: var(--text-primary);
             margin-bottom: 12px;
             display: flex;
             align-items: center;
@@ -32,7 +32,7 @@
         }
 
         .settings-tabs {
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-light);
             gap: 8px;
         }
 
@@ -40,30 +40,30 @@
             border: 1px solid transparent;
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
-            color: #475569;
+            color: var(--text-secondary);
             font-weight: 600;
             padding: 10px 14px;
             transition: all 0.2s ease;
         }
 
         .settings-tabs .nav-link:hover {
-            border-color: #e2e8f0;
-            color: #334155;
-            background: #f8fafc;
+            border-color: var(--border-light);
+            color: var(--text-primary);
+            background: var(--bg-secondary);
         }
 
         .settings-tabs .nav-link.active {
-            color: #0f172a;
-            background: #fff;
-            border-color: #e2e8f0 #e2e8f0 #fff;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            border-color: var(--border-light) var(--border-light) var(--bg-primary);
         }
 
         .settings-tab-pane {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-light);
             border-top: 0;
             border-radius: 0 0 12px 12px;
             padding: 24px;
-            background: #fff;
+            background: var(--bg-primary);
         }
 
         .settings-form .form-control-color {
@@ -74,21 +74,21 @@
         }
 
         .settings-actions {
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid var(--border-light);
             margin-top: 24px;
             padding-top: 16px;
         }
 
         .jurusan-add-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border: 2px dashed #cbd5e1;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border: 2px dashed var(--border-medium);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
         }
 
         .jurusan-add-card h6 {
-            color: #334155;
+            color: var(--text-primary);
             font-weight: 700;
             margin-bottom: 16px;
             display: flex;
@@ -97,7 +97,7 @@
         }
 
         .jurusan-table-wrapper {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-light);
             border-radius: 12px;
             overflow: hidden;
         }
@@ -111,7 +111,7 @@
             width: 32px;
             height: 32px;
             border-radius: 6px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-light);
             vertical-align: middle;
             margin-left: 8px;
         }
@@ -119,8 +119,8 @@
         .file-preview-box {
             margin-top: 12px;
             padding: 12px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
             border-radius: 8px;
         }
 

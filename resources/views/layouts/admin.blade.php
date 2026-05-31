@@ -694,6 +694,17 @@
         .navbar .container-fluid {
             align-items: center;
         }
+        
+        /* Fix Bootstrap table-light for light theme consistency */
+        .table-light {
+            --bs-table-bg: var(--bg-secondary) !important;
+            --bs-table-color: var(--text-secondary) !important;
+        }
+        
+        .table-light th {
+            color: var(--text-secondary) !important;
+            font-weight: 700 !important;
+        }
     </style>
 </head>
 <body>
