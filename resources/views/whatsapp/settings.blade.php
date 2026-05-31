@@ -29,8 +29,8 @@
 
         @foreach($settings as $group => $groupSettings)
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="mb-0">
+            <div class="card-header border-bottom" style="background: var(--bg-primary);">
+                <h5 class="mb-0" style="color: var(--text-primary);">
                     @if($group == 'general')
                     <i class="fas fa-cog me-2"></i>Pengaturan Umum
                     @elseif($group == 'connection')
@@ -44,11 +44,11 @@
                     @endif
                 </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="background: var(--bg-primary);">
                 <div class="row">
                     @foreach($groupSettings as $setting)
                     <div class="col-md-6 mb-3">
-                        <label for="{{ $setting->key }}" class="form-label">
+                        <label for="{{ $setting->key }}" class="form-label" style="color: var(--text-primary);">
                             {{ $setting->label }}
                             @if($setting->description)
                             <i class="fas fa-info-circle text-muted ms-1" data-bs-toggle="tooltip" title="{{ $setting->description }}"></i>
@@ -81,10 +81,10 @@
         @endforeach
 
         <div class="card border-0 shadow-sm">
-            <div class="card-body">
+            <div class="card-body" style="background: var(--bg-primary);">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-1">Simpan Perubahan</h6>
+                        <h6 class="mb-1" style="color: var(--text-primary);">Simpan Perubahan</h6>
                         <p class="text-muted small mb-0">Pastikan semua pengaturan sudah benar sebelum menyimpan</p>
                     </div>
                     <div>
@@ -104,10 +104,10 @@
                 <i class="fas fa-exclamation-triangle me-2"></i>Danger Zone
             </h5>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="background: var(--bg-primary);">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="mb-1">Logout WhatsApp</h6>
+                    <h6 class="mb-1" style="color: var(--text-primary);">Logout WhatsApp</h6>
                     <p class="text-muted small mb-0">Putuskan koneksi WhatsApp dan hapus session. Anda perlu scan QR code lagi.</p>
                 </div>
                 <div>

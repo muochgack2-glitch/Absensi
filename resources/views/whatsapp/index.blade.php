@@ -182,9 +182,9 @@
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header border-bottom" style="background: var(--bg-primary);">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
+                        <h5 class="mb-0" style="color: var(--text-primary);">
                             <i class="fas fa-history me-2"></i>Log Pesan Terbaru
                         </h5>
                         <a href="{{ route('whatsapp.logs') }}" class="btn btn-sm btn-outline-primary">
@@ -192,7 +192,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-0" style="background: var(--bg-primary);">
                     @if($recentLogs->count() > 0)
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
@@ -214,13 +214,13 @@
                                         </small>
                                     </td>
                                     <td>
-                                        <strong>{{ $log->phone }}</strong>
+                                        <strong style="color: var(--text-primary);">{{ $log->phone }}</strong>
                                         @if($log->pendaftar)
                                         <br><small class="text-muted">{{ $log->pendaftar->nama_lengkap }}</small>
                                         @endif
                                     </td>
                                     <td>
-                                        <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary);">
                                             {{ Str::limit($log->message, 50) }}
                                         </div>
                                     </td>

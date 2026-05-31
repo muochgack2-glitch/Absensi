@@ -175,7 +175,7 @@
                 </div>
             </div>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-0" style="background: var(--bg-primary);">
             @if($pendaftars->count() > 0)
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
@@ -214,10 +214,10 @@
                                 @endif
                             </td>
                             <td>
-                                <strong>{{ $pendaftar->no_registrasi }}</strong>
+                                <strong style="color: var(--text-primary);">{{ $pendaftar->no_registrasi }}</strong>
                             </td>
-                            <td>{{ $pendaftar->nama_lengkap }}</td>
-                            <td>{{ $pendaftar->nisn }}</td>
+                            <td style="color: var(--text-primary);">{{ $pendaftar->nama_lengkap }}</td>
+                            <td style="color: var(--text-primary);">{{ $pendaftar->nisn }}</td>
                             <td>
                                 <span class="badge bg-primary">
                                     {{ $pendaftar->masterJurusan->nama_jurusan ?? $pendaftar->jurusan }}

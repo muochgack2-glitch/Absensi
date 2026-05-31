@@ -157,9 +157,9 @@
         </x-slot:actions>
                 <div class="table-responsive">
                     <!-- Bulk Actions Bar -->
-                    <div id="bulkActionsBar" style="display: none; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; margin-bottom: 1rem; border: 2px solid #dee2e6;">
+                    <div id="bulkActionsBar" style="display: none; padding: 1rem; background: var(--bg-secondary); border-radius: 0.5rem; margin-bottom: 1rem; border: 2px solid var(--border-light);">
                         <div class="d-flex align-items-center justify-content-between">
-                            <div>
+                            <div style="color: var(--text-primary);">
                                 <i class="fas fa-check-square text-primary me-2"></i>
                                 <strong><span id="selectedCount">0</span> pendaftar dipilih</strong>
                             </div>

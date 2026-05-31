@@ -21,15 +21,15 @@
         <!-- Send Form -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-white border-bottom" style="background: var(--bg-primary) !important;">
                     <ul class="nav nav-tabs card-header-tabs" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#manualTab" role="tab">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#manualTab" role="tab" style="color: var(--text-primary);">
                                 <i class="fas fa-keyboard me-2"></i>Tulis Manual
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#templateTab" role="tab">
+                            <a class="nav-link" data-bs-toggle="tab" href="#templateTab" role="tab" style="color: var(--text-primary);">
                                 <i class="fas fa-file-alt me-2"></i>Gunakan Template
                             </a>
                         </li>
@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Preview Pesan</label>
-                                    <div class="border rounded p-3 bg-light" id="templatePreview" style="white-space: pre-wrap; min-height: 150px;">
+                                    <div class="border rounded p-3" id="templatePreview" style="background: var(--bg-secondary); white-space: pre-wrap; min-height: 150px; color: var(--text-primary);">
                                         <span class="text-muted">Pilih template untuk melihat preview</span>
                                     </div>
                                 </div>

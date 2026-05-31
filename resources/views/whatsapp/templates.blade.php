@@ -25,7 +25,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <h5 class="card-title mb-1">{{ $template->label }}</h5>
+                            <h5 class="card-title mb-1" style="color: var(--text-primary);">{{ $template->label }}</h5>
                             <span class="badge bg-{{ $template->type_color }}">{{ $template->type_label }}</span>
                             @if($template->auto_send)
                             <span class="badge bg-info">Auto Send</span>
@@ -40,7 +40,7 @@
                     <p class="text-muted small mb-3">{{ $template->description }}</p>
                     @endif
                     
-                    <div class="border rounded p-2 bg-light mb-3" style="max-height: 150px; overflow-y: auto;">
+                    <div class="border rounded p-2 mb-3" style="max-height: 150px; overflow-y: auto; background: var(--bg-secondary); color: var(--text-primary);">
                         <small style="white-space: pre-wrap;">{{ Str::limit($template->message, 200) }}</small>
                     </div>
                     

@@ -46,11 +46,11 @@
                             
                             <!-- Select Pendaftar -->
                             <div id="selectPendaftarSection" style="display: none;">
-                                <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+                                <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto; background: var(--bg-secondary);">
                                     @foreach($pendaftars as $pendaftar)
                                     <div class="form-check">
                                         <input class="form-check-input pendaftar-checkbox" type="checkbox" value="{{ $pendaftar->no_hp_wali }}" id="pendaftar{{ $pendaftar->id }}">
-                                        <label class="form-check-label" for="pendaftar{{ $pendaftar->id }}">
+                                        <label class="form-check-label" for="pendaftar{{ $pendaftar->id }}" style="color: var(--text-primary);">
                                             <strong>{{ $pendaftar->nama_lengkap }}</strong> - {{ $pendaftar->no_hp_wali }}
                                             <br><small class="text-muted">{{ $pendaftar->jurusan->nama_jurusan ?? 'N/A' }}</small>
                                         </label>

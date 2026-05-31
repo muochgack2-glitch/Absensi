@@ -64,15 +64,15 @@
 
     <!-- Logs Table -->
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-bottom">
+        <div class="card-header border-bottom" style="background: var(--bg-primary);">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
+                <h5 class="mb-0" style="color: var(--text-primary);">
                     <i class="fas fa-list me-2"></i>Daftar Log Pesan
                 </h5>
                 <span class="badge bg-primary">{{ $logs->total() }} total</span>
             </div>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-0" style="background: var(--bg-primary);">
             @if($logs->count() > 0)
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
