@@ -75,7 +75,7 @@ class WhatsAppController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
+                'message' => 'Validation failed: ' . $validator->errors()->first(),
                 'errors' => $validator->errors(),
             ], 422);
         }
@@ -100,13 +100,13 @@ class WhatsAppController extends Controller
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'template_id' => 'required|exists:whatsapp_templates,id',
-            'data' => 'required|array',
+            'data' => 'nullable|array', // Changed to nullable - template might not have variables
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
+                'message' => 'Validation failed: ' . $validator->errors()->first(),
                 'errors' => $validator->errors(),
             ], 422);
         }

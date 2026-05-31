@@ -177,9 +177,10 @@ document.getElementById('manualForm').addEventListener('submit', function(e) {
         }
     })
     .catch(error => {
+        console.error('Error:', error);
         showResult({
             success: false,
-            message: 'Terjadi kesalahan: ' + error.message
+            message: 'Terjadi kesalahan koneksi: ' + error.message
         });
     })
     .finally(() => {
@@ -267,6 +268,8 @@ document.getElementById('templateForm').addEventListener('submit', function(e) {
         _token: '{{ csrf_token() }}'
     };
     
+    console.log('Sending template data:', formData);
+    
     fetch('{{ route("whatsapp.send.template") }}', {
         method: 'POST',
         headers: {
@@ -285,9 +288,10 @@ document.getElementById('templateForm').addEventListener('submit', function(e) {
         }
     })
     .catch(error => {
+        console.error('Error:', error);
         showResult({
             success: false,
-            message: 'Terjadi kesalahan: ' + error.message
+            message: 'Terjadi kesalahan koneksi: ' + error.message
         });
     })
     .finally(() => {
@@ -301,18 +305,30 @@ function showResult(data) {
     const alertClass = data.success ? 'alert-success' : 'alert-danger';
     const icon = data.success ? 'check-circle' : 'times-circle';
     
+    let errorDetails = '';
+    if (!data.success && data.errors) {
+        errorDetails = '<ul class="mb-0 mt-2 small">';
+        Object.keys(data.errors).forEach(key => {
+            data.errors[key].forEach(error => {
+                errorDetails += `<li>${error}</li>`;
+            });
+        });
+        errorDetails += '</ul>';
+    }
+    
     alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
     alertDiv.innerHTML = `
         <i class="fas fa-${icon} me-2"></i>
         <strong>${data.success ? 'Berhasil!' : 'Gagal!'}</strong> ${data.message}
+        ${errorDetails}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     alertDiv.style.display = 'block';
     
-    // Auto hide after 5 seconds
+    // Auto hide after 5 seconds for success, 10 seconds for error
     setTimeout(() => {
         alertDiv.style.display = 'none';
-    }, 5000);
+    }, data.success ? 5000 : 10000);
     
     // Scroll to alert
     alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
