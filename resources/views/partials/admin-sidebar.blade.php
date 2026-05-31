@@ -147,32 +147,5 @@
         </li>
         @endif
         
-        <li class="nav-item mt-auto">
-            <form id="logoutForm" action="{{ route('logout') }}" method="POST">
-                @csrf
-                <a class="nav-link text-danger" href="#" onclick="confirmLogout(event)" data-bs-toggle="tooltip" data-bs-placement="right" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i> <span class="nav-text">Logout</span>
-                </a>
-            </form>
-        </li>
     </ul>
 </div>
-
-<script>
-function confirmLogout(event) {
-    event.preventDefault();
-    
-    Modal.confirm(
-        'Apakah Anda yakin ingin keluar dari sistem?',
-        function() {
-            document.getElementById('logoutForm').submit();
-        },
-        {
-            title: 'Konfirmasi Logout',
-            confirmText: 'Ya, Keluar',
-            cancelText: 'Batal',
-            type: 'warning'
-        }
-    );
-}
-</script>

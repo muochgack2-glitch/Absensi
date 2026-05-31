@@ -33,13 +33,6 @@
             </div>
             <span class="user-status-indicator"></span>
         </div>
-        <div class="user-info-text d-none d-md-block">
-            <div class="user-name">{{ $userName }}</div>
-            <div class="user-role-badge" style="color: {{ $roleDisplay['color'] }};">
-                <i class="{{ $roleDisplay['icon'] }} me-1"></i>{{ $roleDisplay['label'] }}
-            </div>
-        </div>
-        <i class="fas fa-chevron-down dropdown-arrow d-none d-md-inline"></i>
     </button>
 
     <!-- Dropdown Menu -->
@@ -92,19 +85,20 @@
     .user-dropdown-toggle {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 8px 12px;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-light);
-        border-radius: var(--radius-lg);
+        justify-content: center;
+        padding: 0;
+        background: transparent;
+        border: none;
         cursor: pointer;
         transition: all 0.2s ease;
     }
 
     .user-dropdown-toggle:hover {
-        background: var(--bg-tertiary);
-        border-color: var(--border-medium);
-        transform: translateY(-1px);
+        transform: scale(1.05);
+    }
+
+    .user-dropdown-toggle:hover .user-avatar-circle {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
 
     .user-avatar-container {
