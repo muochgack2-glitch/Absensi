@@ -592,10 +592,6 @@
             .main-wrapper {
                 margin-left: 0 !important;
             }
-
-            .admin-mobile-menu-btn {
-                display: inline-flex !important;
-            }
         }
 
         @media (max-width: 768px) {
@@ -646,21 +642,28 @@
             display: block;
         }
 
-        /* Mobile Menu Button - Only show on small screens */
+        /* Mobile Menu Button - Only show on mobile (<992px) */
         .admin-mobile-menu-btn {
-            display: none;
+            display: none !important;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: transparent;
+            color: #ffffff;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
-        @media (max-width: 767px) {
+        @media (max-width: 991px) {
             .admin-mobile-menu-btn {
                 display: inline-flex !important;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .admin-mobile-menu-btn {
-                display: none !important;
-                visibility: hidden !important;
+                align-items: center;
+                justify-content: center;
             }
         }
 
