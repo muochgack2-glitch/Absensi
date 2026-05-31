@@ -54,7 +54,7 @@ class AuthController extends Controller
         }
 
         // Check user has valid role
-        if (!in_array($user->role, ['administrator', 'panitia'])) {
+        if (!in_array($user->role, ['administrator', 'panitia', 'admin_wa'])) {
             throw ValidationException::withMessages([
                 'login' => 'Role pengguna tidak valid.',
             ]);
