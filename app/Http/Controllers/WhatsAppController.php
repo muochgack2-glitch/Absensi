@@ -412,7 +412,7 @@ class WhatsAppController extends Controller
         $statistics = $this->getPhoneStatistics();
 
         // Get jurusans for filter
-        $jurusans = Jurusan::where('aktif', true)->orderBy('nama_jurusan')->get();
+        $jurusans = Jurusan::where('aktif', true)->orderBy('nama')->get();
 
         // Get unique gelombangs
         $gelombangs = Pendaftar::select('gelombang')
