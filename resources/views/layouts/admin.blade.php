@@ -392,6 +392,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            padding-left: 12px; /* Add gap between sidebar and content */
         }
         
         /* Enable transitions after page load */
@@ -531,6 +532,13 @@
         .year-text {
             font-weight: 500;
         }
+        
+        /* Hide navbar title on screens 960px and below */
+        @media (max-width: 960px) {
+            .navbar-title {
+                display: none !important;
+            }
+        }
 
         /* Content Area */
         .main-content {
@@ -591,6 +599,7 @@
 
             .main-wrapper {
                 margin-left: 0 !important;
+                padding-left: 0 !important; /* Remove gap on mobile */
             }
         }
 
