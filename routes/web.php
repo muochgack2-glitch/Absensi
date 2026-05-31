@@ -55,28 +55,32 @@ Route::middleware('admin')->group(function () {
         return view('dashboard.index', compact('recentPendaftars', 'perJaringanDashboard'));
     })->name('dashboard');
 
-    // Pendaftar routes
-    Route::resource('pendaftar', PendaftarController::class);
-    Route::post('/pendaftar/bulk-delete', [PendaftarController::class, 'bulkDelete'])->name('pendaftar.bulk-delete');
-    Route::get('/pendaftar-export/excel', [PendaftarController::class, 'exportExcel'])->name('pendaftar.export.excel');
-    Route::get('/pendaftar-export/pdf', [PendaftarController::class, 'exportPdf'])->name('pendaftar.export.pdf');
-    Route::get('/verifikasi-daftar-ulang', [PendaftarController::class, 'verificationIndex'])->name('pendaftar.verification-index');
-    Route::get('/pendaftar/{id}/daftar-ulang-verification', [PendaftarController::class, 'showDaftarUlangVerification'])->name('pendaftar.daftar-ulang');
-    Route::post('/pendaftar/{id}/process-daftar-ulang', [PendaftarController::class, 'processDaftarUlang'])->name('pendaftar.process-daftar-ulang');
-    Route::post('/pendaftar/{id}/cancel-daftar-ulang', [PendaftarController::class, 'cancelDaftarUlang'])->name('pendaftar.cancel-daftar-ulang');
+    // Pendaftar routes - Only for Administrator and Panitia
+    Route::middleware(['checkRole:administrator,panitia'])->group(function () {
+        Route::resource('pendaftar', PendaftarController::class);
+        Route::post('/pendaftar/bulk-delete', [PendaftarController::class, 'bulkDelete'])->name('pendaftar.bulk-delete');
+        Route::get('/pendaftar-export/excel', [PendaftarController::class, 'exportExcel'])->name('pendaftar.export.excel');
+        Route::get('/pendaftar-export/pdf', [PendaftarController::class, 'exportPdf'])->name('pendaftar.export.pdf');
+        Route::get('/verifikasi-daftar-ulang', [PendaftarController::class, 'verificationIndex'])->name('pendaftar.verification-index');
+        Route::get('/pendaftar/{id}/daftar-ulang-verification', [PendaftarController::class, 'showDaftarUlangVerification'])->name('pendaftar.daftar-ulang');
+        Route::post('/pendaftar/{id}/process-daftar-ulang', [PendaftarController::class, 'processDaftarUlang'])->name('pendaftar.process-daftar-ulang');
+        Route::post('/pendaftar/{id}/cancel-daftar-ulang', [PendaftarController::class, 'cancelDaftarUlang'])->name('pendaftar.cancel-daftar-ulang');
 
-    // Print Templates
-    Route::get('/pendaftar/{id}/print/registrasi', [PendaftarController::class, 'printRegistrasi'])->name('pendaftar.print.registrasi');
-    Route::get('/pendaftar/{id}/print/formulir', [PendaftarController::class, 'printFormulir'])->name('pendaftar.print.formulir');
-    Route::get('/pendaftar/{id}/print/ambil-barang', [PendaftarController::class, 'printAmbilBarang'])->name('pendaftar.print.ambil-barang');
+        // Print Templates
+        Route::get('/pendaftar/{id}/print/registrasi', [PendaftarController::class, 'printRegistrasi'])->name('pendaftar.print.registrasi');
+        Route::get('/pendaftar/{id}/print/formulir', [PendaftarController::class, 'printFormulir'])->name('pendaftar.print.formulir');
+        Route::get('/pendaftar/{id}/print/ambil-barang', [PendaftarController::class, 'printAmbilBarang'])->name('pendaftar.print.ambil-barang');
+    });
 
-    // Reports & Exports
-    Route::get('/laporan', [ReportController::class, 'index'])->name('report.index');
-    Route::get('/laporan/export/excel', [ReportController::class, 'exportExcel'])->name('report.export.excel');
-    Route::get('/laporan/export/jaringan', [ReportController::class, 'exportJaringanExcel'])->name('report.export.jaringan');
-    Route::get('/laporan/export/pdf', [ReportController::class, 'exportPdf'])->name('report.export.pdf');
-    // Real‑time stats endpoint
-    Route::get('/laporan/stats', [ReportController::class, 'stats'])->name('report.stats');
+    // Reports & Exports - Only for Administrator and Panitia
+    Route::middleware(['checkRole:administrator,panitia'])->group(function () {
+        Route::get('/laporan', [ReportController::class, 'index'])->name('report.index');
+        Route::get('/laporan/export/excel', [ReportController::class, 'exportExcel'])->name('report.export.excel');
+        Route::get('/laporan/export/jaringan', [ReportController::class, 'exportJaringanExcel'])->name('report.export.jaringan');
+        Route::get('/laporan/export/pdf', [ReportController::class, 'exportPdf'])->name('report.export.pdf');
+        // Real‑time stats endpoint
+        Route::get('/laporan/stats', [ReportController::class, 'stats'])->name('report.stats');
+    });
 
     // Settings - Only for Administrator
     Route::middleware('ensureAdmin')->group(function () {
@@ -99,8 +103,8 @@ Route::middleware('admin')->group(function () {
             Route::post('/{user}/reactivate', [UserManagementController::class, 'reactivate'])->name('reactivate');
         });
 
-        // WhatsApp Gateway - Only for Administrator
-        Route::prefix('whatsapp')->name('whatsapp.')->group(function () {
+        // WhatsApp Gateway - For Administrator and Admin WA
+        Route::middleware(['checkRole:administrator,admin_wa'])->prefix('whatsapp')->name('whatsapp.')->group(function () {
             Route::get('/', [\App\Http\Controllers\WhatsAppController::class, 'index'])->name('index');
             Route::get('/status', [\App\Http\Controllers\WhatsAppController::class, 'status'])->name('status');
             Route::get('/qr', [\App\Http\Controllers\WhatsAppController::class, 'qrCode'])->name('qr');

@@ -33,6 +33,8 @@
                 <i class="fas fa-home"></i> <span class="nav-text">Dashboard</span>
             </a>
         </li>
+        
+        @if(auth()->check() && (auth()->user()->isAdministrator() || auth()->user()->isPanitia()))
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('pendaftar.index') || request()->routeIs('pendaftar.create') || request()->routeIs('pendaftar.edit') || request()->routeIs('pendaftar.show') ? 'active' : '' }}" href="{{ route('pendaftar.index') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Data Pendaftar">
                 <i class="fas fa-users"></i> <span class="nav-text">Data Pendaftar</span>
@@ -48,7 +50,9 @@
                 <i class="fas fa-file-pdf"></i> <span class="nav-text">Laporan & Cetak</span>
             </a>
         </li>
-        @if(auth()->check() && auth()->user()->isAdministrator())
+        @endif
+        
+        @if(auth()->check() && auth()->user()->canAccessWhatsApp())
         <li class="nav-item has-submenu">
             <a class="nav-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}" href="#" data-bs-toggle="collapse" data-bs-target="#whatsappSubmenu" aria-expanded="{{ request()->routeIs('whatsapp.*') ? 'true' : 'false' }}" title="WhatsApp Gateway">
                 <i class="fab fa-whatsapp"></i> 
@@ -100,6 +104,9 @@
                 </li>
             </ul>
         </li>
+        @endif
+        
+        @if(auth()->check() && auth()->user()->isAdministrator())
         <li class="nav-item has-submenu">
             <a class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}" href="#" data-bs-toggle="collapse" data-bs-target="#settingsSubmenu" aria-expanded="{{ request()->routeIs('settings.*') ? 'true' : 'false' }}" title="Pengaturan Sistem">
                 <i class="fas fa-cog"></i> 
@@ -139,6 +146,7 @@
             </a>
         </li>
         @endif
+        
         <li class="nav-item mt-auto">
             <form id="logoutForm" action="{{ route('logout') }}" method="POST">
                 @csrf

@@ -88,6 +88,10 @@
                             <span class="badge bg-danger">
                                 <i class="fas fa-user-shield me-1"></i>Administrator
                             </span>
+                        @elseif($user->role === 'admin_wa')
+                            <span class="badge bg-success">
+                                <i class="fab fa-whatsapp me-1"></i>Admin WA
+                            </span>
                         @else
                             <span class="badge bg-info">
                                 <i class="fas fa-user-tie me-1"></i>Panitia

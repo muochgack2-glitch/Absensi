@@ -75,6 +75,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is admin WhatsApp
+     */
+    public function isAdminWA(): bool
+    {
+        return $this->role === 'admin_wa';
+    }
+
+    /**
+     * Check if user can access WhatsApp features
+     */
+    public function canAccessWhatsApp(): bool
+    {
+        return in_array($this->role, ['administrator', 'admin_wa']);
+    }
+
+    /**
      * Check if user is active
      */
     public function isActive(): bool

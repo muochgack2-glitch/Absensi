@@ -75,6 +75,8 @@
                                         <option value="{{ $role }}" {{ old('role', $user->role) === $role ? 'selected' : '' }}>
                                             @if($role === 'administrator')
                                                 🛡️ Administrator - Akses penuh
+                                            @elseif($role === 'admin_wa')
+                                                📱 Admin WhatsApp - Dashboard & WA Gateway
                                             @else
                                                 👔 Panitia - Akses terbatas
                                             @endif

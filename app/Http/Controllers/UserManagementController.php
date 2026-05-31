@@ -40,7 +40,7 @@ class UserManagementController extends Controller
         }
 
         $users = $query->paginate(15);
-        $roles = ['administrator', 'panitia'];
+        $roles = ['administrator', 'panitia', 'admin_wa'];
         $statuses = ['aktif', 'nonaktif', 'suspended'];
 
         return view('users.index', compact('users', 'search', 'filter_role', 'filter_status', 'roles', 'statuses'));
@@ -52,7 +52,7 @@ class UserManagementController extends Controller
     public function create()
     {
         return view('users.create', [
-            'roles' => ['administrator', 'panitia'],
+            'roles' => ['administrator', 'panitia', 'admin_wa'],
             'statuses' => ['aktif', 'nonaktif', 'suspended'],
         ]);
     }
@@ -66,7 +66,7 @@ class UserManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:administrator,panitia',
+            'role' => 'required|in:administrator,panitia,admin_wa',
             'status' => 'required|in:aktif,nonaktif,suspended',
         ], [
             'name.required' => 'Nama pengguna harus diisi',
@@ -116,7 +116,7 @@ class UserManagementController extends Controller
 
         return view('users.edit', [
             'user' => $user,
-            'roles' => ['administrator', 'panitia'],
+            'roles' => ['administrator', 'panitia', 'admin_wa'],
             'statuses' => ['aktif', 'nonaktif', 'suspended'],
         ]);
     }
@@ -140,7 +140,7 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => 'required|in:administrator,panitia',
+            'role' => 'required|in:administrator,panitia,admin_wa',
             'status' => 'required|in:aktif,nonaktif,suspended',
             'password' => 'nullable|string|min:8|confirmed',
         ], [
