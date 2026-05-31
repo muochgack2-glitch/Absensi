@@ -162,22 +162,6 @@
                         </tr>
                     @endforeach
                 </x-table>
-
-                @if ($perUkuranKaos->count())
-                    <hr class="my-4">
-                    <h6 class="mb-3"><i class="fas fa-tshirt me-2"></i>Rekap Ukuran Kaos</h6>
-                    <x-table size="sm">
-                        <x-slot:header>
-                            <tr><th>Ukuran</th><th class="text-center">Jumlah</th></tr>
-                        </x-slot:header>
-                        @foreach ($perUkuranKaos as $size => $count)
-                            <tr>
-                                <td><span class="badge" style="background-color: #fbbf24; color: #000;">{{ $size }}</span></td>
-                                <td class="text-center fw-bold">{{ $count }}</td>
-                            </tr>
-                        @endforeach
-                    </x-table>
-                @endif
             </x-section-card>
         </div>
 
@@ -230,6 +214,49 @@
             </x-section-card>
         </div>
     </div>
+
+    <!-- Rekap Ukuran Kaos -->
+    @if ($perUkuranKaos->count())
+    <div class="row g-4 mb-4">
+        <div class="col-md-12">
+            <x-section-card title="Rekap Ukuran Kaos" icon="fas fa-tshirt" :badge="$perUkuranKaos->sum() . ' kaos'">
+                <div class="row g-3">
+                    @php
+                        $sizeColors = [
+                            'S' => '#3b82f6',
+                            'M' => '#10b981',
+                            'L' => '#f59e0b',
+                            'XL' => '#ef4444',
+                            'XXL' => '#8b5cf6',
+                            'XXXL' => '#ec4899',
+                        ];
+                        $totalKaos = $perUkuranKaos->sum();
+                    @endphp
+                    @foreach ($perUkuranKaos as $size => $count)
+                        @php
+                            $pct = $totalKaos > 0 ? round($count/$totalKaos*100) : 0;
+                            $color = $sizeColors[$size] ?? '#64748b';
+                        @endphp
+                        <div class="col-md-2 col-sm-4 col-6">
+                            <div class="card border-0 shadow-sm h-100" style="background: var(--bg-primary);">
+                                <div class="card-body text-center">
+                                    <div class="mb-2">
+                                        <i class="fas fa-tshirt fa-2x" style="color: {{ $color }};"></i>
+                                    </div>
+                                    <h3 class="mb-1" style="color: var(--text-primary);">{{ $count }}</h3>
+                                    <div class="mb-2">
+                                        <span class="badge" style="background-color: {{ $color }}; color: #fff; font-size: 14px;">{{ $size }}</span>
+                                    </div>
+                                    <small class="text-muted">{{ $pct }}%</small>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </x-section-card>
+        </div>
+    </div>
+    @endif
 
     <!-- Charts Row -->
     <div class="row g-4">
