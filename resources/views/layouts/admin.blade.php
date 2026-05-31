@@ -649,7 +649,13 @@
         @media (min-width: 992px) {
             .admin-mobile-menu-btn {
                 display: none !important;
+                visibility: hidden !important;
             }
+        }
+
+        /* Hide mobile menu button completely */
+        .admin-mobile-menu-btn {
+            display: none !important;
         }
 
         /* User Dropdown Positioning Fix */

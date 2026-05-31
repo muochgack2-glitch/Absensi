@@ -6,8 +6,8 @@
             $tahunAjaran = $settings['academic_year'] ?? date('Y');
         @endphp
         
-        <!-- Mobile Menu Button -->
-        <button class="btn btn-sm btn-outline-light admin-mobile-menu-btn d-lg-none" type="button">
+        <!-- Mobile Menu Button (only show on very small screens) -->
+        <button class="btn btn-sm btn-outline-light admin-mobile-menu-btn d-none d-sm-none" type="button" style="display: none !important;">
             <i class="fas fa-bars"></i> Menu
         </button>
         
