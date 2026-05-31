@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pendaftar;
+use App\Models\LogistikBayar;
+use App\Models\Jurusan;
+use App\Models\SettingSystem;
 use App\Models\WhatsAppLog;
 use App\Models\WhatsAppTemplate;
 use App\Models\WhatsAppSetting;
-use App\Models\Pendaftar;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
