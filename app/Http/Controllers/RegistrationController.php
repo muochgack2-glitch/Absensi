@@ -6,11 +6,20 @@ use App\Models\Pendaftar;
 use App\Models\LogistikBayar;
 use App\Models\Jurusan;
 use App\Models\SettingSystem;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class RegistrationController extends Controller
 {
+    protected WhatsAppService $whatsappService;
+
+    public function __construct(WhatsAppService $whatsappService)
+    {
+        $this->whatsappService = $whatsappService;
+    }
+
     /**
      * Generate unique registration number
      */
@@ -114,6 +123,9 @@ class RegistrationController extends Controller
                 ]
             ]);
 
+            // Send WhatsApp notification if enabled and phone number available
+            $this->sendWhatsAppNotification($pendaftar, $jurusan);
+
             return redirect()->route('registration.receipt')
                 ->with('success', 'Pendaftaran berhasil!');
 
@@ -153,5 +165,115 @@ class RegistrationController extends Controller
         $settings = SettingSystem::instance()->toSettingsArray();
 
         return view('registration.print-receipt', compact('registrationData', 'settings'));
+    }
+
+    /**
+     * Send WhatsApp notification to new registrant
+     * 
+     * @param Pendaftar $pendaftar
+     * @param Jurusan|null $jurusan
+     * @return void
+     */
+    private function sendWhatsAppNotification(Pendaftar $pendaftar, ?Jurusan $jurusan): void
+    {
+        try {
+            // Check if auto-send is enabled
+            if (!$this->whatsappService->isAutoSendEnabled()) {
+                Log::info('WhatsApp auto-send is disabled', [
+                    'pendaftar_id' => $pendaftar->id_pendaftar,
+                ]);
+                return;
+            }
+
+            // Check if WhatsApp is connected
+            if (!$this->whatsappService->isConnected()) {
+                Log::warning('WhatsApp not connected, skipping notification', [
+                    'pendaftar_id' => $pendaftar->id_pendaftar,
+                ]);
+                return;
+            }
+
+            // Determine phone number to send to
+            $phoneNumber = $this->getPhoneNumber($pendaftar);
+            
+            if (!$phoneNumber) {
+                Log::info('No phone number available for WhatsApp notification', [
+                    'pendaftar_id' => $pendaftar->id_pendaftar,
+                ]);
+                return;
+            }
+
+            // Prepare data for template
+            $data = [
+                'nama' => $pendaftar->nama_lengkap,
+                'no_pendaftaran' => $pendaftar->no_registrasi,
+                'jurusan' => $jurusan?->nama_jurusan ?? $pendaftar->jurusan ?? 'N/A',
+                'gelombang' => $pendaftar->gelombang ?? 'N/A',
+                'portal_url' => url('/'),
+                'sekolah' => config('app.name', 'SMK PGRI Blora'),
+                'tanggal' => $pendaftar->tgl_daftar ? $pendaftar->tgl_daftar->format('d-m-Y') : now()->format('d-m-Y'),
+            ];
+
+            // Send using template
+            $result = $this->whatsappService->sendWithTemplate(
+                $phoneNumber,
+                'welcome_registration', // Use existing template name
+                $data,
+                [
+                    'pendaftar_id' => $pendaftar->id_pendaftar,
+                    'type' => 'auto_registration',
+                    'sent_by' => null, // System auto-send
+                ]
+            );
+
+            if ($result['success']) {
+                Log::info('WhatsApp notification sent successfully', [
+                    'pendaftar_id' => $pendaftar->id_pendaftar,
+                    'phone' => $phoneNumber,
+                    'log_id' => $result['log_id'] ?? null,
+                ]);
+            } else {
+                Log::warning('WhatsApp notification failed', [
+                    'pendaftar_id' => $pendaftar->id_pendaftar,
+                    'phone' => $phoneNumber,
+                    'error' => $result['message'] ?? 'Unknown error',
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            // Don't fail registration if WhatsApp fails
+            Log::error('WhatsApp notification exception', [
+                'pendaftar_id' => $pendaftar->id_pendaftar,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * Get phone number for WhatsApp notification
+     * Priority: no_hp_wali > no_hp_ortu > no_telepon
+     * 
+     * @param Pendaftar $pendaftar
+     * @return string|null
+     */
+    private function getPhoneNumber(Pendaftar $pendaftar): ?string
+    {
+        // Priority 1: Wali phone number
+        if (!empty($pendaftar->no_hp_wali)) {
+            return $pendaftar->no_hp_wali;
+        }
+
+        // Priority 2: Parent phone number
+        if (!empty($pendaftar->no_hp_ortu)) {
+            return $pendaftar->no_hp_ortu;
+        }
+
+        // Priority 3: Student phone number
+        if (!empty($pendaftar->no_telepon)) {
+            return $pendaftar->no_telepon;
+        }
+
+        return null;
     }
 }
