@@ -158,6 +158,12 @@
         --z-modal: 1050;
         --z-popover: 1060;
         --z-tooltip: 1070;
+        
+        /* Navbar Colors (Light Theme - Gradient Theme Colors) */
+        --navbar-bg-start: {{ $themePrimary }};
+        --navbar-bg-end: {{ $themeSecondary }};
+        --navbar-text: #ffffff;
+        --navbar-border: rgba(255, 255, 255, 0.1);
     }
 
     /* Dark Mode Support (Optional) */
@@ -175,5 +181,11 @@
         --border-light: var(--gray-700);
         --border-medium: var(--gray-600);
         --border-dark: var(--gray-500);
+        
+        /* Navbar Colors (Dark Theme - Dark Colors) */
+        --navbar-bg-start: var(--gray-800);
+        --navbar-bg-end: var(--gray-900);
+        --navbar-text: var(--gray-50);
+        --navbar-border: var(--border-light);
     }
 </style>

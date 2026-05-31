@@ -407,11 +407,12 @@
         /* Navbar in Content Area */
         .navbar {
             min-height: 68px !important;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+            background: linear-gradient(135deg, var(--navbar-bg-start) 0%, var(--navbar-bg-end) 100%) !important;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
             position: sticky;
             top: 0;
             z-index: 999;
+            border-bottom: 1px solid var(--navbar-border) !important;
         }
 
         .navbar > .container-fluid {
