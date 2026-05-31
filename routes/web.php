@@ -42,8 +42,8 @@ Route::middleware('admin')->group(function () {
             ->get();
 
         $perJaringanDashboard = \App\Models\Pendaftar::query()
-            ->selectRaw("COALESCE(NULLIF(TRIM(UPPER(nama_jaringan)), ''), '(Langsung)') as nama_jaringan, COUNT(*) as total")
-            ->groupByRaw("UPPER(TRIM(COALESCE(nama_jaringan, '')))")
+            ->selectRaw("COALESCE(NULLIF(TRIM(UPPER(nama_jaringan)), ''), '(Langsung)') as nama_jaringan_normalized, COUNT(*) as total")
+            ->groupByRaw("COALESCE(NULLIF(TRIM(UPPER(nama_jaringan)), ''), '(Langsung)')")
             ->orderByDesc('total')
             ->take(8)
             ->get();

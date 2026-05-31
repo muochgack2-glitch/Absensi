@@ -330,7 +330,7 @@
                     <div class="network-stat-item">
                         <div>
                             <i class="fas fa-network-wired text-primary me-2"></i>
-                            <strong>{{ $j->nama_jaringan }}</strong>
+                            <strong>{{ $j->nama_jaringan_normalized }}</strong>
                         </div>
                         <span class="badge bg-primary bg-opacity-10 text-primary">
                             <i class="fas fa-users me-1"></i>
