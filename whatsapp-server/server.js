@@ -318,6 +318,20 @@ app.post('/logout', async (req, res) => {
             qrCodeData = null;
             logger.info('Logged out from WhatsApp. Will auto-reconnect to generate new QR code...');
             
+            // Hapus session folder untuk force generate QR baru
+            const fs = require('fs');
+            const path = require('path');
+            const sessionPath = path.join(__dirname, process.env.SESSION_NAME || 'spmb-wa-session');
+            
+            try {
+                if (fs.existsSync(sessionPath)) {
+                    fs.rmSync(sessionPath, { recursive: true, force: true });
+                    logger.info('Session folder deleted successfully');
+                }
+            } catch (err) {
+                logger.error('Failed to delete session folder:', err);
+            }
+            
             res.json({
                 success: true,
                 message: 'Logged out successfully. Reconnecting to generate new QR code...'
