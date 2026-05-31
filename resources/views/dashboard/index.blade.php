@@ -190,6 +190,70 @@
         </div>
     </div>
 
+    @if(auth()->check() && (auth()->user()->isAdministrator() || auth()->user()->isPanitia()))
+    <!-- Kelola Jaringan Widget -->
+    <x-section-card title="Kelola Jaringan" icon="fas fa-code-branch" class="mb-4">
+        <x-slot:actions>
+            <x-button 
+                variant="primary" 
+                size="sm" 
+                icon="fas fa-layer-group" 
+                href="{{ route('jaringan.merge') }}"
+            >
+                Gabungkan Jaringan
+            </x-button>
+        </x-slot:actions>
+        
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="stat-icon" style="width: 48px; height: 48px; background: #dbeafe; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-network-wired" style="font-size: 20px; color: #1e40af;"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="text-muted small mb-1">Total Jaringan Unik</div>
+                        <div class="h4 mb-0" id="totalUniqueJaringan">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="stat-icon" style="width: 48px; height: 48px; background: #fef3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 20px; color: #92400e;"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="text-muted small mb-1">Potensi Duplikat</div>
+                        <div class="h4 mb-0" id="potentialDuplicates">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="stat-icon" style="width: 48px; height: 48px; background: #dcfce7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-check-circle" style="font-size: 20px; color: #166534;"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="text-muted small mb-1">Dibersihkan Bulan Ini</div>
+                        <div class="h4 mb-0" id="cleanedThisMonth">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </x-section-card>
+    @endif
+
     <!-- Update Info -->
     <div class="update-info">
         <small>
@@ -540,5 +604,54 @@
     
     // Auto-refresh every 30 seconds
     setInterval(loadStats, 30000);
+
+    // Load Jaringan Stats
+    async function loadJaringanStats() {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            const res = await fetch('{{ route('jaringan.stats') }}', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken || ''
+                },
+                credentials: 'same-origin'
+            });
+            
+            if (!res.ok) {
+                console.error('Jaringan stats API error:', res.status);
+                return;
+            }
+            
+            const data = await res.json();
+            
+            const uniqueEl = document.getElementById('totalUniqueJaringan');
+            const duplicatesEl = document.getElementById('potentialDuplicates');
+            const cleanedEl = document.getElementById('cleanedThisMonth');
+            
+            if (uniqueEl) {
+                animateCounter(uniqueEl, data.uniqueCount || 0);
+            }
+            
+            if (duplicatesEl) {
+                animateCounter(duplicatesEl, data.duplicateCount || 0);
+            }
+            
+            if (cleanedEl) {
+                animateCounter(cleanedEl, data.cleanedThisMonth || 0);
+            }
+            
+        } catch (e) {
+            console.error('Failed to load jaringan stats:', e);
+        }
+    }
+    
+    @if(auth()->check() && (auth()->user()->isAdministrator() || auth()->user()->isPanitia()))
+    loadJaringanStats();
+    setInterval(loadJaringanStats, 30000);
+    @endif
+
 </script>
 @endpush

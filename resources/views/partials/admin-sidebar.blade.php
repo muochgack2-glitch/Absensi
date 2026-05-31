@@ -50,6 +50,33 @@
                 <i class="fas fa-file-pdf"></i> <span class="nav-text">Laporan & Cetak</span>
             </a>
         </li>
+        <li class="nav-item has-submenu">
+            <a class="nav-link {{ request()->routeIs('jaringan.*') ? 'active' : '' }}" href="#" data-bs-toggle="collapse" data-bs-target="#jaringanSubmenu" aria-expanded="{{ request()->routeIs('jaringan.*') ? 'true' : 'false' }}" title="Kelola Jaringan">
+                <i class="fas fa-code-branch"></i> 
+                <span class="nav-text">Kelola Jaringan</span>
+                <i class="fas fa-chevron-down submenu-arrow"></i>
+            </a>
+            <ul class="submenu collapse {{ request()->routeIs('jaringan.*') ? 'show' : '' }}" id="jaringanSubmenu">
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('jaringan.merge') ? 'active' : '' }}" href="{{ route('jaringan.merge') }}">
+                        <i class="fas fa-layer-group"></i>
+                        <span class="nav-text">Merge Full</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('jaringan.merge-selective') ? 'active' : '' }}" href="{{ route('jaringan.merge-selective') }}">
+                        <i class="fas fa-check-square"></i>
+                        <span class="nav-text">Merge Selective</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="submenu-link {{ request()->routeIs('jaringan.history') ? 'active' : '' }}" href="{{ route('jaringan.history') }}">
+                        <i class="fas fa-history"></i>
+                        <span class="nav-text">History Merge</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
         @endif
         
         @if(auth()->check() && auth()->user()->canAccessWhatsApp())

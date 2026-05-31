@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\JaringanController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\RegistrationController;
@@ -90,6 +91,26 @@ Route::middleware('admin')->group(function () {
         Route::get('/laporan/export/pdf', [ReportController::class, 'exportPdf'])->name('report.export.pdf');
         // Real‑time stats endpoint
         Route::get('/laporan/stats', [ReportController::class, 'stats'])->name('report.stats');
+    });
+
+    // Kelola Jaringan - Only for Administrator and Panitia
+    Route::middleware(['checkRole:administrator,panitia'])->prefix('admin/jaringan')->name('jaringan.')->group(function () {
+        // Stats endpoint
+        Route::get('/stats', [JaringanController::class, 'stats'])->name('stats');
+        
+        // Full Mode
+        Route::get('/merge', [JaringanController::class, 'merge'])->name('merge');
+        Route::post('/preview', [JaringanController::class, 'preview'])->name('preview');
+        Route::post('/process-merge', [JaringanController::class, 'processMerge'])->name('process-merge');
+        
+        // Selective Mode
+        Route::get('/merge-selective', [JaringanController::class, 'mergeSelective'])->name('merge-selective');
+        Route::post('/preview-selective', [JaringanController::class, 'previewSelective'])->name('preview-selective');
+        Route::post('/process-merge-selective', [JaringanController::class, 'processMergeSelective'])->name('process-merge-selective');
+        
+        // History & Undo
+        Route::get('/history', [JaringanController::class, 'history'])->name('history');
+        Route::post('/undo/{id}', [JaringanController::class, 'undo'])->name('undo');
     });
 
     // Settings - Only for Administrator
