@@ -646,16 +646,22 @@
             display: block;
         }
 
-        @media (min-width: 992px) {
+        /* Mobile Menu Button - Only show on small screens */
+        .admin-mobile-menu-btn {
+            display: none;
+        }
+
+        @media (max-width: 767px) {
+            .admin-mobile-menu-btn {
+                display: inline-flex !important;
+            }
+        }
+
+        @media (min-width: 768px) {
             .admin-mobile-menu-btn {
                 display: none !important;
                 visibility: hidden !important;
             }
-        }
-
-        /* Hide mobile menu button completely */
-        .admin-mobile-menu-btn {
-            display: none !important;
         }
 
         /* User Dropdown Positioning Fix */
