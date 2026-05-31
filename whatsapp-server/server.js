@@ -76,13 +76,21 @@ async function connectToWhatsApp() {
                 connectionState = 'disconnected';
                 logger.warn('Connection closed. Should reconnect:', shouldReconnect, 'Manual logout:', manualLogout);
 
-                if (shouldReconnect && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                    reconnectAttempts++;
-                    logger.info(`Reconnecting... Attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}`);
-                    setTimeout(connectToWhatsApp, RECONNECT_INTERVAL);
-                } else if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-                    logger.error('Max reconnect attempts reached. Please restart the server.');
-                    manualLogout = false; // Reset flag
+                if (shouldReconnect) {
+                    // Reset reconnect attempts jika manual logout
+                    if (manualLogout) {
+                        reconnectAttempts = 0;
+                        logger.info('Manual logout detected - resetting reconnect counter');
+                    }
+                    
+                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectAttempts++;
+                        logger.info(`Reconnecting... Attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}`);
+                        setTimeout(connectToWhatsApp, RECONNECT_INTERVAL);
+                    } else {
+                        logger.error('Max reconnect attempts reached. Please restart the server.');
+                        manualLogout = false; // Reset flag
+                    }
                 } else {
                     logger.info('Logged out. Please scan QR code again.');
                     manualLogout = false; // Reset flag
@@ -90,6 +98,7 @@ async function connectToWhatsApp() {
             } else if (connection === 'open') {
                 connectionState = 'connected';
                 reconnectAttempts = 0;
+                manualLogout = false; // Reset flag saat berhasil connect
                 qrCodeData = null;
                 logger.info('WhatsApp connection established successfully!');
             }
@@ -310,31 +319,54 @@ app.post('/send-bulk', async (req, res) => {
 app.post('/logout', async (req, res) => {
     try {
         if (sock) {
-            manualLogout = true; // Set flag sebelum logout
-            reconnectAttempts = 0; // Reset reconnect attempts
+            logger.info('Logout requested - preparing to disconnect and generate new QR...');
             
-            await sock.logout();
+            // Set flag sebelum logout
+            manualLogout = true;
+            reconnectAttempts = 0;
+            
+            // Logout dari WhatsApp
+            try {
+                await sock.logout();
+                logger.info('Successfully logged out from WhatsApp');
+            } catch (logoutError) {
+                logger.warn('Logout error (might be already disconnected):', logoutError.message);
+            }
+            
+            // Update state
             connectionState = 'disconnected';
             qrCodeData = null;
-            logger.info('Logged out from WhatsApp. Will auto-reconnect to generate new QR code...');
+            sock = null;
             
             // Hapus session folder untuk force generate QR baru
             const fs = require('fs');
             const path = require('path');
             const sessionPath = path.join(__dirname, process.env.SESSION_NAME || 'spmb-wa-session');
             
+            // Tunggu sebentar sebelum hapus session
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             try {
                 if (fs.existsSync(sessionPath)) {
                     fs.rmSync(sessionPath, { recursive: true, force: true });
                     logger.info('Session folder deleted successfully');
+                } else {
+                    logger.info('Session folder does not exist, skipping deletion');
                 }
             } catch (err) {
                 logger.error('Failed to delete session folder:', err);
             }
             
+            // Tunggu sebentar lagi sebelum reconnect
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Trigger reconnect untuk generate QR baru
+            logger.info('Starting reconnection to generate new QR code...');
+            connectToWhatsApp();
+            
             res.json({
                 success: true,
-                message: 'Logged out successfully. Reconnecting to generate new QR code...'
+                message: 'Logged out successfully. Generating new QR code...'
             });
         } else {
             res.json({

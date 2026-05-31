@@ -262,11 +262,56 @@ Server akan otomatis format nomor telepon:
 - [Express.js Documentation](https://expressjs.com/)
 - [PM2 Documentation](https://pm2.keymetrics.io/)
 
+## ✨ Auto-Reconnect After Logout
+
+**Version 1.1.0** - Fitur baru: Auto-generate QR code setelah logout
+
+### Cara Kerja:
+1. Logout dari dashboard admin → Server otomatis disconnect
+2. Session folder dihapus otomatis
+3. Server auto-reconnect dalam 3-5 detik
+4. QR code baru di-generate otomatis
+5. Dashboard auto-refresh dan tampilkan QR (tidak perlu restart PM2!)
+
+### Testing:
+```bash
+# Linux/Mac
+./test-logout.sh
+
+# Windows
+test-logout.bat
+
+# Manual test
+curl -X POST http://localhost:3000/logout
+# Wait 5-10 seconds
+curl http://localhost:3000/status
+# Should show status: "qr" and qrAvailable: true
+```
+
+### Troubleshooting Auto-Reconnect:
+Jika QR tidak muncul setelah logout:
+```bash
+# Check logs
+pm2 logs spmb-wa-gateway --lines 50
+
+# Should see:
+# [INFO] Logout requested - preparing to disconnect...
+# [INFO] Session folder deleted successfully
+# [INFO] Manual logout detected - resetting reconnect counter
+# [INFO] Reconnecting... Attempt 1/5
+# [INFO] QR Code generated, scan with WhatsApp
+
+# If stuck, restart PM2
+pm2 restart spmb-wa-gateway
+```
+
+Lihat dokumentasi lengkap: `WHATSAPP_AUTO_RECONNECT_FIX.md`
+
 ## 🐛 Known Issues
 
 1. **WhatsApp Web API changes** - Baileys menggunakan unofficial API, bisa berubah sewaktu-waktu
 2. **Rate limiting** - WhatsApp bisa ban nomor jika spam
-3. **Session persistence** - Kadang perlu scan ulang QR code
+3. **Session persistence** - Kadang perlu scan ulang QR code (sudah ada auto-reconnect di v1.1.0)
 
 ## 📞 Support
 
