@@ -42,7 +42,7 @@ class ReportController extends Controller
         ])->sortKeys();
 
         $perJaringan = $pendaftars
-            ->groupBy(fn($p) => $p->nama_jaringan ?: '(Langsung)')
+            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: '(Langsung)')))
             ->map(function ($group, $nama) use ($jurusanAktif) {
                 $jurusanCounts = [];
                 foreach ($jurusanAktif as $j) {
@@ -214,7 +214,7 @@ class ReportController extends Controller
         $jurusanAktif = Jurusan::where('aktif', true)->orderBy('kode')->pluck('kode');
 
         $perJaringan = $pendaftars
-            ->groupBy(fn($p) => $p->nama_jaringan ?: '(Langsung)')
+            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: '(Langsung)')))
             ->map(function ($group, $nama) use ($jurusanAktif) {
                 $row = [$nama, $group->count()];
                 foreach ($jurusanAktif as $kode) {
@@ -281,7 +281,7 @@ class ReportController extends Controller
         $totalLunas   = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
 
         $perJaringan = $pendaftars
-            ->groupBy(fn($p) => $p->nama_jaringan ?: '(Langsung)')
+            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: '(Langsung)')))
             ->map(function ($group, $nama) use ($jurusanAktif) {
                 $jurusanCounts = [];
                 foreach ($jurusanAktif as $j) {
