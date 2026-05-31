@@ -317,6 +317,9 @@ class JaringanController extends Controller
     {
         $filter = $request->get('filter', 'all');
         $typeFilter = $request->get('type', 'all');
+        $search = $request->get('search', '');
+        $dateFrom = $request->get('date_from', '');
+        $dateTo = $request->get('date_to', '');
         
         $query = JaringanMergeHistory::orderBy('created_at', 'desc');
         
@@ -334,12 +337,31 @@ class JaringanController extends Controller
             $query->where('merge_type', 'selective');
         }
         
+        // Search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('from_jaringan', 'like', '%' . $search . '%')
+                  ->orWhere('to_jaringan', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Date range filter
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
         $histories = $query->paginate(20)->appends([
             'filter' => $filter,
-            'type' => $typeFilter
+            'type' => $typeFilter,
+            'search' => $search,
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
         ]);
         
-        return view('jaringan.history', compact('histories', 'filter', 'typeFilter'));
+        return view('jaringan.history', compact('histories', 'filter', 'typeFilter', 'search', 'dateFrom', 'dateTo'));
     }
     
     /**

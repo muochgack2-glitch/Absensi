@@ -17,25 +17,55 @@
         </div>
     </div>
 
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     <!-- Filter -->
     <div class="card border-0 shadow-sm mb-4" style="background: var(--bg-primary);">
         <div class="card-body">
             <form method="GET" action="{{ route('jaringan.history') }}" class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Cari Jaringan</label>
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama jaringan..." value="{{ $search }}">
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama jaringan..." value="{{ $search ?? '' }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="filter" class="form-select">
+                        <option value="all" {{ ($filter ?? 'all') == 'all' ? 'selected' : '' }}>Semua</option>
+                        <option value="active" {{ ($filter ?? 'all') == 'active' ? 'selected' : '' }}>Aktif</option>
+                        <option value="undone" {{ ($filter ?? 'all') == 'undone' ? 'selected' : '' }}>Di-undo</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tipe</label>
+                    <select name="type" class="form-select">
+                        <option value="all" {{ ($typeFilter ?? 'all') == 'all' ? 'selected' : '' }}>Semua</option>
+                        <option value="full" {{ ($typeFilter ?? 'all') == 'full' ? 'selected' : '' }}>Full</option>
+                        <option value="selective" {{ ($typeFilter ?? 'all') == 'selective' ? 'selected' : '' }}>Selective</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <label class="form-label">Dari Tanggal</label>
-                    <input type="date" name="date_from" class="form-control" value="{{ $dateFrom }}">
+                    <input type="date" name="date_from" class="form-control" value="{{ $dateFrom ?? '' }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">Sampai Tanggal</label>
-                    <input type="date" name="date_to" class="form-control" value="{{ $dateTo }}">
+                    <input type="date" name="date_to" class="form-control" value="{{ $dateTo ?? '' }}">
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
+                <div class="col-md-1 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-2"></i>Filter
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
             </form>
@@ -51,68 +81,74 @@
         </div>
         <div class="card-body">
             @if($histories->count() > 0)
-                @foreach($groupedHistories as $groupKey => $group)
-                    @php
-                        $first = $group->first();
-                        $totalAffected = $group->sum('jumlah_pendaftar');
-                    @endphp
-                    <div class="card mb-3 border" style="background: var(--bg-secondary); border-color: var(--border-light) !important;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="mb-1" style="color: var(--text-primary);">
-                                        <i class="fas fa-clock text-primary me-2"></i>
-                                        {{ $first->tanggal_merge->format('d M Y, H:i') }} WIB
-                                    </h6>
-                                    <p class="text-muted small mb-0">
-                                        <i class="fas fa-user me-1"></i>
-                                        Oleh: {{ $first->admin->name ?? 'Unknown' }}
-                                    </p>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-success">{{ $group->count() }} jaringan digabung</span>
-                                    <br>
-                                    <small class="text-muted">{{ $totalAffected }} pendaftar terpengaruh</small>
-                                </div>
-                            </div>
-                            
-                            <div class="alert alert-info mb-3">
-                                <strong>Menjadi:</strong> <span class="badge bg-primary">{{ $first->nama_baru }}</span>
-                            </div>
-                            
-                            <div class="table-responsive">
-                                <table class="table table-sm mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Dari</th>
-                                            <th class="text-center">Jumlah</th>
-                                            <th>Keterangan</th>
-                                            <th class="text-center">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($group as $history)
-                                        <tr>
-                                            <td>
-                                                <span class="badge bg-secondary">{{ $history->nama_lama }}</span>
-                                            </td>
-                                            <td class="text-center">{{ $history->jumlah_pendaftar }}</td>
-                                            <td>
-                                                <small class="text-muted">{{ $history->keterangan ?: '-' }}</small>
-                                            </td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-warning" onclick="undoMerge({{ $history->id }}, '{{ $history->nama_lama }}', '{{ $history->nama_baru }}', {{ $history->jumlah_pendaftar }})">
-                                                    <i class="fas fa-undo me-1"></i>Undo
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Waktu</th>
+                                <th>Tipe</th>
+                                <th>Dari</th>
+                                <th>Ke</th>
+                                <th class="text-center">Jumlah</th>
+                                <th>Oleh</th>
+                                <th>Status</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($histories as $history)
+                            <tr>
+                                <td>
+                                    <small>{{ $history->created_at->format('d M Y') }}</small><br>
+                                    <small class="text-muted">{{ $history->created_at->format('H:i') }}</small>
+                                </td>
+                                <td>
+                                    @if($history->merge_type == 'full')
+                                        <span class="badge bg-primary">Full</span>
+                                    @else
+                                        <span class="badge bg-info">Selective</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ $history->from_jaringan }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">{{ $history->to_jaringan }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <strong>{{ $history->affected_count }}</strong>
+                                </td>
+                                <td>
+                                    <small>{{ $history->merged_by_name }}</small><br>
+                                    <small class="text-muted">{{ $history->merged_by_role }}</small>
+                                </td>
+                                <td>
+                                    @if($history->is_undone)
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-undo me-1"></i>Di-undo
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">{{ $history->undone_at?->format('d M Y H:i') }}</small>
+                                    @else
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Aktif
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if(!$history->is_undone)
+                                        <button type="button" class="btn btn-sm btn-warning" onclick="undoMerge({{ $history->id }}, '{{ $history->from_jaringan }}', '{{ $history->to_jaringan }}', {{ $history->affected_count }})">
+                                            <i class="fas fa-undo me-1"></i>Undo
+                                        </button>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
                 
                 <!-- Pagination -->
                 <div class="mt-4">
@@ -168,8 +204,8 @@ function undoMerge(historyId, namaLama, namaBaru, jumlah) {
         
         <p><strong>Detail:</strong></p>
         <ul>
-            <li>Dari: <span class="badge bg-secondary">${namaBaru}</span></li>
-            <li>Kembali ke: <span class="badge bg-primary">${namaLama}</span></li>
+            <li>Dari: <span class="badge bg-secondary">${namaLama}</span></li>
+            <li>Ke: <span class="badge bg-success">${namaBaru}</span></li>
             <li>Jumlah pendaftar: <strong>${jumlah}</strong></li>
         </ul>
         
@@ -179,8 +215,7 @@ function undoMerge(historyId, namaLama, namaBaru, jumlah) {
         </div>
         
         <p class="text-muted small mb-0">
-            <strong>Catatan:</strong> Undo ini hanya mempengaruhi pendaftar dari merge ini saja. 
-            Jika ada merge lain yang juga menggunakan "${namaBaru}", mereka tidak terpengaruh.
+            <strong>Catatan:</strong> Undo ini hanya mempengaruhi pendaftar dari merge ini saja.
         </p>
     `;
     
