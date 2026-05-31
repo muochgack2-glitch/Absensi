@@ -173,7 +173,7 @@
                             <td>
                                 <span class="badge bg-info">{{ $pendaftar->nama_jaringan ?: '(Langsung)' }}</span>
                             </td>
-                            <td>{{ $pendaftar->jurusan_pilihan }}</td>
+                            <td>{{ $pendaftar->jurusan ?: '-' }}</td>
                         </tr>
                         @endforeach
                     </tbody>
