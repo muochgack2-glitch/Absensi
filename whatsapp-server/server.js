@@ -310,11 +310,16 @@ app.post('/logout', async (req, res) => {
             await sock.logout();
             connectionState = 'disconnected';
             qrCodeData = null;
+            reconnectAttempts = 0; // Reset reconnect attempts
             logger.info('Logged out from WhatsApp');
+            
+            // Auto-reconnect after logout to generate new QR code
+            logger.info('Auto-reconnecting to generate new QR code...');
+            setTimeout(connectToWhatsApp, 2000); // Wait 2 seconds before reconnecting
             
             res.json({
                 success: true,
-                message: 'Logged out successfully'
+                message: 'Logged out successfully. Reconnecting to generate new QR code...'
             });
         } else {
             res.json({
