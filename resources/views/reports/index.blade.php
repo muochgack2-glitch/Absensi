@@ -189,7 +189,7 @@
                         </x-slot:header>
                         @foreach ($perUkuranKaos as $size => $count)
                             <tr>
-                                <td><span class="badge bg-warning text-dark">{{ $size }}</span></td>
+                                <td><span class="badge" style="background-color: #fbbf24; color: #000;">{{ $size }}</span></td>
                                 <td class="text-center fw-bold">{{ $count }}</td>
                             </tr>
                         @endforeach
@@ -216,10 +216,10 @@
                     @forelse ($perJaringan as $idx => $j)
                         @php
                             $rankBadge = match($idx) { 
-                                0 => '<span class="badge bg-warning text-dark">🥇</span>', 
+                                0 => '<span class="badge" style="background-color: #fbbf24; color: #000;">🥇</span>', 
                                 1 => '<span class="badge bg-secondary">🥈</span>', 
                                 2 => '<span class="badge bg-info">🥉</span>', 
-                                default => '<span class="badge bg-light text-dark">' . ($idx+1) . '</span>'
+                                default => '<span class="badge bg-light border" style="color: var(--text-primary);">' . ($idx+1) . '</span>'
                             };
                             $lunasPct = $j['total'] > 0 ? round($j['lunas']/$j['total']*100) : 0;
                         @endphp

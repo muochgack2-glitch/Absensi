@@ -182,7 +182,7 @@
                         <tr>
                             <td><span class="reg-code">{{ $p->no_registrasi }}</span></td>
                             <td>
-                                <div class="fw-semibold text-dark">{{ $p->nama_lengkap }}</div>
+                                <div class="fw-semibold" style="color: var(--text-primary);">{{ $p->nama_lengkap }}</div>
                             </td>
                             <td>{{ $p->masterJurusan?->kode ?? $p->jurusan }}</td>
                             <td>{{ $p->gelombang }}</td>

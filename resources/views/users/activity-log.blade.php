@@ -146,7 +146,7 @@
                     </td>
                     <td>
                         @if($log->model)
-                            <span class="badge bg-light text-dark border">
+                            <span class="badge bg-light border" style="color: var(--text-primary);">
                                 <i class="fas fa-cube me-1"></i>{{ $log->model }}
                             </span>
                         @else
@@ -164,7 +164,7 @@
                     </td>
                     <td>
                         @if($log->ip_address)
-                            <span class="badge bg-light text-dark border font-monospace">
+                            <span class="badge bg-light border font-monospace" style="color: var(--text-primary);">
                                 <i class="fas fa-network-wired me-1"></i>{{ $log->ip_address }}
                             </span>
                         @else

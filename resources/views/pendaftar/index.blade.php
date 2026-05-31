@@ -208,7 +208,7 @@
                                     </td>
                                     <td><span class="reg-code">{{ $p->no_registrasi }}</span></td>
                                     <td>
-                                        <div class="fw-semibold text-dark">{{ $p->nama_lengkap }}</div>
+                                        <div class="fw-semibold" style="color: var(--text-primary);">{{ $p->nama_lengkap }}</div>
                                         <div class="small text-muted">Status data: {{ ucfirst($p->status_data ?? 'awal') }}</div>
                                     </td>
                                     <td><span class="jurusan-pill">{{ $p->jurusan }}</span></td>
