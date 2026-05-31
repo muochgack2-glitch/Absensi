@@ -23,13 +23,7 @@
         
         <div class="ms-auto d-flex align-items-center gap-3">
             <button type="button" class="admin-theme-toggle" data-admin-theme-toggle></button>
-            <div class="user-info">
-                <div class="user-avatar"><i class="fas fa-user"></i></div>
-                <div class="d-none d-md-block">
-                    <small>Selamat datang,</small>
-                    <div style="font-weight: 600;">{{ auth()->user()->name ?? 'User' }}</div>
-                </div>
-            </div>
+            <x-user-dropdown />
         </div>
     </div>
 </nav>

@@ -58,6 +58,13 @@ Route::middleware('admin')->group(function () {
     // Dashboard stats endpoint - accessible by all authenticated users
     Route::get('/dashboard/stats', [ReportController::class, 'stats'])->name('dashboard.stats');
 
+    // Profile routes - accessible by all authenticated users
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ProfileController::class, 'index'])->name('index');
+        Route::put('/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('update');
+        Route::put('/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('password');
+    });
+
     // Pendaftar routes - Only for Administrator and Panitia
     Route::middleware(['checkRole:administrator,panitia'])->group(function () {
         Route::resource('pendaftar', PendaftarController::class);
