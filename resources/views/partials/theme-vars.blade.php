@@ -161,6 +161,7 @@
     }
 
     /* Dark Mode Support (Optional) */
+    .admin-dark,
     [data-theme="dark"] {
         --bg-primary: var(--gray-900);
         --bg-secondary: var(--gray-800);

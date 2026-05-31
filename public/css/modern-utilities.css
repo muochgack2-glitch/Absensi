@@ -110,12 +110,12 @@
 }
 
 .btn-modern-secondary {
-    background: var(--gray-100);
+    background: var(--bg-tertiary);
     color: var(--text-primary);
 }
 
 .btn-modern-secondary:hover {
-    background: var(--gray-200);
+    background: var(--bg-secondary);
 }
 
 /* Modern Badge */
@@ -337,7 +337,7 @@
 }
 
 .modal-content {
-    background: #ffffff;
+    background: var(--bg-primary);
     border-radius: var(--radius-2xl);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     overflow: hidden;
@@ -376,14 +376,14 @@
 }
 
 .modal-close:hover {
-    background: var(--gray-100);
+    background: var(--bg-secondary);
     color: var(--text-primary);
 }
 
 .modal-body {
     padding: var(--space-6);
-    background: #ffffff;
-    color: #1e293b;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .modal-footer {
@@ -474,7 +474,7 @@
 .modal-modern .modal-body {
     position: relative;
     z-index: 5;
-    background: #ffffff;
+    background: var(--bg-primary);
 }
 
 .modal-modern button {

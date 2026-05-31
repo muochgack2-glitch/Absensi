@@ -28,7 +28,7 @@
     .dashboard-header h2 {
         font-size: 28px;
         font-weight: 700;
-        color: #1e293b;
+        color: var(--text-primary);
         margin: 0;
         display: flex;
         align-items: center;
@@ -36,7 +36,7 @@
     }
 
     .dashboard-header .subtitle {
-        color: #64748b;
+        color: var(--text-secondary);
         font-size: 14px;
         margin-top: 8px;
     }
@@ -79,8 +79,8 @@
         border-radius: 8px;
         font-size: 12px;
         font-weight: 600;
-        background: #f1f5f9;
-        color: #475569;
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
     }
 
     /* Network Stats Item */
@@ -89,7 +89,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 16px 0;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--border-light);
     }
 
     .network-stat-item:last-child {
@@ -97,7 +97,7 @@
     }
 
     .network-stat-item strong {
-        color: #1e293b;
+        color: var(--text-primary);
         font-size: 14px;
     }
 
