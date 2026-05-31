@@ -121,25 +121,8 @@
         </div>
     </div>
 
-    <!-- Charts Row -->
-    <div class="row g-4 mb-4">
-        <!-- Jurusan chart -->
-        <div class="col-md-5">
-            <x-section-card title="Distribusi per Jurusan" icon="fas fa-chart-bar">
-                <canvas id="chartJurusan" height="200"></canvas>
-            </x-section-card>
-        </div>
-
-        <!-- Gelombang chart -->
-        <div class="col-md-7">
-            <x-section-card title="Pendaftar per Gelombang" icon="fas fa-chart-line">
-                <canvas id="chartGelombang" height="200"></canvas>
-            </x-section-card>
-        </div>
-    </div>
-
     <!-- Tables Row -->
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
         <!-- Per Jurusan table -->
         <div class="col-md-5">
             <x-section-card title="Rekap per Jurusan" icon="fas fa-graduation-cap">
@@ -244,6 +227,23 @@
                         <tr><td colspan="7" class="text-center text-muted py-3">Belum ada data</td></tr>
                     @endforelse
                 </x-table>
+            </x-section-card>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4">
+        <!-- Jurusan chart -->
+        <div class="col-md-5">
+            <x-section-card title="Distribusi per Jurusan" icon="fas fa-chart-bar">
+                <canvas id="chartJurusan" height="200"></canvas>
+            </x-section-card>
+        </div>
+
+        <!-- Gelombang chart -->
+        <div class="col-md-7">
+            <x-section-card title="Pendaftar per Gelombang" icon="fas fa-chart-line">
+                <canvas id="chartGelombang" height="200"></canvas>
             </x-section-card>
         </div>
     </div>
