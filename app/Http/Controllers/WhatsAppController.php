@@ -348,4 +348,285 @@ class WhatsAppController extends Controller
         return redirect()->route('whatsapp.index')
             ->with($result['success'] ? 'success' : 'error', $result['message']);
     }
+
+    /**
+     * Phone list page - Rekap nomor HP pendaftar
+     */
+    public function phoneList(Request $request)
+    {
+        $query = Pendaftar::with('masterJurusan');
+
+        // Filter by jurusan
+        if ($request->has('jurusan_id') && $request->jurusan_id != '') {
+            $query->where('jurusan_id', $request->jurusan_id);
+        }
+
+        // Filter by gelombang
+        if ($request->has('gelombang') && $request->gelombang != '') {
+            $query->where('gelombang', $request->gelombang);
+        }
+
+        // Filter by status siswa
+        if ($request->has('status_siswa') && $request->status_siswa != '') {
+            $query->where('status_siswa', $request->status_siswa);
+        }
+
+        // Filter by phone type
+        $phoneType = $request->get('phone_type', 'all');
+        if ($phoneType != 'all') {
+            switch ($phoneType) {
+                case 'wali':
+                    $query->whereNotNull('no_hp_wali')->where('no_hp_wali', '!=', '');
+                    break;
+                case 'ortu':
+                    $query->whereNotNull('no_hp_ortu')->where('no_hp_ortu', '!=', '');
+                    break;
+                case 'siswa':
+                    $query->whereNotNull('no_telepon')->where('no_telepon', '!=', '');
+                    break;
+            }
+        }
+
+        // Search by name or NISN
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('nisn', 'like', "%{$search}%")
+                  ->orWhere('no_registrasi', 'like', "%{$search}%");
+            });
+        }
+
+        $pendaftars = $query->orderBy('tgl_daftar', 'desc')->paginate(50);
+
+        // Add phone data to each pendaftar
+        $pendaftars->getCollection()->transform(function ($pendaftar) use ($phoneType) {
+            $pendaftar->phone_data = $this->getPhoneDataForDisplay($pendaftar, $phoneType);
+            return $pendaftar;
+        });
+
+        // Get statistics
+        $statistics = $this->getPhoneStatistics();
+
+        // Get jurusans for filter
+        $jurusans = Jurusan::where('aktif', true)->orderBy('nama_jurusan')->get();
+
+        // Get unique gelombangs
+        $gelombangs = Pendaftar::select('gelombang')
+            ->distinct()
+            ->whereNotNull('gelombang')
+            ->orderBy('gelombang')
+            ->pluck('gelombang');
+
+        // Get templates for broadcast
+        $templates = WhatsAppTemplate::active()->get();
+
+        return view('whatsapp.phone-list', compact(
+            'pendaftars',
+            'statistics',
+            'jurusans',
+            'gelombangs',
+            'templates'
+        ));
+    }
+
+    /**
+     * Send bulk broadcast from phone list
+     */
+    public function sendBulkBroadcast(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phones' => 'required|array|min:1',
+            'phones.*.phone' => 'required|string',
+            'phones.*.name' => 'required|string',
+            'phones.*.no_reg' => 'required|string',
+            'phones.*.jurusan' => 'required|string',
+            'message' => 'required|string',
+            'template_id' => 'nullable|exists:whatsapp_templates,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $phones = $request->phones;
+        $message = $request->message;
+        $templateId = $request->template_id;
+
+        $results = [];
+        $successCount = 0;
+        $failedCount = 0;
+
+        foreach ($phones as $phoneData) {
+            try {
+                // Replace variables in message for each recipient
+                $personalizedMessage = $this->replaceMessageVariables($message, $phoneData);
+
+                // Send message
+                $result = $this->whatsappService->send(
+                    $phoneData['phone'],
+                    $personalizedMessage,
+                    [
+                        'type' => 'broadcast',
+                        'sent_by' => auth()->id(),
+                        'template_id' => $templateId,
+                        'pendaftar_id' => $phoneData['id'] ?? null,
+                    ]
+                );
+
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                }
+
+                $results[] = [
+                    'phone' => $phoneData['phone'],
+                    'name' => $phoneData['name'],
+                    'success' => $result['success'],
+                    'message' => $result['message'] ?? null,
+                ];
+
+                // Delay between messages
+                if (count($phones) > 1) {
+                    sleep(1);
+                }
+
+            } catch (\Exception $e) {
+                $failedCount++;
+                $results[] = [
+                    'phone' => $phoneData['phone'],
+                    'name' => $phoneData['name'],
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Broadcast selesai. Terkirim: {$successCount}, Gagal: {$failedCount}",
+            'total' => count($phones),
+            'success_count' => $successCount,
+            'failed_count' => $failedCount,
+            'results' => $results,
+        ]);
+    }
+
+    /**
+     * Get phone data for display
+     */
+    private function getPhoneDataForDisplay(Pendaftar $pendaftar, string $phoneType = 'all'): array
+    {
+        $phone = null;
+        $type = null;
+
+        if ($phoneType == 'all') {
+            // Priority: wali > ortu > siswa
+            if (!empty($pendaftar->no_hp_wali)) {
+                $phone = $pendaftar->no_hp_wali;
+                $type = 'Wali';
+            } elseif (!empty($pendaftar->no_hp_ortu)) {
+                $phone = $pendaftar->no_hp_ortu;
+                $type = 'Orang Tua';
+            } elseif (!empty($pendaftar->no_telepon)) {
+                $phone = $pendaftar->no_telepon;
+                $type = 'Siswa';
+            }
+        } elseif ($phoneType == 'wali' && !empty($pendaftar->no_hp_wali)) {
+            $phone = $pendaftar->no_hp_wali;
+            $type = 'Wali';
+        } elseif ($phoneType == 'ortu' && !empty($pendaftar->no_hp_ortu)) {
+            $phone = $pendaftar->no_hp_ortu;
+            $type = 'Orang Tua';
+        } elseif ($phoneType == 'siswa' && !empty($pendaftar->no_telepon)) {
+            $phone = $pendaftar->no_telepon;
+            $type = 'Siswa';
+        }
+
+        // Format phone number
+        $formatted = null;
+        if ($phone) {
+            $formatted = $this->formatPhoneForDisplay($phone);
+        }
+
+        return [
+            'phone' => $phone,
+            'formatted' => $formatted,
+            'type' => $type,
+        ];
+    }
+
+    /**
+     * Format phone number for display
+     */
+    private function formatPhoneForDisplay(string $phone): string
+    {
+        // Remove non-numeric
+        $cleaned = preg_replace('/\D/', '', $phone);
+
+        // Convert to 62xxx format
+        if (substr($cleaned, 0, 1) === '0') {
+            $cleaned = '62' . substr($cleaned, 1);
+        } elseif (!str_starts_with($cleaned, '62')) {
+            $cleaned = '62' . $cleaned;
+        }
+
+        // Format: 0812-3456-7890
+        $original = $phone;
+        if (substr($original, 0, 1) === '0') {
+            return substr($original, 0, 4) . '-' . substr($original, 4, 4) . '-' . substr($original, 8);
+        }
+
+        return $phone;
+    }
+
+    /**
+     * Get phone statistics
+     */
+    private function getPhoneStatistics(): array
+    {
+        $totalPendaftar = Pendaftar::count();
+        
+        $withPhone = Pendaftar::where(function($query) {
+            $query->whereNotNull('no_hp_wali')
+                  ->orWhereNotNull('no_hp_ortu')
+                  ->orWhereNotNull('no_telepon');
+        })->where(function($query) {
+            $query->where('no_hp_wali', '!=', '')
+                  ->orWhere('no_hp_ortu', '!=', '')
+                  ->orWhere('no_telepon', '!=', '');
+        })->count();
+
+        $withoutPhone = $totalPendaftar - $withPhone;
+        $phonePercentage = $totalPendaftar > 0 ? round(($withPhone / $totalPendaftar) * 100, 1) : 0;
+
+        return [
+            'total_pendaftar' => $totalPendaftar,
+            'with_phone' => $withPhone,
+            'without_phone' => $withoutPhone,
+            'phone_percentage' => $phonePercentage,
+        ];
+    }
+
+    /**
+     * Replace message variables with actual data
+     */
+    private function replaceMessageVariables(string $message, array $data): string
+    {
+        $replacements = [
+            '{nama}' => $data['name'] ?? '',
+            '{no_pendaftaran}' => $data['no_reg'] ?? '',
+            '{jurusan}' => $data['jurusan'] ?? '',
+            '{portal_url}' => url('/'),
+            '{sekolah}' => config('app.name', 'SMK PGRI Blora'),
+            '{tanggal}' => now()->format('d-m-Y'),
+        ];
+
+        return str_replace(array_keys($replacements), array_values($replacements), $message);
+    }
 }

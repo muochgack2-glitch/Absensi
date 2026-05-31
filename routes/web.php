@@ -126,6 +126,10 @@ Route::middleware('admin')->group(function () {
             Route::get('/broadcast', [\App\Http\Controllers\WhatsAppController::class, 'broadcastPage'])->name('broadcast');
             Route::post('/broadcast', [\App\Http\Controllers\WhatsAppController::class, 'sendBroadcast'])->name('broadcast.send');
             
+            // Phone List & Bulk Broadcast
+            Route::get('/phone-list', [\App\Http\Controllers\WhatsAppController::class, 'phoneList'])->name('phone-list');
+            Route::post('/broadcast/send-bulk', [\App\Http\Controllers\WhatsAppController::class, 'sendBulkBroadcast'])->name('broadcast.send-bulk');
+            
             // Logout
             Route::post('/logout', [\App\Http\Controllers\WhatsAppController::class, 'logout'])->name('logout');
         });

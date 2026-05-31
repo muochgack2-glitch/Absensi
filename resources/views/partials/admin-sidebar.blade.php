@@ -69,6 +69,12 @@
                     </a>
                 </li>
                 <li>
+                    <a class="submenu-link {{ request()->routeIs('whatsapp.phone-list') ? 'active' : '' }}" href="{{ route('whatsapp.phone-list') }}">
+                        <i class="fas fa-address-book"></i>
+                        <span class="nav-text">Rekap Nomor HP</span>
+                    </a>
+                </li>
+                <li>
                     <a class="submenu-link {{ request()->routeIs('whatsapp.broadcast') ? 'active' : '' }}" href="{{ route('whatsapp.broadcast') }}">
                         <i class="fas fa-bullhorn"></i>
                         <span class="nav-text">Broadcast</span>
