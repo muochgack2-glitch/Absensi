@@ -383,11 +383,11 @@
     }
 
     function setCardValue(elementId, value) {
-        // Find the stat-value element within the card
+        // Find the stat-card-value element within the card
         const card = document.getElementById(elementId);
         if (!card) return;
         
-        const valueEl = card.querySelector('.stat-value');
+        const valueEl = card.querySelector('.stat-card-value');
         if (!valueEl) return;
         
         animateCounter(valueEl, value);
