@@ -654,18 +654,27 @@
         /* Mobile Menu Button - Only show on mobile (<992px) */
         .admin-mobile-menu-btn {
             display: none !important;
-            padding: 8px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 6px;
-            background: transparent;
+            padding: 10px 14px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            font-size: 18px;
+            font-size: 22px;
+            font-weight: 700;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         
         .admin-mobile-menu-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .admin-mobile-menu-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
         }
 
         @media (max-width: 991px) {
