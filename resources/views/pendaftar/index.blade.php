@@ -3,7 +3,6 @@
 @section('title', 'Data Pendaftar - SPMB (Sistem Penerimaan Murid Baru)')
 
 @push('styles')
-<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <style>
     .dashboard-content {
         animation: zoomFadeIn 0.35s ease-out;
@@ -67,10 +66,11 @@
 
 @section('content')
 @php
-    $totalPendaftar = $pendaftars->count();
-    $totalDiterima = $pendaftars->where('status_siswa', 'Diterima')->count();
-    $totalBelumDaftarUlang = $pendaftars->where('status_siswa', '!=', 'Diterima')->count();
-    $totalDataAwal = $pendaftars->where('status_data', 'awal')->count();
+    // Get all statistics from database (not just current page)
+    $totalPendaftar = \App\Models\Pendaftar::count();
+    $totalDiterima = \App\Models\Pendaftar::where('status_siswa', 'Diterima')->count();
+    $totalBelumDaftarUlang = \App\Models\Pendaftar::where('status_siswa', '!=', 'Diterima')->count();
+    $totalDataAwal = \App\Models\Pendaftar::where('status_data', 'awal')->count();
 @endphp
 
 <div class="dashboard-content">
@@ -281,25 +281,8 @@
 @endsection
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script>
         $(document).ready(function () {
-            $('#pendaftarTable').DataTable({
-                language: {
-                    search: 'Cari:',
-                    lengthMenu: 'Tampilkan _MENU_ data',
-                    info: 'Menampilkan _START_ - _END_ dari _TOTAL_ data',
-                    paginate: { previous: 'Sebelumnya', next: 'Berikutnya' },
-                    zeroRecords: 'Tidak ada data yang ditemukan',
-                    emptyTable: 'Belum ada data pendaftar'
-                },
-                columnDefs: [
-                    { orderable: false, targets: [0, -1] } // Disable sorting for checkbox and action columns
-                ]
-            });
-
             @if (Session::has('created_pendaftar_id'))
                 Modal.confirm(
                     'Pendaftar <strong>{{ addslashes(Session::get('created_pendaftar_name')) }}</strong><br>No. Registrasi: <strong>{{ Session::get('created_pendaftar_no') }}</strong><br><br>Apakah ingin melengkapi biodata sekarang?',
