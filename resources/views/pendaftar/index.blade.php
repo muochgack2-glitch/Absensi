@@ -302,7 +302,53 @@
 
             <!-- Pagination -->
             <div class="mt-4">
-                {{ $pendaftars->links() }}
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        Menampilkan {{ $pendaftars->firstItem() ?? 0 }} - {{ $pendaftars->lastItem() ?? 0 }} dari {{ $pendaftars->total() }} data
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            {{-- Previous Page Link --}}
+                            @if ($pendaftars->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $pendaftars->previousPageUrl() }}" rel="prev">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @foreach ($pendaftars->links()->elements[0] as $page => $url)
+                                @if ($page == $pendaftars->currentPage())
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            {{-- Next Page Link --}}
+                            @if ($pendaftars->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $pendaftars->nextPageUrl() }}" rel="next">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                </div>
             </div>
 </div>
 @endsection
