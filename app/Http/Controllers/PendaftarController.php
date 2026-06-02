@@ -120,9 +120,50 @@ class PendaftarController extends Controller
     /**
      * Show list of all pendaftar (Admin)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pendaftars = Pendaftar::with('logistik')->paginate(20);
+        $query = Pendaftar::with('logistik');
+        
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', '%' . $search . '%')
+                  ->orWhere('no_registrasi', 'like', '%' . $search . '%')
+                  ->orWhere('nisn', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Jurusan filter
+        if ($request->filled('jurusan')) {
+            $query->where('jurusan', $request->jurusan);
+        }
+        
+        // Gelombang filter
+        if ($request->filled('gelombang')) {
+            $query->where('gelombang', $request->gelombang);
+        }
+        
+        // Status Siswa filter
+        if ($request->filled('status_siswa')) {
+            $query->where('status_siswa', $request->status_siswa);
+        }
+        
+        // Status Data filter
+        if ($request->filled('status_data')) {
+            $query->where('status_data', $request->status_data);
+        }
+        
+        // Jaringan filter
+        if ($request->filled('jaringan')) {
+            $query->where('nama_jaringan', $request->jaringan);
+        }
+        
+        // Order by latest
+        $query->orderBy('id_pendaftar', 'desc');
+        
+        $pendaftars = $query->paginate(20)->appends($request->except('page'));
+        
         return view('pendaftar.index', compact('pendaftars'));
     }
 

@@ -177,6 +177,98 @@
         </x-alert>
     @endif
 
+    <!-- Filter Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('pendaftar.index') }}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">
+                            <i class="fas fa-search me-1"></i> Cari
+                        </label>
+                        <input type="text" name="search" class="form-control" placeholder="Nama, No. Reg, NISN..." value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">
+                            <i class="fas fa-graduation-cap me-1"></i> Jurusan
+                        </label>
+                        <select name="jurusan" class="form-select">
+                            <option value="">Semua Jurusan</option>
+                            @foreach(\App\Models\Jurusan::where('aktif', true)->orderBy('kode')->get() as $jur)
+                            <option value="{{ $jur->kode }}" {{ request('jurusan') == $jur->kode ? 'selected' : '' }}>
+                                {{ $jur->kode }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">
+                            <i class="fas fa-calendar me-1"></i> Gelombang
+                        </label>
+                        <select name="gelombang" class="form-select">
+                            <option value="">Semua Gelombang</option>
+                            @foreach(\App\Models\Pendaftar::select('gelombang')->distinct()->orderBy('gelombang')->pluck('gelombang') as $gel)
+                            <option value="{{ $gel }}" {{ request('gelombang') == $gel ? 'selected' : '' }}>
+                                {{ $gel }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">
+                            <i class="fas fa-check-circle me-1"></i> Status Siswa
+                        </label>
+                        <select name="status_siswa" class="form-select">
+                            <option value="">Semua Status</option>
+                            <option value="Diterima" {{ request('status_siswa') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                            <option value="Belum Daftar Ulang" {{ request('status_siswa') == 'Belum Daftar Ulang' ? 'selected' : '' }}>Belum Daftar Ulang</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">
+                            <i class="fas fa-database me-1"></i> Status Data
+                        </label>
+                        <select name="status_data" class="form-select">
+                            <option value="">Semua</option>
+                            <option value="awal" {{ request('status_data') == 'awal' ? 'selected' : '' }}>Data Awal</option>
+                            <option value="lengkap" {{ request('status_data') == 'lengkap' ? 'selected' : '' }}>Data Lengkap</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">
+                            <i class="fas fa-network-wired me-1"></i> Jaringan
+                        </label>
+                        <select name="jaringan" class="form-select">
+                            <option value="">Semua Jaringan</option>
+                            @foreach(\App\Models\Pendaftar::select('nama_jaringan')->whereNotNull('nama_jaringan')->where('nama_jaringan', '!=', '')->distinct()->orderBy('nama_jaringan')->pluck('nama_jaringan') as $jar)
+                            <option value="{{ $jar }}" {{ request('jaringan') == $jar ? 'selected' : '' }}>
+                                {{ $jar }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-9 d-flex align-items-end justify-content-end gap-2">
+                        @if(request()->hasAny(['search', 'jurusan', 'gelombang', 'status_siswa', 'status_data', 'jaringan']))
+                        <a href="{{ route('pendaftar.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Reset Filter
+                        </a>
+                        @endif
+                        <span class="text-muted small align-self-center">
+                            {{ $pendaftars->total() }} data ditemukan
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Data Table -->
     <x-section-card title="Daftar Pendaftar" icon="fas fa-list">
         <x-slot:actions>
