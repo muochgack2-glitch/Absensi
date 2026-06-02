@@ -61,6 +61,33 @@
         background-color: #dcfce7;
         color: #166534;
     }
+    
+    /* Fix pagination button size */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .pagination .page-link {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        min-width: 38px;
+        text-align: center;
+    }
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .pagination .page-item.active .page-link {
+        z-index: 3;
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    .pagination .page-item.disabled .page-link {
+        opacity: 0.5;
+    }
 </style>
 @endpush
 
