@@ -3,7 +3,6 @@
 @section('title', 'Verifikasi Daftar Ulang - SPMB (Sistem Penerimaan Murid Baru)')
 
 @push('styles')
-<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <style>
     .dashboard-content {
         animation: zoomFadeIn 0.35s ease-out;
@@ -84,6 +83,33 @@
         font-size: 12px;
         font-weight: 700;
     }
+    
+    /* Fix pagination button size */
+    .pagination {
+        margin-bottom: 0;
+    }
+    .pagination .page-link {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        min-width: 38px;
+        text-align: center;
+    }
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .pagination .page-item.active .page-link {
+        z-index: 3;
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    .pagination .page-item.disabled .page-link {
+        opacity: 0.5;
+    }
 </style>
 @endpush
 
@@ -105,42 +131,50 @@
 
     <!-- Filter Section -->
     <x-section-card title="Filter Data" icon="fas fa-filter" class="mb-4">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <x-form-group label="Filter Status" name="filterStatus">
-                    <x-select name="filterStatus" id="filterStatus">
-                        <option value="">Semua Status</option>
-                        <option value="Belum Daftar Ulang">Belum Daftar Ulang</option>
-                        <option value="Diterima">Diterima</option>
-                    </x-select>
-                </x-form-group>
+        <form method="GET" action="{{ route('pendaftar.verification-index') }}">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <x-form-group label="Filter Status" name="status">
+                        <x-select name="status" id="filterStatus">
+                            <option value="">Semua Status</option>
+                            <option value="Belum Daftar Ulang" {{ request('status') == 'Belum Daftar Ulang' ? 'selected' : '' }}>Belum Daftar Ulang</option>
+                            <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                        </x-select>
+                    </x-form-group>
+                </div>
+                <div class="col-md-3">
+                    <x-form-group label="Filter Jurusan" name="jurusan">
+                        <x-select name="jurusan" id="filterJurusan">
+                            <option value="">Semua Jurusan</option>
+                            @foreach(($jurusans ?? collect()) as $j)
+                                <option value="{{ $j->kode }}" {{ request('jurusan') == $j->kode ? 'selected' : '' }}>{{ $j->kode }}</option>
+                            @endforeach
+                        </x-select>
+                    </x-form-group>
+                </div>
+                <div class="col-md-4">
+                    <x-form-group label="Pencarian Cepat" name="search">
+                        <x-input 
+                            name="search" 
+                            id="filterKeyword" 
+                            icon="fas fa-search"
+                            placeholder="Cari nama / no registrasi..."
+                            value="{{ request('search') }}"
+                        />
+                    </x-form-group>
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <x-button variant="primary" type="submit" block="true">
+                        <i class="fas fa-filter"></i> Filter
+                    </x-button>
+                    @if(request()->hasAny(['search', 'status', 'jurusan']))
+                    <a href="{{ route('pendaftar.verification-index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                    @endif
+                </div>
             </div>
-            <div class="col-md-3">
-                <x-form-group label="Filter Jurusan" name="filterJurusan">
-                    <x-select name="filterJurusan" id="filterJurusan">
-                        <option value="">Semua Jurusan</option>
-                        @foreach(($jurusans ?? collect()) as $j)
-                            <option value="{{ $j->kode }}">{{ $j->kode }}</option>
-                        @endforeach
-                    </x-select>
-                </x-form-group>
-            </div>
-            <div class="col-md-4">
-                <x-form-group label="Pencarian Cepat" name="filterKeyword">
-                    <x-input 
-                        name="filterKeyword" 
-                        id="filterKeyword" 
-                        icon="fas fa-search"
-                        placeholder="Cari nama / no registrasi..."
-                    />
-                </x-form-group>
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <x-button variant="secondary" outline="true" id="resetFilter" block="true">
-                    <i class="fas fa-rotate-right"></i> Reset
-                </x-button>
-            </div>
-        </div>
+        </form>
     </x-section-card>
 
     <!-- Data Table -->
@@ -263,51 +297,79 @@
 
     <!-- Pagination -->
     <div class="mt-4">
-        {{ $pendaftars->links() }}
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-muted small">
+                    Menampilkan {{ $pendaftars->firstItem() ?? 0 }} - {{ $pendaftars->lastItem() ?? 0 }} dari {{ $pendaftars->total() }} data
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="text-muted small mb-0">Tampilkan:</label>
+                    <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                        <option value="10" {{ request('per_page', 20) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }}>20</option>
+                        <option value="50" {{ request('per_page', 20) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page', 20) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    {{-- Previous Page Link --}}
+                    @if ($pendaftars->onFirstPage())
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $pendaftars->previousPageUrl() }}" rel="prev">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    @foreach ($pendaftars->links()->elements[0] as $page => $url)
+                        @if ($page == $pendaftars->currentPage())
+                            <li class="page-item active">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endforeach
+
+                    {{-- Next Page Link --}}
+                    @if ($pendaftars->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $pendaftars->nextPageUrl() }}" rel="next">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    @else
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script>
+// Change per page
+function changePerPage(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', value);
+    url.searchParams.delete('page'); // Reset to page 1
+    window.location.href = url.toString();
+}
+
 $(document).ready(function(){
-    const table = $('#verifikasiTable').DataTable({
-        language: {
-            search: 'Cari:',
-            lengthMenu: 'Tampilkan _MENU_ data',
-            info: 'Menampilkan _START_ - _END_ dari _TOTAL_ data',
-            paginate: { previous: 'Sebelumnya', next: 'Berikutnya' },
-            zeroRecords: 'Tidak ada data yang ditemukan',
-            emptyTable: 'Belum ada data pendaftar'
-        },
-        columnDefs:[{orderable:false,targets:-1}]
-    });
-
-    $('#filterStatus').on('change', function(){
-        table.column(4).search(this.value).draw();
-    });
-
-    $('#filterJurusan').on('change', function(){
-        table.column(2).search(this.value).draw();
-    });
-
-    $('#filterKeyword').on('keyup', function(){
-        table.search(this.value).draw();
-    });
-
-    $('#resetFilter').on('click', function(){
-        $('#filterStatus').val('');
-        $('#filterJurusan').val('');
-        $('#filterKeyword').val('');
-        table.search('');
-        table.column(4).search('');
-        table.column(2).search('');
-        table.draw();
-    });
-
     // Rollback confirmation with Modal.confirm
     $(document).on('submit', '.rollback-form', function(e){
         e.preventDefault();

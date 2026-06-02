@@ -174,9 +174,37 @@ class PendaftarController extends Controller
     /**
      * Show list specifically for payment verification workflow.
      */
-    public function verificationIndex()
+    public function verificationIndex(Request $request)
     {
-        $pendaftars = Pendaftar::with(['logistik', 'masterJurusan'])->paginate(20);
+        $query = Pendaftar::with(['logistik', 'masterJurusan']);
+        
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', '%' . $search . '%')
+                  ->orWhere('no_registrasi', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status_siswa', $request->status);
+        }
+        
+        // Jurusan filter
+        if ($request->filled('jurusan')) {
+            $query->where('jurusan', $request->jurusan);
+        }
+        
+        // Order by latest
+        $query->orderBy('id_pendaftar', 'desc');
+        
+        // Get per_page value (default 20)
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $pendaftars = $query->paginate($perPage)->appends($request->except('page'));
         $jurusans = Jurusan::where('aktif', true)->orderBy('kode')->get();
         return view('pendaftar.verification-index', compact('pendaftars', 'jurusans'));
     }
