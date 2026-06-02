@@ -162,7 +162,11 @@ class PendaftarController extends Controller
         // Order by latest
         $query->orderBy('id_pendaftar', 'desc');
         
-        $pendaftars = $query->paginate(20)->appends($request->except('page'));
+        // Get per_page value (default 20)
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $pendaftars = $query->paginate($perPage)->appends($request->except('page'));
         
         return view('pendaftar.index', compact('pendaftars'));
     }

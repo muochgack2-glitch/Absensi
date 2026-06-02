@@ -394,9 +394,20 @@
 
             <!-- Pagination -->
             <div class="mt-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted small">
-                        Menampilkan {{ $pendaftars->firstItem() ?? 0 }} - {{ $pendaftars->lastItem() ?? 0 }} dari {{ $pendaftars->total() }} data
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="text-muted small">
+                            Menampilkan {{ $pendaftars->firstItem() ?? 0 }} - {{ $pendaftars->lastItem() ?? 0 }} dari {{ $pendaftars->total() }} data
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="text-muted small mb-0">Tampilkan:</label>
+                            <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
+                                <option value="10" {{ request('per_page', 20) == 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }}>20</option>
+                                <option value="50" {{ request('per_page', 20) == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page', 20) == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                        </div>
                     </div>
                     <nav aria-label="Page navigation">
                         <ul class="pagination mb-0">
@@ -447,6 +458,14 @@
 
 @push('scripts')
 <script>
+        // Change per page
+        function changePerPage(value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', value);
+            url.searchParams.delete('page'); // Reset to page 1
+            window.location.href = url.toString();
+        }
+
         $(document).ready(function () {
             @if (Session::has('created_pendaftar_id'))
                 Modal.confirm(
