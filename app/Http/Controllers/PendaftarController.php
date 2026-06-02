@@ -258,6 +258,7 @@ class PendaftarController extends Controller
             'alamat_wali' => 'nullable|string|max:255',
             'jurusan_id' => 'required|exists:jurusan,id',
             'nama_jaringan' => 'nullable|string|max:100',
+            'gelombang' => 'nullable|string|max:50',
             'status_data' => 'required|in:awal,lengkap,terverifikasi',
         ]);
 

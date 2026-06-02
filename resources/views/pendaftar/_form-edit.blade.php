@@ -209,17 +209,31 @@
                         />
                     </x-form-group>
 
-                    <x-form-group label="Jurusan yang Dipilih" name="jurusan_id" required="true">
-                        <x-select name="jurusan_id">
-                            <option value="">-- Pilih Jurusan --</option>
-                            @foreach($jurusans as $jurusan)
-                                <option value="{{ $jurusan->id }}" 
-                                    {{ old('jurusan_id', $pendaftar->jurusan_id ?? '') == $jurusan->id ? 'selected' : '' }}>
-                                    {{ $jurusan->kode }} - {{ $jurusan->nama }}
-                                </option>
-                            @endforeach
-                        </x-select>
-                    </x-form-group>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <x-form-group label="Jurusan yang Dipilih" name="jurusan_id" required="true">
+                                <x-select name="jurusan_id">
+                                    <option value="">-- Pilih Jurusan --</option>
+                                    @foreach($jurusans as $jurusan)
+                                        <option value="{{ $jurusan->id }}" 
+                                            {{ old('jurusan_id', $pendaftar->jurusan_id ?? '') == $jurusan->id ? 'selected' : '' }}>
+                                            {{ $jurusan->kode }} - {{ $jurusan->nama }}
+                                        </option>
+                                    @endforeach
+                                </x-select>
+                            </x-form-group>
+                        </div>
+                        <div class="col-md-6">
+                            <x-form-group label="Gelombang Pendaftaran" name="gelombang">
+                                <x-input 
+                                    name="gelombang" 
+                                    value="{{ old('gelombang', $pendaftar->gelombang ?? '') }}"
+                                    placeholder="Contoh: Gelombang 1, Gelombang 2"
+                                    icon="fas fa-wave-square"
+                                />
+                            </x-form-group>
+                        </div>
+                    </div>
 
                     <x-form-group label="Nama Jaringan (Opsional)" name="nama_jaringan">
                         <x-input 
