@@ -98,10 +98,14 @@ class JaringanController extends Controller
                 $query->orderBy('no_registrasi', 'asc');
         }
         
-        $pendaftars = $query->paginate(50)->appends([
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $pendaftars = $query->paginate($perPage)->appends([
             'search' => $search,
             'jaringan' => $jaringanFilter,
-            'sort' => $sort
+            'sort' => $sort,
+            'per_page' => $perPage
         ]);
         
         // Get all jaringan for filter
@@ -353,12 +357,16 @@ class JaringanController extends Controller
             $query->whereDate('created_at', '<=', $dateTo);
         }
         
-        $histories = $query->paginate(20)->appends([
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $histories = $query->paginate($perPage)->appends([
             'filter' => $filter,
             'type' => $typeFilter,
             'search' => $search,
             'date_from' => $dateFrom,
             'date_to' => $dateTo,
+            'per_page' => $perPage
         ]);
         
         return view('jaringan.history', compact('histories', 'filter', 'typeFilter', 'search', 'dateFrom', 'dateTo'));

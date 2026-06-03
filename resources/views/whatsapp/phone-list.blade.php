@@ -254,7 +254,7 @@
             
             <!-- Pagination -->
             <div class="p-3">
-                {{ $pendaftars->links() }}
+                <x-custom-pagination :paginator="$pendaftars" :showPerPage="true" />
             </div>
             @else
             <div class="text-center py-5">

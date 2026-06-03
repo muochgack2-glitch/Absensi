@@ -152,7 +152,7 @@
                 
                 <!-- Pagination -->
                 <div class="mt-4">
-                    {{ $histories->links() }}
+                    <x-custom-pagination :paginator="$histories" :showPerPage="true" />
                 </div>
             @else
                 <div class="text-center py-5">

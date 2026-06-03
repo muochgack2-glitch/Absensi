@@ -183,14 +183,7 @@
             <!-- Pagination -->
             @if($pendaftars->hasPages())
             <div class="card-footer bg-transparent border-top">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted small">
-                        Menampilkan {{ $pendaftars->firstItem() }} - {{ $pendaftars->lastItem() }} dari {{ $pendaftars->total() }} siswa
-                    </div>
-                    <div>
-                        {{ $pendaftars->links() }}
-                    </div>
-                </div>
+                <x-custom-pagination :paginator="$pendaftars" :showPerPage="true" />
             </div>
             @endif
             @else

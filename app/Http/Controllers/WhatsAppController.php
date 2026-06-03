@@ -157,7 +157,10 @@ class WhatsAppController extends Controller
             $query->where('phone', 'like', '%' . $request->search . '%');
         }
 
-        $logs = $query->paginate(20);
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $logs = $query->paginate($perPage)->appends($request->except('page'));
 
         return view('whatsapp.logs', compact('logs'));
     }
@@ -400,7 +403,10 @@ class WhatsAppController extends Controller
             });
         }
 
-        $pendaftars = $query->orderBy('tgl_daftar', 'desc')->paginate(50);
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $pendaftars = $query->orderBy('tgl_daftar', 'desc')->paginate($perPage)->appends($request->except('page'));
 
         // Add phone data to each pendaftar
         $pendaftars->getCollection()->transform(function ($pendaftar) use ($phoneType) {

@@ -145,7 +145,7 @@
             
             <!-- Pagination -->
             <div class="card-footer bg-white border-top">
-                {{ $logs->links() }}
+                <x-custom-pagination :paginator="$logs" :showPerPage="true" />
             </div>
             @else
             <div class="text-center py-5">
