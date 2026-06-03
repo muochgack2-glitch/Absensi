@@ -49,10 +49,10 @@
                                 <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto; background: var(--bg-secondary);">
                                     @foreach($pendaftars as $pendaftar)
                                     <div class="form-check">
-                                        <input class="form-check-input pendaftar-checkbox" type="checkbox" value="{{ $pendaftar->no_hp_wali }}" id="pendaftar{{ $pendaftar->id }}">
+                                        <input class="form-check-input pendaftar-checkbox" type="checkbox" value="{{ $pendaftar->primary_phone ?? $pendaftar->no_hp_wali }}" id="pendaftar{{ $pendaftar->id }}">
                                         <label class="form-check-label" for="pendaftar{{ $pendaftar->id }}" style="color: var(--text-primary);">
-                                            <strong>{{ $pendaftar->nama_lengkap }}</strong> - {{ substr($pendaftar->no_hp_wali, 0, 4) }}****{{ substr($pendaftar->no_hp_wali, -3) }}
-                                            <br><small class="text-muted">{{ $pendaftar->jurusan->nama_jurusan ?? 'N/A' }}</small>
+                                            <strong>{{ $pendaftar->nama_lengkap }}</strong> - {{ substr($pendaftar->primary_phone ?? $pendaftar->no_hp_wali, 0, 4) }}****{{ substr($pendaftar->primary_phone ?? $pendaftar->no_hp_wali, -3) }}
+                                            <br><small class="text-muted">{{ $pendaftar->jurusan }} - HP {{ $pendaftar->phone_type ?? 'Wali' }}</small>
                                         </label>
                                     </div>
                                     @endforeach
@@ -238,7 +238,7 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
     let recipients = [];
     
     if (type === 'all') {
-        recipients = @json($pendaftars->pluck('no_hp_wali'));
+        recipients = @json($pendaftars->pluck('primary_phone')->filter()->values());
     } else if (type === 'select') {
         recipients = Array.from(document.querySelectorAll('.pendaftar-checkbox:checked')).map(cb => cb.value);
     } else if (type === 'custom') {

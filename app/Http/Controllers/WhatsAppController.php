@@ -304,10 +304,39 @@ class WhatsAppController extends Controller
     public function broadcastPage()
     {
         $templates = WhatsAppTemplate::active()->get();
-        $pendaftars = Pendaftar::whereNotNull('no_hp_wali')
-            ->where('no_hp_wali', '!=', '')
-            ->where('no_hp_wali', '!=', '-')
-            ->get();
+        
+        // Get pendaftars with any valid phone number (siswa, ortu, or wali)
+        $pendaftars = Pendaftar::where(function($query) {
+            $query->where(function($q) {
+                $q->whereNotNull('no_telepon')
+                  ->where('no_telepon', '!=', '')
+                  ->where('no_telepon', '!=', '-');
+            })
+            ->orWhere(function($q) {
+                $q->whereNotNull('no_hp_ortu')
+                  ->where('no_hp_ortu', '!=', '')
+                  ->where('no_hp_ortu', '!=', '-');
+            })
+            ->orWhere(function($q) {
+                $q->whereNotNull('no_hp_wali')
+                  ->where('no_hp_wali', '!=', '')
+                  ->where('no_hp_wali', '!=', '-');
+            });
+        })->get();
+        
+        // Set primary phone for each pendaftar (priority: wali > ortu > siswa)
+        $pendaftars->each(function($p) {
+            if (!empty($p->no_hp_wali) && $p->no_hp_wali != '-') {
+                $p->primary_phone = $p->no_hp_wali;
+                $p->phone_type = 'Wali';
+            } elseif (!empty($p->no_hp_ortu) && $p->no_hp_ortu != '-') {
+                $p->primary_phone = $p->no_hp_ortu;
+                $p->phone_type = 'Orang Tua';
+            } elseif (!empty($p->no_telepon) && $p->no_telepon != '-') {
+                $p->primary_phone = $p->no_telepon;
+                $p->phone_type = 'Siswa';
+            }
+        });
         
         return view('whatsapp.broadcast', compact('templates', 'pendaftars'));
     }
