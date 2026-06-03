@@ -80,7 +80,7 @@ class PendaftarExport implements FromCollection, WithHeadings, WithMapping, With
             $pendaftar->nama_jaringan ?: '(Langsung)',
             $pendaftar->gelombang,
             $pendaftar->status_siswa,
-            ucfirst($pendaftar->status_data),
+            ucfirst($pendaftar->status_data ?? 'awal'),
             $pendaftar->nama_ayah,
             $pendaftar->pekerjaan_ayah,
             $pendaftar->nama_ibu,
@@ -90,7 +90,7 @@ class PendaftarExport implements FromCollection, WithHeadings, WithMapping, With
             $pendaftar->no_hp_wali,
             $pendaftar->logistik ? $pendaftar->logistik->status_bayar : 'Belum',
             $pendaftar->logistik ? $pendaftar->logistik->ukuran_kaos : '-',
-            $pendaftar->created_at->format('d/m/Y H:i'),
+            $pendaftar->tgl_daftar ? (is_string($pendaftar->tgl_daftar) ? $pendaftar->tgl_daftar : $pendaftar->tgl_daftar->format('d/m/Y H:i')) : '-',
         ];
     }
 
