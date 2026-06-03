@@ -191,11 +191,12 @@ class ReportController extends Controller
             fprintf($h, chr(0xEF).chr(0xBB).chr(0xBF));
             fputcsv($h, ['No. Registrasi','NISN','Nama Lengkap','Asal Sekolah','Jurusan','Alamat','Nama Jaringan','Gelombang','Tanggal Daftar','Status Daftar Ulang','Ukuran Kaos','Status Kain','Status Kaos']);
             foreach ($pendaftars as $p) {
+                $tglDaftar = $p->tgl_daftar ? $p->tgl_daftar->format('d-m-Y H:i') : ($p->created_at ? $p->created_at->format('d-m-Y H:i') : '-');
                 fputcsv($h, [
                     $p->no_registrasi, $p->nisn, $p->nama_lengkap, $p->asal_sekolah,
                     $p->jurusan, $p->alamat, $p->nama_jaringan ?? '-',
                     'Gelombang ' . $p->gelombang,
-                    $p->tgl_daftar->format('d-m-Y H:i'),
+                    $tglDaftar,
                     optional($p->logistik)->status_bayar === 'Lunas' ? 'Sudah Daftar Ulang' : 'Belum Daftar Ulang',
                     optional($p->logistik)->ukuran_kaos ?? '-',
                     optional($p->logistik)->status_kain ?? '-',
