@@ -51,7 +51,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input pendaftar-checkbox" type="checkbox" value="{{ $pendaftar->no_hp_wali }}" id="pendaftar{{ $pendaftar->id }}">
                                         <label class="form-check-label" for="pendaftar{{ $pendaftar->id }}" style="color: var(--text-primary);">
-                                            <strong>{{ $pendaftar->nama_lengkap }}</strong> - {{ $pendaftar->no_hp_wali }}
+                                            <strong>{{ $pendaftar->nama_lengkap }}</strong> - {{ substr($pendaftar->no_hp_wali, 0, 4) }}****{{ substr($pendaftar->no_hp_wali, -3) }}
                                             <br><small class="text-muted">{{ $pendaftar->jurusan->nama_jurusan ?? 'N/A' }}</small>
                                         </label>
                                     </div>
