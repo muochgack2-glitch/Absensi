@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Jurusan;
 use App\Models\Pendaftar;
 use App\Models\LogistikBayar;
+use App\Exports\LaporanExport;
+use App\Exports\JaringanExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -179,34 +182,8 @@ class ReportController extends Controller
         if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
         $pendaftars = $query->orderBy('no_registrasi')->get();
 
-        $filename = 'data-pendaftar-spmb-' . now()->format('Ymd-His') . '.csv';
-        $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma'              => 'no-cache',
-        ];
-
-        $callback = function () use ($pendaftars) {
-            $h = fopen('php://output', 'w');
-            fprintf($h, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($h, ['No. Registrasi','NISN','Nama Lengkap','Asal Sekolah','Jurusan','Alamat','Nama Jaringan','Gelombang','Tanggal Daftar','Status Daftar Ulang','Ukuran Kaos','Status Kain','Status Kaos']);
-            foreach ($pendaftars as $p) {
-                $tglDaftar = $p->tgl_daftar ? $p->tgl_daftar->format('d-m-Y H:i') : ($p->created_at ? $p->created_at->format('d-m-Y H:i') : '-');
-                fputcsv($h, [
-                    $p->no_registrasi, $p->nisn, $p->nama_lengkap, $p->asal_sekolah,
-                    $p->jurusan, $p->alamat, $p->nama_jaringan ?? '-',
-                    'Gelombang ' . $p->gelombang,
-                    $tglDaftar,
-                    optional($p->logistik)->status_bayar === 'Lunas' ? 'Sudah Daftar Ulang' : 'Belum Daftar Ulang',
-                    optional($p->logistik)->ukuran_kaos ?? '-',
-                    optional($p->logistik)->status_kain ?? '-',
-                    optional($p->logistik)->status_kaos ?? '-',
-                ]);
-            }
-            fclose($h);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        $filename = 'Laporan-Pendaftar-SPMB-' . now()->format('Ymd-His') . '.xlsx';
+        return Excel::download(new LaporanExport($pendaftars), $filename);
     }
 
     public function exportJaringanExcel(Request $request)
@@ -217,44 +194,22 @@ class ReportController extends Controller
         $perJaringan = $pendaftars
             ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: '(Langsung)')))
             ->map(function ($group, $nama) use ($jurusanAktif) {
-                $row = [$nama, $group->count()];
+                $jurusanCounts = [];
                 foreach ($jurusanAktif as $kode) {
-                    $row[] = $group->where('jurusan', $kode)->count();
+                    $jurusanCounts[$kode] = $group->where('jurusan', $kode)->count();
                 }
-                $lunas = $group->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
-                $row[] = $lunas;
-                $row[] = $group->count() - $lunas;
-                return $row;
+                return [
+                    'nama'    => $nama,
+                    'total'   => $group->count(),
+                    'lunas'   => $group->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count(),
+                    'jurusan' => $jurusanCounts,
+                ];
             })
-            ->sortByDesc(fn($r) => $r[1])
+            ->sortByDesc('total')
             ->values();
 
-        $filename = 'rekap-jaringan-spmb-' . now()->format('Ymd-His') . '.csv';
-        $headers  = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ];
-
-        $callback = function () use ($perJaringan, $pendaftars, $jurusanAktif) {
-            $h = fopen('php://output', 'w');
-            fprintf($h, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($h, ['Rekap Per Jaringan / Vendor - SPMB']);
-            fputcsv($h, ['Dicetak: ' . now()->format('d-m-Y H:i')]);
-            fputcsv($h, []);
-
-            $csvHeader = ['Nama Jaringan', 'Total'];
-            foreach ($jurusanAktif as $kode) { $csvHeader[] = $kode; }
-            $csvHeader[] = 'Sudah Daftar Ulang';
-            $csvHeader[] = 'Belum Daftar Ulang';
-            fputcsv($h, $csvHeader);
-
-            foreach ($perJaringan as $row) { fputcsv($h, $row); }
-            fputcsv($h, []);
-            fputcsv($h, ['TOTAL', $pendaftars->count()]);
-            fclose($h);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        $filename = 'Rekap-Jaringan-SPMB-' . now()->format('Ymd-His') . '.xlsx';
+        return Excel::download(new JaringanExport($perJaringan, $jurusanAktif, $pendaftars->count()), $filename);
     }
 
     public function exportPdf(Request $request)
