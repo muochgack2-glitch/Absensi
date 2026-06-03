@@ -304,7 +304,10 @@ class WhatsAppController extends Controller
     public function broadcastPage()
     {
         $templates = WhatsAppTemplate::active()->get();
-        $pendaftars = Pendaftar::whereNotNull('no_hp_wali')->get();
+        $pendaftars = Pendaftar::whereNotNull('no_hp_wali')
+            ->where('no_hp_wali', '!=', '')
+            ->where('no_hp_wali', '!=', '-')
+            ->get();
         
         return view('whatsapp.broadcast', compact('templates', 'pendaftars'));
     }
