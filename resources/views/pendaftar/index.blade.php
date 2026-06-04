@@ -618,14 +618,27 @@
                 const nama = btn.dataset.nama;
                 const noReg = btn.dataset.noreg;
                 
+                console.log('Delete button clicked:', { id, nama, noReg });
                 deletePendaftar(id, nama, noReg);
             }
         });
 
         function deletePendaftar(id, nama, noReg) {
+            console.log('deletePendaftar called with:', { id, nama, noReg });
+            
+            const confirmOptions = {
+                title: 'Konfirmasi Hapus',
+                confirmText: 'Ya, Hapus',
+                cancelText: 'Batal',
+                type: 'danger'
+            };
+            
+            console.log('Calling Modal.confirm with options:', confirmOptions);
+            
             Modal.confirm(
                 `Yakin ingin menghapus pendaftar:<br><br><strong>${nama}</strong><br>No. Registrasi: <strong>${noReg}</strong><br><br><small class="text-muted">Data akan di-soft delete dan bisa dipulihkan kembali melalui menu "Data Terhapus".</small>`,
                 function() {
+                    console.log('Confirm callback executed');
                     // Create form
                     const form = document.createElement('form');
                     form.method = 'POST';
@@ -647,14 +660,10 @@
                     
                     // Submit form
                     document.body.appendChild(form);
+                    console.log('Submitting form:', form);
                     form.submit();
                 },
-                {
-                    title: 'Konfirmasi Hapus',
-                    confirmText: 'Ya, Hapus',
-                    cancelText: 'Batal',
-                    type: 'danger'
-                }
+                confirmOptions
             );
         }
     </script>
