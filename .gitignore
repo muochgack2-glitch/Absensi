@@ -22,6 +22,9 @@ yarn-error.log
 /.vscode
 /.zed
 
+# Local composer overrides (not committed)
+composer.local.json
+
 # WhatsApp Gateway
 /whatsapp-server/node_modules
 /whatsapp-server/spmb-wa-session
