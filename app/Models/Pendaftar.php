@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pendaftar extends Model
 {
+    use SoftDeletes;
+    
     protected $table = 'pendaftar';
     protected $primaryKey = 'id_pendaftar';
     
@@ -52,12 +55,23 @@ class Pendaftar extends Model
         'tgl_daftar',
         'status_siswa',
         'status_data',
+        'deleted_by',
+        'deleted_reason',
     ];
 
     protected $casts = [
         'tgl_daftar' => 'datetime',
         'tanggal_lahir' => 'date',
+        'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Relationship to user who deleted this record
+     */
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'deleted_by', 'id');
+    }
 
     /**
      * Get the logistik for this pendaftar

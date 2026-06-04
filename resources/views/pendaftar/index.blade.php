@@ -376,6 +376,16 @@
                                                 target="_blank"
                                                 tooltip="Cetak Formulir Lengkap"
                                             />
+                                            @if(auth()->user()->role === 'administrator')
+                                            <button 
+                                                type="button"
+                                                class="btn btn-sm btn-danger" 
+                                                onclick="deletePendaftar({{ $p->id_pendaftar }}, '{{ addslashes($p->nama_lengkap) }}', '{{ $p->no_registrasi }}')"
+                                                data-bs-toggle="tooltip"
+                                                title="Hapus Pendaftar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            @endif
                                         </x-table-actions>
                                     </td>
                                 </tr>
@@ -587,6 +597,43 @@
                         Modal.alert('Terjadi kesalahan saat menghapus data', 'Error', 'danger');
                         location.reload();
                     });
+                },
+                {
+                    title: 'Konfirmasi Hapus',
+                    confirmText: 'Ya, Hapus',
+                    cancelText: 'Batal',
+                    type: 'danger'
+                }
+            );
+        }
+
+        // Delete single pendaftar (Administrator only)
+        function deletePendaftar(id, nama, noReg) {
+            Modal.confirm(
+                `Yakin ingin menghapus pendaftar:<br><br><strong>${nama}</strong><br>No. Registrasi: <strong>${noReg}</strong><br><br><small class="text-muted">Data akan di-soft delete dan bisa dipulihkan kembali melalui menu "Data Terhapus".</small>`,
+                function() {
+                    // Create form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/pendaftar/${id}`;
+                    
+                    // Add CSRF token
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = document.querySelector('meta[name="csrf-token"]').content;
+                    form.appendChild(csrf);
+                    
+                    // Add method spoofing for DELETE
+                    const method = document.createElement('input');
+                    method.type = 'hidden';
+                    method.name = '_method';
+                    method.value = 'DELETE';
+                    form.appendChild(method);
+                    
+                    // Submit form
+                    document.body.appendChild(form);
+                    form.submit();
                 },
                 {
                     title: 'Konfirmasi Hapus',

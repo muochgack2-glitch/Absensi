@@ -83,6 +83,11 @@ Route::middleware('admin')->group(function () {
         Route::get('/pendaftar/{id}/print/ambil-barang', [PendaftarController::class, 'printAmbilBarang'])->name('pendaftar.print.ambil-barang');
     });
 
+    // Soft Delete routes (Administrator only)
+    Route::middleware(['checkRole:administrator'])->group(function () {
+        Route::get('/pendaftar-trashed', [PendaftarController::class, 'trashed'])->name('pendaftar.trashed');
+        Route::post('/pendaftar/{id}/restore', [PendaftarController::class, 'restore'])->name('pendaftar.restore');
+    });
     // Reports & Exports - Only for Administrator and Panitia
     Route::middleware(['checkRole:administrator,panitia'])->group(function () {
         Route::get('/laporan', [ReportController::class, 'index'])->name('report.index');

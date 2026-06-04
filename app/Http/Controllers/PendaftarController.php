@@ -420,4 +420,74 @@ class PendaftarController extends Controller
         
         return view('pendaftar.export-pdf', compact('pendaftars', 'settings'));
     }
+
+    /**
+     * Soft delete pendaftar (Admin only)
+     */
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $pendaftar = Pendaftar::findOrFail($id);
+            
+            // Store who deleted and reason
+            $pendaftar->deleted_by = auth()->id();
+            $pendaftar->deleted_reason = $request->input('reason', 'Dihapus oleh administrator');
+            $pendaftar->save();
+            
+            // Soft delete
+            $pendaftar->delete();
+            
+            return redirect()->route('pendaftar.index')
+                ->with('success', 'Pendaftar ' . $pendaftar->nama_lengkap . ' (No. ' . $pendaftar->no_registrasi . ') berhasil dihapus');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus pendaftar: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Restore soft deleted pendaftar (Admin only)
+     */
+    public function restore($id)
+    {
+        try {
+            $pendaftar = Pendaftar::withTrashed()->findOrFail($id);
+            $pendaftar->restore();
+            
+            return redirect()->route('pendaftar.index')
+                ->with('success', 'Pendaftar ' . $pendaftar->nama_lengkap . ' berhasil dipulihkan');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal memulihkan pendaftar: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show deleted pendaftars (Admin only)
+     */
+    public function trashed(Request $request)
+    {
+        $query = Pendaftar::onlyTrashed()->with(['logistik', 'deletedBy']);
+        
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', '%' . $search . '%')
+                  ->orWhere('no_registrasi', 'like', '%' . $search . '%')
+                  ->orWhere('nisn', 'like', '%' . $search . '%');
+            });
+        }
+        
+        $query->orderBy('deleted_at', 'desc');
+        
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $pendaftars = $query->paginate($perPage)->appends($request->except('page'));
+        
+        return view('pendaftar.trashed', compact('pendaftars'));
+    }
 }
