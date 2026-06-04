@@ -478,7 +478,7 @@
             window.location.href = url.toString();
         }
 
-        $(document).ready(function () {
+        document.addEventListener('DOMContentLoaded', function() {
             @if (Session::has('created_pendaftar_id'))
                 Modal.confirm(
                     'Pendaftar <strong>{{ addslashes(Session::get('created_pendaftar_name')) }}</strong><br>No. Registrasi: <strong>{{ Session::get('created_pendaftar_no') }}</strong><br><br>Apakah ingin melengkapi biodata sekarang?',
