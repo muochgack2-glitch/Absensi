@@ -379,8 +379,10 @@
                                             @if(auth()->user()->role === 'administrator')
                                             <button 
                                                 type="button"
-                                                class="btn btn-sm btn-danger" 
-                                                onclick="deletePendaftar({{ $p->id_pendaftar }}, '{{ addslashes($p->nama_lengkap) }}', '{{ $p->no_registrasi }}')"
+                                                class="btn btn-sm btn-danger btn-delete-pendaftar" 
+                                                data-id="{{ $p->id_pendaftar }}"
+                                                data-nama="{{ $p->nama_lengkap }}"
+                                                data-noreg="{{ $p->no_registrasi }}"
                                                 data-bs-toggle="tooltip"
                                                 title="Hapus Pendaftar">
                                                 <i class="fas fa-trash"></i>
@@ -608,6 +610,18 @@
         }
 
         // Delete single pendaftar (Administrator only)
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-delete-pendaftar')) {
+                e.preventDefault();
+                const btn = e.target.closest('.btn-delete-pendaftar');
+                const id = btn.dataset.id;
+                const nama = btn.dataset.nama;
+                const noReg = btn.dataset.noreg;
+                
+                deletePendaftar(id, nama, noReg);
+            }
+        });
+
         function deletePendaftar(id, nama, noReg) {
             Modal.confirm(
                 `Yakin ingin menghapus pendaftar:<br><br><strong>${nama}</strong><br>No. Registrasi: <strong>${noReg}</strong><br><br><small class="text-muted">Data akan di-soft delete dan bisa dipulihkan kembali melalui menu "Data Terhapus".</small>`,
