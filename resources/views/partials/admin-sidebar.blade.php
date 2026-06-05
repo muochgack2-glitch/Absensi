@@ -45,6 +45,17 @@
                 <i class="fas fa-money-bill"></i> <span class="nav-text">Verifikasi Daftar Ulang</span>
             </a>
         </li>
+        @endif
+        
+        @if(auth()->check() && auth()->user()->isAdministrator())
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('pendaftar.trashed') ? 'active' : '' }}" href="{{ route('pendaftar.trashed') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Data Terhapus">
+                <i class="fas fa-trash-restore"></i> <span class="nav-text">Data Terhapus</span>
+            </a>
+        </li>
+        @endif
+        
+        @if(auth()->check() && (auth()->user()->isAdministrator() || auth()->user()->isPanitia()))
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('report.*') ? 'active' : '' }}" href="{{ route('report.index') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Laporan & Cetak">
                 <i class="fas fa-file-pdf"></i> <span class="nav-text">Laporan & Cetak</span>

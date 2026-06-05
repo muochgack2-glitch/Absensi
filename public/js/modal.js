@@ -145,7 +145,11 @@ window.Modal = {
                 console.log('Target:', e.target);
                 console.log('CurrentTarget:', e.currentTarget);
                 
-                if (onConfirm) {
+                // Prevent any default behavior
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (onConfirm && typeof onConfirm === 'function') {
                     console.log('Executing callback...');
                     try {
                         onConfirm();
@@ -154,8 +158,14 @@ window.Modal = {
                         console.error('Callback error:', error);
                     }
                 }
+                
+                // Close modal
                 Modal.hide(modalId);
-                setTimeout(() => modal.remove(), 300);
+                setTimeout(() => {
+                    if (modal && modal.parentNode) {
+                        modal.remove();
+                    }
+                }, 300);
             }, { capture: false });
             
             console.log('Event listener added to confirm button');
@@ -164,16 +174,26 @@ window.Modal = {
             cancelBtn.addEventListener('click', function() {
                 console.log('Cancel button clicked');
                 Modal.hide(modalId);
-                setTimeout(() => modal.remove(), 300);
+                setTimeout(() => {
+                    if (modal && modal.parentNode) {
+                        modal.remove();
+                    }
+                }, 300);
             });
             
             // Backdrop click
             const backdrop = modal.querySelector('.modal-backdrop');
-            backdrop.addEventListener('click', function() {
-                console.log('Backdrop clicked');
-                Modal.hide(modalId);
-                setTimeout(() => modal.remove(), 300);
-            });
+            if (backdrop) {
+                backdrop.addEventListener('click', function() {
+                    console.log('Backdrop clicked');
+                    Modal.hide(modalId);
+                    setTimeout(() => {
+                        if (modal && modal.parentNode) {
+                            modal.remove();
+                        }
+                    }, 300);
+                });
+            }
             
             Modal.show(modalId);
         }, 10);
@@ -232,15 +252,25 @@ window.Modal = {
         okBtn.addEventListener('click', function() {
             console.log('OK button clicked');
             Modal.hide(modalId);
-            setTimeout(() => modal.remove(), 300);
+            setTimeout(() => {
+                if (modal && modal.parentNode) {
+                    modal.remove();
+                }
+            }, 300);
         });
         
         // Backdrop click
         const backdrop = modal.querySelector('.modal-backdrop');
-        backdrop.addEventListener('click', function() {
-            Modal.hide(modalId);
-            setTimeout(() => modal.remove(), 300);
-        });
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                Modal.hide(modalId);
+                setTimeout(() => {
+                    if (modal && modal.parentNode) {
+                        modal.remove();
+                    }
+                }, 300);
+            });
+        }
         
         Modal.show(modalId);
     },

@@ -369,33 +369,34 @@ function changePerPage(value) {
     window.location.href = url.toString();
 }
 
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function(){
     // Rollback confirmation with Modal.confirm
-    $(document).on('submit', '.rollback-form', function(e){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        
-        const $form = $(this);
-        const form = this;
-        const nama = $form.data('nama') || 'pendaftar ini';
+    document.addEventListener('submit', function(e){
+        if (e.target.classList.contains('rollback-form')) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            
+            const form = e.target;
+            const nama = form.dataset.nama || 'pendaftar ini';
 
-        Modal.confirm(
-            `Status daftar ulang untuk <strong>${nama}</strong> akan dikembalikan ke Belum Daftar Ulang.`,
-            function() {
-                // On confirm - use native submit (bypasses jQuery events)
-                console.log('Submitting form via native method');
-                HTMLFormElement.prototype.submit.call(form);
-            },
-            {
-                title: 'Batalkan verifikasi?',
-                confirmText: 'Ya, batalkan',
-                cancelText: 'Tidak',
-                type: 'warning'
-            }
-        );
-        
-        return false;
-    });
+            Modal.confirm(
+                `Status daftar ulang untuk <strong>${nama}</strong> akan dikembalikan ke Belum Daftar Ulang.`,
+                function() {
+                    // On confirm - use native submit (bypasses event listeners)
+                    console.log('Submitting form via native method');
+                    HTMLFormElement.prototype.submit.call(form);
+                },
+                {
+                    title: 'Batalkan verifikasi?',
+                    confirmText: 'Ya, batalkan',
+                    cancelText: 'Tidak',
+                    type: 'warning'
+                }
+            );
+            
+            return false;
+        }
+    }, true);
 
     @if (Session::has('rollback_success'))
     Modal.alert(

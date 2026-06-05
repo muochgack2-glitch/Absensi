@@ -70,7 +70,7 @@ class Pendaftar extends Model
      */
     public function deletedBy(): BelongsTo
     {
-        return $this->belongsTo(Admin::class, 'deleted_by', 'id');
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
     }
 
     /**

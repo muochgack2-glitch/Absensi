@@ -639,6 +639,15 @@
                 `Yakin ingin menghapus pendaftar:<br><br><strong>${nama}</strong><br>No. Registrasi: <strong>${noReg}</strong><br><br><small class="text-muted">Data akan di-soft delete dan bisa dipulihkan kembali melalui menu "Data Terhapus".</small>`,
                 function() {
                     console.log('Confirm callback executed');
+                    
+                    // Get CSRF token
+                    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                    if (!csrfMeta) {
+                        console.error('CSRF token not found!');
+                        alert('Error: CSRF token tidak ditemukan. Refresh halaman dan coba lagi.');
+                        return;
+                    }
+                    
                     // Create form
                     const form = document.createElement('form');
                     form.method = 'POST';
@@ -648,7 +657,7 @@
                     const csrf = document.createElement('input');
                     csrf.type = 'hidden';
                     csrf.name = '_token';
-                    csrf.value = document.querySelector('meta[name="csrf-token"]').content;
+                    csrf.value = csrfMeta.content;
                     form.appendChild(csrf);
                     
                     // Add method spoofing for DELETE
