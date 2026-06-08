@@ -308,15 +308,16 @@
         }
 
         .sidebar .nav-link.active {
-            background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.05) 100%) !important;
+            background: var(--primary) !important;
             border-left-color: var(--primary) !important;
-            color: var(--primary) !important;
-            box-shadow: none !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3) !important;
             cursor: pointer !important;
         }
         
         .sidebar .nav-link.active i {
-            color: var(--primary) !important;
+            color: #ffffff !important;
         }
 
         /* Submenu Dropdown Styles */
