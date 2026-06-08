@@ -21,6 +21,14 @@ class TelegramWebhookController extends Controller
      */
     public function handle(Request $request)
     {
+        // DEBUG: Log webhook received
+        Log::info('=== TELEGRAM WEBHOOK RECEIVED ===', [
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'headers' => $request->headers->all(),
+            'body' => $request->all(),
+        ]);
+        
         $token = config('services.telegram.bot_token');
         
         if (!$token) {
