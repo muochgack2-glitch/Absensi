@@ -82,9 +82,7 @@ class MonitorWhatsAppStatus extends Command
         $this->info('📧 Sending notifications...');
 
         // Get all administrators
-        $admins = Admin::where('role', 'administrator')
-            ->orWhere('role', 'admin_wa')
-            ->get();
+        $admins = Admin::all();
 
         $sentCount = 0;
         foreach ($admins as $admin) {
