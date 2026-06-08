@@ -74,6 +74,7 @@
     .toast-item {
         pointer-events: auto;
         background: #ffffff;
+        color: #1e293b;
         border-radius: var(--radius-xl);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         padding: var(--space-4);
@@ -84,6 +85,30 @@
         animation: toastSlideIn 0.3s ease-out;
         position: relative;
         overflow: hidden;
+    }
+    
+    /* Dark Mode Support for Toast */
+    .admin-dark .toast-item {
+        background: #1e293b !important;
+        color: #e5e7eb !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .admin-dark .toast-title {
+        color: #f8fafc !important;
+    }
+    
+    .admin-dark .toast-message {
+        color: #cbd5e1 !important;
+    }
+    
+    .admin-dark .toast-close {
+        color: #94a3b8 !important;
+    }
+    
+    .admin-dark .toast-close:hover {
+        background: rgba(148, 163, 184, 0.2) !important;
+        color: #f8fafc !important;
     }
     
     .toast-item::before {
