@@ -3,12 +3,11 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class WhatsAppStatusChanged extends Notification implements ShouldQueue
+class WhatsAppStatusChanged extends Notification
 {
     use Queueable;
 
@@ -33,13 +32,15 @@ class WhatsAppStatusChanged extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['telegram'];
+        // Send directly without using Laravel channels
+        $this->sendToTelegram();
+        return [];
     }
 
     /**
-     * Send Telegram notification
+     * Send Telegram notification directly
      */
-    public function toTelegram(object $notifiable): bool
+    protected function sendToTelegram(): bool
     {
         $token = config('services.telegram.bot_token');
         $chatId = config('services.telegram.chat_id');
