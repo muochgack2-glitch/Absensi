@@ -37,8 +37,17 @@
                             </div>
                         </div>
                         <div class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" onclick="refreshStatus()">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="refreshStatus()">
                                 <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                            <button 
+                                class="btn btn-sm btn-outline-danger" 
+                                onclick="resetConnection()" 
+                                id="resetBtn"
+                                data-bs-toggle="tooltip" 
+                                data-bs-placement="bottom" 
+                                title="Reset koneksi WhatsApp dan generate QR baru. Gunakan jika status Disconnected atau QR tidak muncul.">
+                                <i class="fas fa-power-off me-1"></i>Reset & Reconnect
                             </button>
                         </div>
                     </div>
@@ -286,6 +295,12 @@ let statusInterval;
 document.addEventListener('DOMContentLoaded', function() {
     refreshStatus();
     statusInterval = setInterval(refreshStatus, 5000);
+    
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 });
 
 function refreshStatus() {
@@ -322,9 +337,11 @@ function updateStatusUI(data) {
     }
     
     const status = data.data.status;
+    const reconnectAttempts = data.data.reconnectAttempts || 0;
     let badgeClass = 'secondary';
     let icon = 'circle';
     let text = 'Unknown';
+    let extraInfo = '';
     
     if (status === 'connected') {
         badgeClass = 'success';
@@ -338,6 +355,13 @@ function updateStatusUI(data) {
         qrSection.style.display = 'block';
         // Auto-load QR code
         refreshQRInline();
+    } else if (status === 'disconnected' && reconnectAttempts > 0) {
+        // Show reconnecting state
+        badgeClass = 'info';
+        icon = 'spinner fa-spin';
+        text = 'Reconnecting...';
+        extraInfo = `<small class="text-muted d-block mt-1">Attempt ${reconnectAttempts}/5</small>`;
+        qrSection.style.display = 'none';
     } else {
         badgeClass = 'danger';
         icon = 'times-circle';
@@ -349,11 +373,12 @@ function updateStatusUI(data) {
         <span class="badge bg-${badgeClass}">
             <i class="fas fa-${icon} me-1"></i>${text}
         </span>
+        ${extraInfo}
     `;
     
     // Update details
     document.getElementById('qrAvailable').textContent = data.data.qrAvailable ? 'Yes' : 'No';
-    document.getElementById('reconnectAttempts').textContent = data.data.reconnectAttempts || 0;
+    document.getElementById('reconnectAttempts').textContent = reconnectAttempts;
     document.getElementById('lastUpdate').textContent = new Date(data.data.timestamp).toLocaleTimeString('id-ID');
     
     detailsDiv.style.display = 'block';
@@ -447,6 +472,77 @@ function refreshQR() {
                 </div>
             `;
         });
+}
+
+// Reset connection (logout and force new QR)
+function resetConnection() {
+    if (!confirm('Yakin ingin reset koneksi WhatsApp? Anda perlu scan QR code ulang.')) {
+        return;
+    }
+    
+    const resetBtn = document.getElementById('resetBtn');
+    const originalHtml = resetBtn.innerHTML;
+    resetBtn.disabled = true;
+    resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Resetting...';
+    
+    fetch('{{ route("whatsapp.logout") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showAlert('success', 'Koneksi berhasil direset. Generating QR code baru...');
+            
+            // Wait 3 seconds then refresh status to show QR
+            setTimeout(() => {
+                refreshStatus();
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalHtml;
+            }, 3000);
+        } else {
+            showAlert('error', data.message || 'Gagal reset koneksi');
+            resetBtn.disabled = false;
+            resetBtn.innerHTML = originalHtml;
+        }
+    })
+    .catch(error => {
+        console.error('Error resetting connection:', error);
+        showAlert('error', 'Gagal reset koneksi: ' + error.message);
+        resetBtn.disabled = false;
+        resetBtn.innerHTML = originalHtml;
+    });
+}
+
+// Show alert helper
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'check-circle' : 'times-circle';
+    
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            <i class="fas fa-${icon} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    // Insert at top of page
+    const container = document.querySelector('.container-fluid');
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = alertHtml;
+    container.insertBefore(tempDiv.firstElementChild, container.firstChild);
+    
+    // Auto dismiss after 5 seconds
+    setTimeout(() => {
+        const alert = container.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
 }
 
 // Clear interval when leaving page

@@ -407,6 +407,12 @@ class WhatsAppController extends Controller
     {
         $result = $this->whatsappService->logout();
         
+        // Return JSON for AJAX request
+        if (request()->expectsJson()) {
+            return response()->json($result);
+        }
+        
+        // Return redirect for regular request
         return redirect()->route('whatsapp.index')
             ->with($result['success'] ? 'success' : 'error', $result['message']);
     }
