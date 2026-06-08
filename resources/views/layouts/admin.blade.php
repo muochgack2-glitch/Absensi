@@ -45,7 +45,7 @@
         /* Sidebar Styling */
         .sidebar {
             width: 250px !important;
-            background: #2c3e50 !important;
+            background: #ffffff !important;
             min-height: 100vh !important;
             padding: 0 !important;
             flex: 0 0 250px !important;
@@ -57,6 +57,8 @@
             top: 0;
             bottom: 0;
             z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05) !important;
+            border-right: 1px solid #e2e8f0 !important;
         }
         
         /* Enable transitions after page load */
@@ -117,13 +119,14 @@
         /* Sidebar Brand */
         .sidebar-brand {
             padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
             gap: 12px;
             min-height: 80px;
             transition: all 0.3s ease;
             position: relative;
+            background: #ffffff;
         }
 
         .sidebar.collapsed .sidebar-brand {
@@ -140,8 +143,8 @@
             height: 28px;
             border-radius: 50%;
             background: transparent;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.7);
+            border: 2px solid #cbd5e1;
+            color: #64748b;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -154,9 +157,9 @@
         }
         
         .sidebar-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: rgba(255, 255, 255, 1);
+            background: #f1f5f9;
+            border-color: var(--primary);
+            color: var(--primary);
         }
         
         /* When collapsed, hide the button */
@@ -183,7 +186,7 @@
             width: 40px;
             height: 40px;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -196,12 +199,13 @@
             width: 40px;
             height: 40px;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.95);
+            background: #f8fafc;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             overflow: hidden;
+            border: 1px solid #e2e8f0;
         }
         
         .sidebar-brand-logo img {
@@ -212,7 +216,7 @@
         }
 
         .sidebar-brand-text {
-            color: #ffffff;
+            color: #1e293b;
             font-weight: 700;
             font-size: 24px;
             line-height: 1.2;
@@ -269,7 +273,7 @@
         }
 
         .sidebar .nav-link {
-            color: #ecf0f1 !important;
+            color: #475569 !important;
             padding: 12px 20px !important;
             margin: 5px 0 !important;
             border-left: 3px solid transparent !important;
@@ -279,13 +283,14 @@
             align-items: center !important;
             gap: 12px !important;
             white-space: nowrap !important;
-            cursor: pointer !important; /* Add cursor pointer */
-            user-select: none !important; /* Prevent text selection */
+            cursor: pointer !important;
+            user-select: none !important;
         }
 
         .sidebar .nav-link i {
             min-width: 20px !important;
             text-align: center !important;
+            color: #64748b !important;
         }
 
         .sidebar .nav-text {
@@ -293,16 +298,25 @@
         }
 
         .sidebar .nav-link:hover {
-            background-color: rgba(255,255,255,0.1) !important;
+            background-color: #f1f5f9 !important;
             border-left-color: var(--primary) !important;
-            cursor: pointer !important; /* Ensure cursor on hover */
+            cursor: pointer !important;
+        }
+        
+        .sidebar .nav-link:hover i {
+            color: var(--primary) !important;
         }
 
         .sidebar .nav-link.active {
-            background: var(--primary) !important;
-            border-left-color: white !important;
+            background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.05) 100%) !important;
+            border-left-color: var(--primary) !important;
+            color: var(--primary) !important;
             box-shadow: none !important;
             cursor: pointer !important;
+        }
+        
+        .sidebar .nav-link.active i {
+            color: var(--primary) !important;
         }
 
         /* Submenu Dropdown Styles */
@@ -329,7 +343,7 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            background: rgba(0, 0, 0, 0.15);
+            background: #f8fafc;
         }
 
         .sidebar .submenu li {
@@ -341,7 +355,7 @@
             align-items: center !important;
             gap: 12px !important;
             padding: 10px 20px 10px 45px !important;
-            color: rgba(255, 255, 255, 0.85) !important;
+            color: #64748b !important;
             text-decoration: none !important;
             transition: all 0.3s !important;
             font-size: 14px !important;
@@ -353,18 +367,27 @@
             min-width: 18px !important;
             text-align: center !important;
             font-size: 14px !important;
+            color: #94a3b8 !important;
         }
 
         .sidebar .submenu-link:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            color: #ffffff !important;
+            background: #e2e8f0 !important;
+            color: var(--primary) !important;
             padding-left: 50px !important;
+        }
+        
+        .sidebar .submenu-link:hover i {
+            color: var(--primary) !important;
         }
 
         .sidebar .submenu-link.active {
-            background: rgba(255, 255, 255, 0.2) !important;
-            color: #ffffff !important;
+            background: #e0e7ff !important;
+            color: var(--primary) !important;
             font-weight: 600 !important;
+        }
+        
+        .sidebar .submenu-link.active i {
+            color: var(--primary) !important;
         }
 
         /* Hide submenu when sidebar collapsed */
