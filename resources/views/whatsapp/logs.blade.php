@@ -187,6 +187,21 @@
 </div>
 
 @push('scripts')
+<style>
+/* Message Preview Styling */
+.message-preview {
+    background-color: #f8f9fa;
+    color: #212529;
+    border-color: #dee2e6 !important;
+}
+
+/* Dark Mode Support */
+.admin-dark .message-preview {
+    background-color: #1e293b !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+</style>
 <script>
 function showDetail(logId) {
     const modal = new bootstrap.Modal(document.getElementById('detailModal'));
@@ -241,7 +256,7 @@ function showDetail(logId) {
                 ` : ''}
                 <div class="col-12 mb-3">
                     <label class="form-label small text-muted">Pesan</label>
-                    <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">${logData.message}</div>
+                    <div class="border rounded p-3 message-preview" style="white-space: pre-wrap;">${logData.message}</div>
                 </div>
                 ${logData.error_message ? `
                 <div class="col-12 mb-3">

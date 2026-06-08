@@ -118,6 +118,21 @@
 </form>
 
 @push('scripts')
+<style>
+/* Message Preview Styling */
+.message-preview {
+    background-color: #f8f9fa;
+    color: #212529;
+    border-color: #dee2e6 !important;
+}
+
+/* Dark Mode Support */
+.admin-dark .message-preview {
+    background-color: #1e293b !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+</style>
 <script>
 function toggleStatus(templateId, isActive) {
     // In real implementation, you would make an AJAX call to update status
@@ -140,7 +155,7 @@ function previewTemplate(templateId) {
                     <div class="alert alert-info">
                         <strong>Preview dengan data sample:</strong>
                     </div>
-                    <div class="border rounded p-3 bg-light" style="white-space: pre-wrap; font-family: monospace;">
+                    <div class="border rounded p-3 message-preview" style="white-space: pre-wrap; font-family: monospace;">
                         ${data.preview}
                     </div>
                 `;
