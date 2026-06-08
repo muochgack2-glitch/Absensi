@@ -52,6 +52,9 @@
     .admin-dark .navbar-title-sub,
     .admin-dark .navbar-brand .brand-subtitle,
     .admin-dark .navbar-brand .brand-year { color: #cbd5e1 !important; }
+    .admin-dark .navbar-title-sub .school-name,
+    .admin-dark .navbar-title-sub .separator,
+    .admin-dark .navbar-title-sub .year-text { color: #cbd5e1 !important; }
     .admin-dark .navbar-brand strong { color: #f8fafc !important; }
     .admin-dark .sidebar { background: #020617 !important; border-right-color: #1e293b !important; }
     .admin-dark .sidebar-brand { background: #020617 !important; border-bottom-color: #1e293b !important; }
