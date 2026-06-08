@@ -203,15 +203,21 @@ class RegistrationController extends Controller
                 return;
             }
 
+            // Get settings
+            $settings = SettingSystem::instance()->toSettingsArray();
+
             // Prepare data for template
             $data = [
                 'nama' => $pendaftar->nama_lengkap,
                 'no_pendaftaran' => $pendaftar->no_registrasi,
                 'jurusan' => $jurusan?->nama_jurusan ?? $pendaftar->jurusan ?? 'N/A',
                 'gelombang' => $pendaftar->gelombang ?? 'N/A',
+                'nisn' => $pendaftar->nisn ?? '-',
+                'asal_sekolah' => $pendaftar->asal_sekolah ?? '-',
                 'portal_url' => url('/'),
-                'sekolah' => config('app.name', 'SMK PGRI Blora'),
+                'sekolah' => $settings['school_name'] ?? 'SMK PGRI BLORA',
                 'tanggal' => $pendaftar->tgl_daftar ? $pendaftar->tgl_daftar->format('d-m-Y') : now()->format('d-m-Y'),
+                'tahun' => now()->format('Y'),
             ];
 
             // Send using template

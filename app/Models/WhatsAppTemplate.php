@@ -148,12 +148,21 @@ class WhatsAppTemplate extends Model
      */
     public function getPreview(): string
     {
+        $settings = \App\Models\SettingSystem::instance()->toSettingsArray();
+        
         $sampleData = [
             'nama' => 'John Doe',
-            'no_pendaftaran' => 'REG-2026-001',
+            'nama_lengkap' => 'John Doe',
+            'no_pendaftaran' => 'SPMB-2026-0001',
+            'no_registrasi' => 'SPMB-2026-0001',
             'jurusan' => 'Teknik Komputer dan Jaringan',
+            'nisn' => '1234567890',
+            'asal_sekolah' => 'SMP Negeri 1 Jakarta',
+            'gelombang' => '1',
             'portal_url' => url('/'),
-            'sekolah' => 'SMK PGRI Blora',
+            'sekolah' => $settings['school_name'] ?? 'SMK PGRI BLORA',
+            'tanggal' => now()->format('d-m-Y'),
+            'tahun' => now()->format('Y'),
             'tanggal_tes' => '15 Juni 2026',
             'waktu_tes' => '08:00 WIB',
             'tempat_tes' => 'Ruang Lab Komputer',
