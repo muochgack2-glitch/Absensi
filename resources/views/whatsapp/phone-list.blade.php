@@ -182,7 +182,7 @@
                     <thead class="table-light">
                         <tr>
                             <th width="50">
-                                <input type="checkbox" class="form-check-input" disabled>
+                                <input type="checkbox" class="form-check-input" id="selectAllDisabled" disabled>
                             </th>
                             <th>No. Pendaftaran</th>
                             <th>Nama Lengkap</th>

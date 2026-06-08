@@ -64,6 +64,7 @@ Route::middleware('admin')->group(function () {
         Route::get('/', [\App\Http\Controllers\ProfileController::class, 'index'])->name('index');
         Route::put('/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('update');
         Route::put('/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('password');
+        Route::post('/update-theme', [\App\Http\Controllers\ProfileController::class, 'updateTheme'])->name('update-theme');
     });
 
     // Pendaftar routes - Only for Administrator and Panitia

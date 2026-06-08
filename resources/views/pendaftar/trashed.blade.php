@@ -55,6 +55,12 @@
         background-color: #fee2e2;
         color: #b91c1c;
     }
+    
+    /* Dark Mode Support */
+    .admin-dark .deleted-badge {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+        color: #fca5a5 !important;
+    }
 </style>
 @endpush
 

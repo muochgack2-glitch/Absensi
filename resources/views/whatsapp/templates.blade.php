@@ -32,7 +32,7 @@
                             @endif
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" {{ $template->is_active ? 'checked' : '' }} onchange="toggleStatus({{ $template->id }}, this.checked)">
+                            <input class="form-check-input" type="checkbox" id="status_{{ $template->id }}" {{ $template->is_active ? 'checked' : '' }} onchange="toggleStatus({{ $template->id }}, this.checked)">
                         </div>
                     </div>
                     

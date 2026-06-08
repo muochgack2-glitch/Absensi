@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role',
         'status',
         'terakhir_login',
+        'theme_preference',
     ];
 
     /**

@@ -1,7 +1,15 @@
 <script>
     (function () {
-        var savedTheme = localStorage.getItem('admin_theme') || 'light';
-        if (savedTheme === 'dark') {
+        // Get theme from server (user preference from database)
+        var serverTheme = '{{ auth()->check() ? (auth()->user()->theme_preference ?? 'dark') : 'dark' }}';
+        
+        // Check if user has manually changed theme in current session
+        var savedTheme = localStorage.getItem('admin_theme');
+        
+        // Use localStorage if exists (user changed theme), otherwise use server preference
+        var currentTheme = savedTheme || serverTheme;
+        
+        if (currentTheme === 'dark') {
             document.documentElement.classList.add('admin-dark');
         }
     })();
@@ -845,7 +853,23 @@
         buttons.forEach(function (button) {
             button.addEventListener('click', function () {
                 var isDark = document.documentElement.classList.toggle('admin-dark');
-                localStorage.setItem('admin_theme', isDark ? 'dark' : 'light');
+                var theme = isDark ? 'dark' : 'light';
+                
+                // Save to localStorage
+                localStorage.setItem('admin_theme', theme);
+                
+                // Save to database via AJAX
+                fetch('{{ route("profile.update-theme") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ theme: theme })
+                }).catch(function(error) {
+                    console.error('Failed to save theme preference:', error);
+                });
+                
                 applyLabel();
             });
         });

@@ -84,6 +84,28 @@
         font-weight: 700;
     }
     
+    /* Dark Mode Support */
+    .admin-dark .status-red {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+        color: #fca5a5 !important;
+    }
+    .admin-dark .status-green {
+        background-color: rgba(34, 197, 94, 0.2) !important;
+        color: #86efac !important;
+    }
+    .admin-dark .ket-green {
+        background-color: rgba(34, 197, 94, 0.15) !important;
+        color: #4ade80 !important;
+    }
+    .admin-dark .ket-gray {
+        background-color: #334155 !important;
+        color: #94a3b8 !important;
+    }
+    .admin-dark .size-pill {
+        background: rgba(56, 189, 248, 0.2) !important;
+        color: #7dd3fc !important;
+    }
+    
     /* Fix pagination button size */
     .pagination {
         margin-bottom: 0;

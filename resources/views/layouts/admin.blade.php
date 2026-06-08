@@ -762,7 +762,16 @@
     <x-toast-container position="top-right" />
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/modal.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/modal.js') }}?v={{ config('app.version', time()) }}"></script>
+    
+    <script>
+        // Debug: Check if Modal.js loaded successfully
+        if (typeof Modal === 'undefined') {
+            console.error('❌ Modal.js failed to load! Check network tab.');
+        } else {
+            console.log('✅ Modal.js loaded successfully');
+        }
+    </script>
     
     <script>
     // Sidebar Toggle Functionality

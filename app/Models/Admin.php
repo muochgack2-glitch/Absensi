@@ -13,6 +13,7 @@ class Admin extends Model
         'username',
         'password',
         'nama_petugas',
+        'theme_preference',
     ];
 
     protected $hidden = [

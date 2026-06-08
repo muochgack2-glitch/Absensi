@@ -62,6 +62,31 @@
         color: #166534;
     }
     
+    /* Dark Mode Support */
+    .admin-dark .jurusan-pill {
+        background: rgba(129, 140, 248, 0.2) !important;
+        color: #a5b4fc !important;
+    }
+    .admin-dark .size-pill {
+        background: rgba(56, 189, 248, 0.2) !important;
+        color: #7dd3fc !important;
+    }
+    .admin-dark .status-red {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+        color: #fca5a5 !important;
+    }
+    .admin-dark .status-green {
+        background-color: rgba(34, 197, 94, 0.2) !important;
+        color: #86efac !important;
+    }
+    .admin-dark #bulkActionsBar {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    .admin-dark .empty-state {
+        color: #94a3b8 !important;
+    }
+    
     /* Fix pagination button size */
     .pagination {
         margin-bottom: 0;

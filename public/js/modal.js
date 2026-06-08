@@ -7,6 +7,17 @@
  * Modal.confirm('Are you sure?', callback);
  */
 
+// Helper function to check if dark mode is active
+function isDarkMode() {
+    const isDark = document.documentElement.classList.contains('admin-dark');
+    console.log('🌓 Modal.js loaded - Dark mode:', isDark);
+    return isDark;
+}
+
+// Log version on load
+console.log('✅ Modal.js version: 4.0 (FIXED: added background to modal-body)');
+console.log('📅 Loaded at:', new Date().toLocaleTimeString());
+
 window.Modal = {
     /**
      * Show modal by ID
@@ -60,8 +71,6 @@ window.Modal = {
      * Confirmation modal
      */
     confirm: function(message, onConfirm, options = {}) {
-        console.log('Modal.confirm called', { message, options });
-        
         const {
             title = 'Konfirmasi',
             confirmText = 'Ya',
@@ -70,6 +79,10 @@ window.Modal = {
         } = options;
         
         const modalId = 'confirmModal_' + Date.now();
+        const currentIsDark = isDarkMode();
+        
+        console.log('🔍 Creating confirm modal - Dark mode detected:', currentIsDark);
+        console.log('📋 HTML element classes:', document.documentElement.className);
         
         const icons = {
             warning: 'fas fa-exclamation-triangle',
@@ -92,22 +105,36 @@ window.Modal = {
             success: 'background: linear-gradient(135deg, #10b981, #059669); border: none; color: white;'
         };
         
+        const themeStyles = currentIsDark ? {
+            modalBg: 'background: #1e293b !important; color: #e5e7eb !important; border: 1px solid #334155 !important;',
+            titleColor: 'color: #f8fafc !important;',
+            messageColor: 'color: #cbd5e1 !important;',
+            cancelBtn: 'background: #334155 !important; border: 1px solid #475569 !important; color: #e5e7eb !important; min-width: 100px; padding: 0.5rem 1rem; font-weight: 600; border-radius: 0.5rem;'
+        } : {
+            modalBg: 'background: #ffffff !important; color: #1e293b !important; border: 1px solid #e2e8f0 !important;',
+            titleColor: 'color: #1e293b !important;',
+            messageColor: 'color: #64748b !important;',
+            cancelBtn: 'background: #f3f4f6 !important; border: 1px solid #d1d5db !important; color: #374151 !important; min-width: 100px; padding: 0.5rem 1rem; font-weight: 600; border-radius: 0.5rem;'
+        };
+        
+        console.log('🎨 Theme styles applied:', themeStyles);
+        
         const modalHTML = `
-            <div id="${modalId}" class="modal-modern">
+            <div id="${modalId}" class="modal-modern modal-js-generated" data-theme="${currentIsDark ? 'dark' : 'light'}">
                 <div class="modal-backdrop"></div>
                 <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-                    <div class="modal-content">
-                        <div class="modal-body text-center" style="padding: 2rem;">
-                            <div class="modal-icon mb-4" style="width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: ${colors[type]}20; display: flex; align-items: center; justify-content: center;">
-                                <i class="${icons[type]}" style="font-size: 40px; color: ${colors[type]};"></i>
+                    <div class="modal-content modal-js-content" style="${themeStyles.modalBg}">
+                        <div class="modal-body text-center modal-confirm-body" style="padding: 2rem; ${themeStyles.modalBg}">
+                            <div class="modal-icon-circle" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: ${colors[type]}20;">
+                                <i class="${icons[type]} modal-icon-main" style="font-size: 40px; color: ${colors[type]};"></i>
                             </div>
-                            <h5 class="modal-title mb-3" style="font-size: 1.25rem; font-weight: 700; color: #1e293b;">${title}</h5>
-                            <p class="modal-message mb-4" style="font-size: 0.875rem; color: #64748b; line-height: 1.6;">${message}</p>
+                            <h5 class="modal-title modal-confirm-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; ${themeStyles.titleColor}">${title}</h5>
+                            <p class="modal-message modal-confirm-message" style="font-size: 0.875rem; line-height: 1.6; margin-bottom: 1.5rem; ${themeStyles.messageColor}">${message}</p>
                             <div class="d-flex gap-3 justify-content-center">
-                                <button type="button" class="btn btn-secondary" data-modal-close style="min-width: 100px; padding: 0.5rem 1rem; font-weight: 600; border-radius: 0.5rem;">
+                                <button type="button" class="btn btn-secondary modal-btn-cancel" data-modal-close style="${themeStyles.cancelBtn}">
                                     ${cancelText}
                                 </button>
-                                <button type="button" class="btn-modal-confirm" id="${modalId}_confirm" style="min-width: 100px; padding: 0.5rem 1rem; font-weight: 600; border-radius: 0.5rem; ${buttonColors[type]}">
+                                <button type="button" class="btn-modal-confirm modal-btn-confirm-${type}" id="${modalId}_confirm" style="${buttonColors[type]}">
                                     ${confirmText}
                                 </button>
                             </div>
@@ -125,35 +152,19 @@ window.Modal = {
             const confirmBtn = document.getElementById(modalId + '_confirm');
             const cancelBtn = modal.querySelector('[data-modal-close]');
             
-            console.log('=== Modal Debug ===');
-            console.log('Modal ID:', modalId);
-            console.log('Modal element:', modal);
-            console.log('Confirm button ID:', modalId + '_confirm');
-            console.log('Confirm button element:', confirmBtn);
-            console.log('Confirm button exists:', !!confirmBtn);
-            console.log('Cancel button:', cancelBtn);
-            
             if (!confirmBtn) {
-                console.error('CONFIRM BUTTON NOT FOUND!');
+                console.error('Confirm button not found!');
                 return;
             }
             
             // Confirm action
             confirmBtn.addEventListener('click', function(e) {
-                console.log('=== Confirm Button Clicked ===');
-                console.log('Event:', e);
-                console.log('Target:', e.target);
-                console.log('CurrentTarget:', e.currentTarget);
-                
-                // Prevent any default behavior
                 e.preventDefault();
                 e.stopPropagation();
                 
                 if (onConfirm && typeof onConfirm === 'function') {
-                    console.log('Executing callback...');
                     try {
                         onConfirm();
-                        console.log('Callback executed successfully');
                     } catch (error) {
                         console.error('Callback error:', error);
                     }
@@ -166,13 +177,10 @@ window.Modal = {
                         modal.remove();
                     }
                 }, 300);
-            }, { capture: false });
-            
-            console.log('Event listener added to confirm button');
+            });
             
             // Cancel action
             cancelBtn.addEventListener('click', function() {
-                console.log('Cancel button clicked');
                 Modal.hide(modalId);
                 setTimeout(() => {
                     if (modal && modal.parentNode) {
@@ -185,7 +193,6 @@ window.Modal = {
             const backdrop = modal.querySelector('.modal-backdrop');
             if (backdrop) {
                 backdrop.addEventListener('click', function() {
-                    console.log('Backdrop clicked');
                     Modal.hide(modalId);
                     setTimeout(() => {
                         if (modal && modal.parentNode) {
@@ -196,6 +203,31 @@ window.Modal = {
             }
             
             Modal.show(modalId);
+            
+            // Re-apply styles after modal is shown (fix for CSS override issue)
+            setTimeout(() => {
+                const modalContent = modal.querySelector('.modal-content');
+                const modalTitle = modal.querySelector('.modal-confirm-title');
+                const modalMessage = modal.querySelector('.modal-confirm-message');
+                const cancelButton = modal.querySelector('.modal-btn-cancel');
+                
+                if (modalContent) {
+                    modalContent.style.cssText = themeStyles.modalBg;
+                    console.log('✅ Re-applied modal content styles');
+                }
+                if (modalTitle) {
+                    modalTitle.style.cssText = 'font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; ' + themeStyles.titleColor;
+                    console.log('✅ Re-applied title styles');
+                }
+                if (modalMessage) {
+                    modalMessage.style.cssText = 'font-size: 0.875rem; line-height: 1.6; margin-bottom: 1.5rem; ' + themeStyles.messageColor;
+                    console.log('✅ Re-applied message styles');
+                }
+                if (cancelButton) {
+                    cancelButton.style.cssText = themeStyles.cancelBtn;
+                    console.log('✅ Re-applied cancel button styles');
+                }
+            }, 50);
         }, 10);
     },
     
@@ -204,6 +236,7 @@ window.Modal = {
      */
     alert: function(message, title = 'Informasi', type = 'info') {
         const modalId = 'alertModal_' + Date.now();
+        const currentIsDark = isDarkMode();
         
         const icons = {
             warning: 'fas fa-exclamation-triangle',
@@ -219,19 +252,29 @@ window.Modal = {
             success: '#10b981'
         };
         
+        const themeStyles = currentIsDark ? {
+            modalBg: 'background: #1e293b !important; color: #e5e7eb !important; border: 1px solid #334155 !important;',
+            titleColor: 'color: #f8fafc !important;',
+            messageColor: 'color: #cbd5e1 !important;'
+        } : {
+            modalBg: 'background: #ffffff !important; color: #1e293b !important; border: 1px solid #e2e8f0 !important;',
+            titleColor: 'color: #1e293b !important;',
+            messageColor: 'color: #64748b !important;'
+        };
+        
         const modalHTML = `
-            <div id="${modalId}" class="modal-modern">
+            <div id="${modalId}" class="modal-modern modal-js-generated" data-theme="${currentIsDark ? 'dark' : 'light'}">
                 <div class="modal-backdrop"></div>
                 <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-                    <div class="modal-content">
-                        <div class="modal-body text-center" style="padding: 2rem;">
-                            <div class="modal-icon mb-4" style="width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: ${colors[type]}20; display: flex; align-items: center; justify-content: center;">
-                                <i class="${icons[type]}" style="font-size: 40px; color: ${colors[type]};"></i>
+                    <div class="modal-content modal-js-content" style="${themeStyles.modalBg}">
+                        <div class="modal-body text-center modal-confirm-body" style="padding: 2rem; ${themeStyles.modalBg}">
+                            <div class="modal-icon-circle" style="width: 80px; height: 80px; margin: 0 auto 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: ${colors[type]}20;">
+                                <i class="${icons[type]} modal-icon-main" style="font-size: 40px; color: ${colors[type]};"></i>
                             </div>
-                            <h5 class="modal-title mb-3" style="font-size: 1.25rem; font-weight: 700; color: #1e293b;">${title}</h5>
-                            <p class="modal-message mb-4" style="font-size: 0.875rem; color: #64748b; line-height: 1.6;">${message}</p>
+                            <h5 class="modal-title modal-confirm-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; ${themeStyles.titleColor}">${title}</h5>
+                            <p class="modal-message modal-confirm-message" style="font-size: 0.875rem; line-height: 1.6; margin-bottom: 1.5rem; ${themeStyles.messageColor}">${message}</p>
                             <div class="d-flex gap-3 justify-content-center">
-                                <button type="button" class="btn btn-primary" data-modal-close style="min-width: 100px; padding: 0.5rem 1rem; font-weight: 600; border-radius: 0.5rem; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; color: white;">
+                                <button type="button" class="btn btn-primary modal-btn-ok" data-modal-close style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; color: white; min-width: 100px; padding: 0.5rem 1rem; font-weight: 600; border-radius: 0.5rem;">
                                     OK
                                 </button>
                             </div>
@@ -246,11 +289,8 @@ window.Modal = {
         const modal = document.getElementById(modalId);
         const okBtn = modal.querySelector('[data-modal-close]');
         
-        console.log('Alert modal created:', modalId);
-        
         // OK action
         okBtn.addEventListener('click', function() {
-            console.log('OK button clicked');
             Modal.hide(modalId);
             setTimeout(() => {
                 if (modal && modal.parentNode) {
