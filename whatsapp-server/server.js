@@ -170,6 +170,38 @@ app.get('/status', (req, res) => {
     });
 });
 
+// Get server health metrics
+app.get('/health', (req, res) => {
+    const memoryUsage = process.memoryUsage();
+    const cpuUsage = process.cpuUsage();
+    
+    res.json({
+        success: true,
+        uptime: process.uptime(), // in seconds
+        memory: {
+            rss: Math.round(memoryUsage.rss / 1024 / 1024), // MB
+            heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024), // MB
+            heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024), // MB
+            external: Math.round(memoryUsage.external / 1024 / 1024), // MB
+            percentage: Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100) // %
+        },
+        cpu: {
+            user: Math.round(cpuUsage.user / 1000), // microseconds to milliseconds
+            system: Math.round(cpuUsage.system / 1000) // microseconds to milliseconds
+        },
+        connection: {
+            status: connectionState,
+            reconnectAttempts: reconnectAttempts
+        },
+        node: {
+            version: process.version,
+            platform: process.platform,
+            arch: process.arch
+        },
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Get QR code
 app.get('/qr', (req, res) => {
     if (qrCodeData) {

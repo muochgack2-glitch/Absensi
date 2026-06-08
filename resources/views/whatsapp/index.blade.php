@@ -118,6 +118,37 @@
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
+        <!-- Server Health Card (NEW!) -->
+        <div class="col-md-12 mb-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header border-bottom" style="background: var(--bg-primary);">
+                    <h6 class="mb-0" style="color: var(--text-primary);">
+                        <i class="fas fa-heartbeat me-2"></i>Server Health
+                    </h6>
+                </div>
+                <div class="card-body" style="background: var(--bg-primary);">
+                    <div id="healthMetrics" class="row text-center">
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Uptime</small>
+                            <strong id="serverUptime" style="color: var(--text-primary);">-</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Memory Usage</small>
+                            <strong id="memoryUsage" style="color: var(--text-primary);">-</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Memory %</small>
+                            <strong id="memoryPercent" style="color: var(--text-primary);">-</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Node Version</small>
+                            <strong id="nodeVersion" style="color: var(--text-primary);">-</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="col-md-3 mb-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -303,7 +334,11 @@ let statusInterval;
 
 document.addEventListener('DOMContentLoaded', function() {
     refreshStatus();
+    loadHealthMetrics(); // Load health metrics on page load
     statusInterval = setInterval(refreshStatus, 5000);
+    
+    // Refresh health metrics every 30 seconds
+    setInterval(loadHealthMetrics, 30000);
     
     // Initialize Bootstrap tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -391,6 +426,46 @@ function updateStatusUI(data) {
     document.getElementById('lastUpdate').textContent = new Date(data.data.timestamp).toLocaleTimeString('id-ID');
     
     detailsDiv.style.display = 'block';
+}
+
+// Load health metrics
+function loadHealthMetrics() {
+    fetch('{{ route("whatsapp.health") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const health = data.data;
+                
+                // Format uptime
+                const uptimeSeconds = health.uptime;
+                const days = Math.floor(uptimeSeconds / 86400);
+                const hours = Math.floor((uptimeSeconds % 86400) / 3600);
+                const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+                const uptimeStr = days > 0 
+                    ? `${days}d ${hours}h ${minutes}m`
+                    : hours > 0
+                    ? `${hours}h ${minutes}m`
+                    : `${minutes}m`;
+                
+                document.getElementById('serverUptime').textContent = uptimeStr;
+                document.getElementById('memoryUsage').textContent = `${health.memory.heapUsed} / ${health.memory.heapTotal} MB`;
+                document.getElementById('memoryPercent').textContent = `${health.memory.percentage}%`;
+                document.getElementById('nodeVersion').textContent = health.node.version;
+                
+                // Color code memory percentage
+                const memoryPercentEl = document.getElementById('memoryPercent');
+                if (health.memory.percentage > 90) {
+                    memoryPercentEl.style.color = '#dc3545'; // Danger
+                } else if (health.memory.percentage > 75) {
+                    memoryPercentEl.style.color = '#ffc107'; // Warning
+                } else {
+                    memoryPercentEl.style.color = 'var(--text-primary)'; // Normal
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load health metrics:', error);
+        });
 }
 
 function refreshQRInline() {

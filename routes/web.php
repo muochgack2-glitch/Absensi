@@ -145,6 +145,7 @@ Route::middleware('admin')->group(function () {
     Route::middleware(['checkRole:administrator,admin_wa'])->prefix('whatsapp')->name('whatsapp.')->group(function () {
         Route::get('/', [\App\Http\Controllers\WhatsAppController::class, 'index'])->name('index');
         Route::get('/status', [\App\Http\Controllers\WhatsAppController::class, 'status'])->name('status');
+        Route::get('/health', [\App\Http\Controllers\WhatsAppController::class, 'health'])->name('health');
         Route::get('/qr', [\App\Http\Controllers\WhatsAppController::class, 'qrCode'])->name('qr');
         
         // Send message

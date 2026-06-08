@@ -73,6 +73,42 @@ class WhatsAppService
     }
 
     /**
+     * Get server health metrics
+     * 
+     * @return array
+     */
+    public function getHealth(): array
+    {
+        try {
+            $response = Http::timeout($this->timeout)
+                ->get("{$this->serverUrl}/health");
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Failed to get health metrics',
+                'error' => $response->body(),
+            ];
+        } catch (Exception $e) {
+            Log::error('WhatsApp health check failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Connection failed',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Get QR code for WhatsApp authentication
      * 
      * @return array

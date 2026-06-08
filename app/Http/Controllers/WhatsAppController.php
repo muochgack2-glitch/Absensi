@@ -49,6 +49,15 @@ class WhatsAppController extends Controller
     }
 
     /**
+     * Get server health metrics (AJAX)
+     */
+    public function health()
+    {
+        $health = $this->whatsappService->getHealth();
+        return response()->json($health);
+    }
+
+    /**
      * Get QR code (AJAX)
      */
     public function qrCode()
