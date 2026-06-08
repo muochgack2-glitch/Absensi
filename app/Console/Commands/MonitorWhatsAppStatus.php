@@ -36,13 +36,14 @@ class MonitorWhatsAppStatus extends Command
         // Get current status from server
         $response = $whatsappService->getStatus();
         
-        if (!$response['success']) {
-            $this->error('❌ Failed to get status from server');
-            Log::warning('WhatsApp status monitor: Failed to get server status');
-            return Command::FAILURE;
+        $currentStatus = 'disconnected'; // Default to disconnected if can't connect
+        
+        if ($response['success']) {
+            $currentStatus = $response['data']['status'] ?? 'disconnected';
+        } else {
+            $this->warn('⚠️  Cannot connect to server, assuming disconnected');
+            Log::warning('WhatsApp status monitor: Failed to get server status, assuming disconnected');
         }
-
-        $currentStatus = $response['data']['status'] ?? 'unknown';
         
         // Get previous status from cache
         $previousStatus = Cache::get('wa_gateway_previous_status', 'unknown');
