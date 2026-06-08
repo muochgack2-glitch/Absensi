@@ -11,29 +11,33 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        border: 1px solid #cbd5e1;
+        border: 2px solid #cbd5e1;
         border-radius: 999px;
-        background: #f8fafc;
-        color: #475569;
-        padding: 7px 12px;
-        font-size: 12px;
-        font-weight: 700;
+        background: #ffffff;
+        color: #1e293b;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
         cursor: pointer;
         transition: .2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
     .admin-theme-toggle:hover { 
-        background: #e2e8f0; 
+        background: #f8fafc; 
         border-color: var(--primary);
         color: var(--primary);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
     .admin-dark .admin-theme-toggle {
-        border: 1px solid rgba(255,255,255,.35);
-        background: rgba(255,255,255,.16);
-        color: #fff;
+        border: 2px solid rgba(255,255,255,.3);
+        background: rgba(255,255,255,.1);
+        color: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
     .admin-dark .admin-theme-toggle:hover { 
-        background: rgba(255,255,255,.26); 
+        background: rgba(255,255,255,.2); 
         border-color: rgba(255,255,255,.5);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     }
     .admin-dark body { background-color: #0f172a !important; color: #e5e7eb; }
     .admin-dark .navbar { 

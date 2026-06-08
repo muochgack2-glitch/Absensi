@@ -528,7 +528,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
-            color: #1e293b;
+            color: #1e293b !important;
         }
         
         .navbar-title-main {
@@ -537,7 +537,7 @@
             line-height: 1.2;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #1e293b;
+            color: #1e293b !important;
         }
         
         .navbar-title-sub {
@@ -547,19 +547,22 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #64748b;
+            color: #64748b !important;
         }
         
         .school-name {
             font-weight: 600;
+            color: #1e293b !important;
         }
         
         .separator {
             opacity: 0.6;
+            color: #64748b !important;
         }
         
         .year-text {
             font-weight: 500;
+            color: #64748b !important;
         }
         
         /* Hide navbar title on screens 960px and below */
