@@ -431,12 +431,12 @@
         /* Navbar in Content Area */
         .navbar {
             min-height: 68px !important;
-            background: linear-gradient(135deg, var(--navbar-bg-start) 0%, var(--navbar-bg-end) 100%) !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+            background: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
             position: sticky;
             top: 0;
             z-index: 999;
-            border-bottom: 1px solid var(--navbar-border) !important;
+            border-bottom: 1px solid #e2e8f0 !important;
         }
 
         .navbar > .container-fluid {
@@ -457,7 +457,7 @@
             white-space: normal !important;
             max-width: 340px !important;
             text-decoration: none !important;
-            color: #ffffff !important;
+            color: #1e293b !important;
             transition: opacity 0.3s !important;
         }
         
@@ -472,8 +472,8 @@
             border-radius: 14px;
             display: inline-grid;
             place-items: center;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.18);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
         }
 
         .navbar-brand .brand-mark img {
@@ -495,7 +495,7 @@
             flex-direction: column;
             justify-content: center;
             gap: 2px;
-            color: #f8fafc;
+            color: #1e293b;
         }
 
         .navbar-brand .brand-subtitle {
@@ -503,8 +503,9 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.12em;
-            opacity: 0.85;
+            opacity: 0.7;
             margin: 0;
+            color: #64748b;
         }
 
         .navbar-brand strong {
@@ -512,13 +513,14 @@
             font-weight: 800;
             line-height: 1.1;
             display: block;
-            color: #ffffff;
+            color: #1e293b;
         }
 
         .navbar-brand .brand-year {
             font-size: 0.75rem;
-            opacity: 0.82;
+            opacity: 0.7;
             margin: 0;
+            color: #64748b;
         }
         
         /* Navbar Title (Static + Dynamic) */
@@ -526,7 +528,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
-            color: #ffffff;
+            color: #1e293b;
         }
         
         .navbar-title-main {
@@ -535,15 +537,17 @@
             line-height: 1.2;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            color: #1e293b;
         }
         
         .navbar-title-sub {
             font-size: 13px;
             font-weight: 500;
-            opacity: 0.95;
+            opacity: 0.85;
             display: flex;
             align-items: center;
             gap: 8px;
+            color: #64748b;
         }
         
         .school-name {
@@ -579,7 +583,7 @@
             display: flex !important;
             align-items: center !important;
             gap: 10px !important;
-            color: white !important;
+            color: #1e293b !important;
             min-height: 40px !important;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         }
@@ -593,11 +597,12 @@
             width: 40px !important;
             height: 40px !important;
             min-width: 40px !important;
-            background: rgba(255,255,255,0.3) !important;
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
             border-radius: 50% !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            color: #ffffff !important;
         }
 
         .admin-theme-toggle {
