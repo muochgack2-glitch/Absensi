@@ -35,10 +35,17 @@ class TelegramWebhookController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $chatId = $callbackQuery['message']['chat']['id'];
-        $messageId = $callbackQuery['message']['message_id'];
-        $callbackData = $callbackQuery['callback_data'];
-        $callbackId = $callbackQuery['id'];
+        $chatId = $callbackQuery['message']['chat']['id'] ?? null;
+        $messageId = $callbackQuery['message']['message_id'] ?? null;
+        $callbackData = $callbackQuery['data'] ?? null;
+        $callbackId = $callbackQuery['id'] ?? null;
+
+        if (!$chatId || !$messageId || !$callbackData || !$callbackId) {
+            Log::warning('Telegram webhook missing required fields', [
+                'callback_query' => $callbackQuery,
+            ]);
+            return response()->json(['ok' => true]);
+        }
 
         Log::info('Telegram callback received', [
             'callback_data' => $callbackData,
