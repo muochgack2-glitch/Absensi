@@ -234,6 +234,26 @@
         background-color: rgba(148, 163, 184, 0.15) !important; 
     }
     
+    /* Modal System - Dark Mode Support */
+    .admin-dark .modal-modern .modal-content {
+        background: #1e293b !important;
+        color: #e5e7eb !important;
+    }
+    .admin-dark .modal-modern .modal-title {
+        color: #f8fafc !important;
+    }
+    .admin-dark .modal-modern .modal-message {
+        color: #cbd5e1 !important;
+    }
+    .admin-dark .modal-modern .btn-secondary {
+        background: #334155 !important;
+        border-color: #475569 !important;
+        color: #e5e7eb !important;
+    }
+    .admin-dark .modal-modern .btn-secondary:hover {
+        background: #475569 !important;
+    }
+    
     /* Text Color Adjustments for Dark Mode */
     .admin-dark .text-primary { color: #818cf8 !important; }
     .admin-dark .text-success { color: #4ade80 !important; }
