@@ -9,6 +9,7 @@ use App\Models\SettingSystem;
 use App\Models\WhatsAppLog;
 use App\Models\WhatsAppTemplate;
 use App\Models\WhatsAppSetting;
+use App\Models\UserActivityLog;
 use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
