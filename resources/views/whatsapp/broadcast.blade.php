@@ -49,8 +49,8 @@
                                 <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto; background: var(--bg-secondary);">
                                     @foreach($pendaftars as $pendaftar)
                                     <div class="form-check">
-                                        <input class="form-check-input pendaftar-checkbox" type="checkbox" value="{{ $pendaftar->primary_phone ?? $pendaftar->no_hp_wali }}" id="pendaftar{{ $pendaftar->id }}">
-                                        <label class="form-check-label" for="pendaftar{{ $pendaftar->id }}" style="color: var(--text-primary);">
+                                        <input class="form-check-input pendaftar-checkbox" type="checkbox" value="{{ $pendaftar->primary_phone ?? $pendaftar->no_hp_wali }}" id="pendaftar{{ $pendaftar->id_pendaftar }}">
+                                        <label class="form-check-label" for="pendaftar{{ $pendaftar->id_pendaftar }}" style="color: var(--text-primary);">
                                             <strong>{{ $pendaftar->nama_lengkap }}</strong> - {{ substr($pendaftar->primary_phone ?? $pendaftar->no_hp_wali, 0, 4) }}****{{ substr($pendaftar->primary_phone ?? $pendaftar->no_hp_wali, -3) }}
                                             <br><small class="text-muted">{{ $pendaftar->jurusan }} - HP {{ $pendaftar->phone_type ?? 'Wali' }}</small>
                                         </label>
