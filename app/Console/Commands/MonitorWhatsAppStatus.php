@@ -17,7 +17,7 @@ class MonitorWhatsAppStatus extends Command
      *
      * @var string
      */
-    protected $signature = 'wa:monitor {--verbose : Show detailed output}';
+    protected $signature = 'wa:monitor';
 
     /**
      * The console command description.
@@ -31,17 +31,13 @@ class MonitorWhatsAppStatus extends Command
      */
     public function handle(WhatsAppService $whatsappService)
     {
-        if ($this->option('verbose')) {
-            $this->info('🔍 Monitoring WhatsApp Gateway status...');
-        }
+        $this->info('🔍 Monitoring WhatsApp Gateway status...');
 
         // Get current status from server
         $response = $whatsappService->getStatus();
         
         if (!$response['success']) {
-            if ($this->option('verbose')) {
-                $this->error('❌ Failed to get status from server');
-            }
+            $this->error('❌ Failed to get status from server');
             Log::warning('WhatsApp status monitor: Failed to get server status');
             return Command::FAILURE;
         }
@@ -51,10 +47,8 @@ class MonitorWhatsAppStatus extends Command
         // Get previous status from cache
         $previousStatus = Cache::get('wa_gateway_previous_status', 'unknown');
 
-        if ($this->option('verbose')) {
-            $this->info("   Previous: {$previousStatus}");
-            $this->info("   Current:  {$currentStatus}");
-        }
+        $this->info("   Previous: {$previousStatus}");
+        $this->info("   Current:  {$currentStatus}");
 
         // Check if status changed
         if ($previousStatus !== $currentStatus && $previousStatus !== 'unknown') {
@@ -70,9 +64,7 @@ class MonitorWhatsAppStatus extends Command
                 'timestamp' => now()->toDateTimeString(),
             ]);
         } else {
-            if ($this->option('verbose')) {
-                $this->info('✅ No status change detected');
-            }
+            $this->info('✅ No status change detected');
         }
 
         // Update cache with current status
