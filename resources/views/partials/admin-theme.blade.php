@@ -213,6 +213,34 @@
     
     .admin-dark .btn-outline-secondary { color: #cbd5e1; border-color: #475569; }
     .admin-dark .btn-outline-secondary:hover { background: #334155; color: #fff; }
+    
+    /* Background Opacity Classes - Dark Mode Support */
+    .admin-dark .bg-primary.bg-opacity-10 { 
+        background-color: rgba(99, 102, 241, 0.15) !important; 
+    }
+    .admin-dark .bg-success.bg-opacity-10 { 
+        background-color: rgba(34, 197, 94, 0.15) !important; 
+    }
+    .admin-dark .bg-danger.bg-opacity-10 { 
+        background-color: rgba(239, 68, 68, 0.15) !important; 
+    }
+    .admin-dark .bg-warning.bg-opacity-10 { 
+        background-color: rgba(251, 191, 36, 0.15) !important; 
+    }
+    .admin-dark .bg-info.bg-opacity-10 { 
+        background-color: rgba(59, 130, 246, 0.15) !important; 
+    }
+    .admin-dark .bg-secondary.bg-opacity-10 { 
+        background-color: rgba(148, 163, 184, 0.15) !important; 
+    }
+    
+    /* Text Color Adjustments for Dark Mode */
+    .admin-dark .text-primary { color: #818cf8 !important; }
+    .admin-dark .text-success { color: #4ade80 !important; }
+    .admin-dark .text-danger { color: #f87171 !important; }
+    .admin-dark .text-warning { color: #fbbf24 !important; }
+    .admin-dark .text-info { color: #60a5fa !important; }
+    .admin-dark .text-secondary { color: #94a3b8 !important; }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
