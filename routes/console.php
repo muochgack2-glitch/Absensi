@@ -18,3 +18,10 @@ Schedule::command('wa:restart --force')
     ->onFailure(function () {
         \Log::error('WhatsApp server auto-restart failed');
     });
+
+// Schedule: Monitor WhatsApp status every 5 minutes
+Schedule::command('wa:monitor')
+    ->everyFiveMinutes()
+    ->name('wa-status-monitor')
+    ->withoutOverlapping()
+    ->runInBackground();
