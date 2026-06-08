@@ -314,7 +314,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Preview Pesan</label>
-                    <div class="border rounded p-3 bg-light" id="broadcastPreview" style="white-space: pre-wrap; min-height: 100px;">
+                    <div class="border rounded p-3 message-preview" id="broadcastPreview" style="white-space: pre-wrap; min-height: 100px;">
                         <span class="text-muted">Preview akan muncul di sini...</span>
                     </div>
                 </div>
@@ -330,6 +330,25 @@
 </div>
 
 @push('scripts')
+<style>
+/* Message Preview Styling */
+.message-preview {
+    background-color: #f8f9fa;
+    color: #212529;
+    border-color: #dee2e6 !important;
+}
+
+/* Dark Mode Support */
+.admin-dark .message-preview {
+    background-color: #1e293b !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+
+.admin-dark .message-preview .text-muted {
+    color: #94a3b8 !important;
+}
+</style>
 <script>
 let selectedPhones = [];
 
