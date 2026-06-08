@@ -683,6 +683,8 @@ class WhatsAppController extends Controller
      */
     private function replaceMessageVariables(string $message, array $data): string
     {
+        $settings = SettingSystem::instance()->toSettingsArray();
+        
         $replacements = [
             '{nama}' => $data['name'] ?? '',
             '{nama_lengkap}' => $data['name'] ?? '',
@@ -692,7 +694,7 @@ class WhatsAppController extends Controller
             '{nisn}' => $data['nisn'] ?? '',
             '{asal_sekolah}' => $data['asal_sekolah'] ?? '',
             '{portal_url}' => url('/'),
-            '{sekolah}' => config('app.name', 'SMK PGRI Blora'),
+            '{sekolah}' => $settings['school_name'] ?? 'SMK PGRI BLORA',
             '{tanggal}' => now()->format('d-m-Y'),
             '{tahun}' => now()->format('Y'),
         ];
