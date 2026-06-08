@@ -9,13 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 class TelegramWebhookController extends Controller
 {
-    protected WhatsAppService $whatsappService;
-
-    public function __construct(WhatsAppService $whatsappService)
-    {
-        $this->whatsappService = $whatsappService;
-    }
-
     /**
      * Handle Telegram webhook (button callbacks)
      */
@@ -74,7 +67,8 @@ class TelegramWebhookController extends Controller
      */
     protected function handleRestartServer(string $chatId, int $messageId): array
     {
-        $result = $this->whatsappService->restart();
+        $whatsappService = app(WhatsAppService::class);
+        $result = $whatsappService->restart();
 
         if ($result['success']) {
             return [
@@ -99,7 +93,8 @@ class TelegramWebhookController extends Controller
      */
     protected function handleResetConnection(string $chatId, int $messageId): array
     {
-        $result = $this->whatsappService->logout();
+        $whatsappService = app(WhatsAppService::class);
+        $result = $whatsappService->logout();
 
         if ($result['success']) {
             return [
@@ -125,8 +120,9 @@ class TelegramWebhookController extends Controller
      */
     protected function handleCheckStatus(string $chatId, int $messageId): array
     {
-        $status = $this->whatsappService->getStatus();
-        $health = $this->whatsappService->getHealth();
+        $whatsappService = app(WhatsAppService::class);
+        $status = $whatsappService->getStatus();
+        $health = $whatsappService->getHealth();
 
         if (!$status['success']) {
             return [
