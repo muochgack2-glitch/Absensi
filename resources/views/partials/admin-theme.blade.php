@@ -89,6 +89,18 @@
     .card-body {
         color: #1e293b !important;
     }
+    
+    /* Alert Styles - Light Mode */
+    .alert-success {
+        background-color: #d1fae5 !important;
+        border-color: #6ee7b7 !important;
+        color: #065f46 !important;
+    }
+    .alert-danger {
+        background-color: #fee2e2 !important;
+        border-color: #fca5a5 !important;
+        color: #991b1b !important;
+    }
     .alert-info {
         background-color: #dbeafe !important;
         border-color: #93c5fd !important;
@@ -98,6 +110,14 @@
         background-color: #fef3c7 !important;
         border-color: #fcd34d !important;
         color: #92400e !important;
+    }
+    .alert-light {
+        background-color: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+        color: #475569 !important;
+    }
+    .alert-heading {
+        color: inherit !important;
     }
     
     /* Dark Mode Styles */
@@ -160,8 +180,37 @@
     .admin-dark .nav-tabs .nav-link { color: #cbd5e1; border-color: transparent; }
     .admin-dark .nav-tabs .nav-link.active { background: #111827; color: #fff; border-color: #334155 #334155 #111827; }
     .admin-dark .tab-content { border-color: #334155 !important; background: #111827; }
-    .admin-dark .alert-success { background: #052e1a; border-color: #166534; color: #bbf7d0; }
-    .admin-dark .alert-danger { background: #450a0a; border-color: #991b1b; color: #fecaca; }
+    
+    /* Alert Styles - Dark Mode */
+    .admin-dark .alert-success { 
+        background: #052e1a !important; 
+        border-color: #166534 !important; 
+        color: #bbf7d0 !important; 
+    }
+    .admin-dark .alert-danger { 
+        background: #450a0a !important; 
+        border-color: #991b1b !important; 
+        color: #fecaca !important; 
+    }
+    .admin-dark .alert-info { 
+        background: #082f49 !important; 
+        border-color: #075985 !important; 
+        color: #bae6fd !important; 
+    }
+    .admin-dark .alert-warning { 
+        background: #451a03 !important; 
+        border-color: #92400e !important; 
+        color: #fef3c7 !important; 
+    }
+    .admin-dark .alert-light { 
+        background: #1e293b !important; 
+        border-color: #334155 !important; 
+        color: #cbd5e1 !important; 
+    }
+    .admin-dark .alert-heading {
+        color: inherit !important;
+    }
+    
     .admin-dark .btn-outline-secondary { color: #cbd5e1; border-color: #475569; }
     .admin-dark .btn-outline-secondary:hover { background: #334155; color: #fff; }
 </style>
