@@ -146,6 +146,30 @@
                     </ul>
                 </div>
             </div>
+
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-code me-2 text-success"></i>Variabel Template
+                    </h6>
+                    <p class="small text-muted mb-2">Gunakan variabel ini di pesan Anda:</p>
+                    <div class="small">
+                        <code>{nama}</code> - Nama pendaftar<br>
+                        <code>{no_registrasi}</code> - Nomor registrasi<br>
+                        <code>{jurusan}</code> - Jurusan pilihan<br>
+                        <code>{nisn}</code> - NISN<br>
+                        <code>{asal_sekolah}</code> - Asal sekolah<br>
+                        <code>{sekolah}</code> - Nama sekolah<br>
+                        <code>{tanggal}</code> - Tanggal hari ini<br>
+                        <code>{tahun}</code> - Tahun sekarang<br>
+                        <code>{portal_url}</code> - URL portal
+                    </div>
+                    <div class="alert alert-light mt-2 mb-0">
+                        <small><strong>Contoh:</strong><br>
+                        Hai {nama}, pendaftaran Anda di {jurusan} dengan nomor {no_registrasi} telah diterima.</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

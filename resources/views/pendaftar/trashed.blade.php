@@ -153,7 +153,7 @@
                                     @if($p->deletedBy)
                                     <div>
                                         <i class="fas fa-user text-danger me-1"></i>
-                                        {{ $p->deletedBy->name ?? $p->deletedBy->email }}
+                                        {{ $p->deletedBy->username }}
                                     </div>
                                     @endif
                                 </div>

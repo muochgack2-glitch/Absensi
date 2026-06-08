@@ -361,10 +361,34 @@ class WhatsAppController extends Controller
         }
 
         $messages = [];
+        $successCount = 0;
+        $failedCount = 0;
+        $results = [];
+
         foreach ($request->recipients as $phone) {
+            // Find pendaftar by phone number
+            $pendaftar = Pendaftar::where(function($query) use ($phone) {
+                $query->where('no_hp_wali', $phone)
+                      ->orWhere('no_hp_ortu', $phone)
+                      ->orWhere('no_telepon', $phone);
+            })->first();
+
+            // Replace variables in message
+            $personalizedMessage = $request->message;
+            
+            if ($pendaftar) {
+                $personalizedMessage = $this->replaceMessageVariables($request->message, [
+                    'name' => $pendaftar->nama_lengkap,
+                    'no_reg' => $pendaftar->no_registrasi,
+                    'jurusan' => $pendaftar->jurusan,
+                    'nisn' => $pendaftar->nisn,
+                    'asal_sekolah' => $pendaftar->asal_sekolah,
+                ]);
+            }
+
             $messages[] = [
                 'phone' => $phone,
-                'message' => $request->message,
+                'message' => $personalizedMessage,
             ];
         }
 
@@ -661,11 +685,16 @@ class WhatsAppController extends Controller
     {
         $replacements = [
             '{nama}' => $data['name'] ?? '',
+            '{nama_lengkap}' => $data['name'] ?? '',
             '{no_pendaftaran}' => $data['no_reg'] ?? '',
+            '{no_registrasi}' => $data['no_reg'] ?? '',
             '{jurusan}' => $data['jurusan'] ?? '',
+            '{nisn}' => $data['nisn'] ?? '',
+            '{asal_sekolah}' => $data['asal_sekolah'] ?? '',
             '{portal_url}' => url('/'),
             '{sekolah}' => config('app.name', 'SMK PGRI Blora'),
             '{tanggal}' => now()->format('d-m-Y'),
+            '{tahun}' => now()->format('Y'),
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $message);
