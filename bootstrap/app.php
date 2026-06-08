@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkRole' => \App\Http\Middleware\CheckRole::class,
             'ensureAdmin' => \App\Http\Middleware\EnsureAdministrator::class,
         ]);
+        
+        // Exclude Telegram webhook from CSRF protection
+        $middleware->validateCsrfTokens(except: [
+            'telegram/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

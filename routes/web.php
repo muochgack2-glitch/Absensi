@@ -7,11 +7,15 @@ use App\Http\Controllers\PendaftarController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [LandingController::class, 'index'])->name('home');
+
+// Telegram webhook (no auth, no CSRF)
+Route::post('/telegram/webhook', [TelegramWebhookController::class, 'handle'])->name('telegram.webhook');
 
 // Public Registration routes (no auth required)
 Route::get('/daftar', [RegistrationController::class, 'showForm'])->name('registration.form');
