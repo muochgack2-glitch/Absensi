@@ -315,6 +315,33 @@ app.post('/send-bulk', async (req, res) => {
     }
 });
 
+// Restart server (process restart with PM2 auto-restart)
+app.post('/restart', async (req, res) => {
+    try {
+        logger.info('Server restart requested via API');
+        
+        // Send response first before restarting
+        res.json({
+            success: true,
+            message: 'Server is restarting... Please wait 5-10 seconds.'
+        });
+        
+        // Delay 2 seconds to ensure response is sent
+        setTimeout(() => {
+            logger.info('Exiting process for restart...');
+            process.exit(0); // PM2 will auto-restart
+        }, 2000);
+        
+    } catch (error) {
+        logger.error('Failed to restart server:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to restart server',
+            error: error.message
+        });
+    }
+});
+
 // Logout/disconnect
 app.post('/logout', async (req, res) => {
     try {

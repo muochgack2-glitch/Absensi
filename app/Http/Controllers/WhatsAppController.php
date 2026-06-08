@@ -418,6 +418,39 @@ class WhatsAppController extends Controller
     }
 
     /**
+     * Restart WhatsApp server
+     */
+    public function restart()
+    {
+        // Check last restart time (cooldown 5 minutes)
+        $lastRestart = cache()->get('wa_server_last_restart');
+        if ($lastRestart && now()->diffInMinutes($lastRestart) < 5) {
+            $remainingMinutes = 5 - now()->diffInMinutes($lastRestart);
+            return response()->json([
+                'success' => false,
+                'message' => "Server baru saja restart. Tunggu {$remainingMinutes} menit lagi."
+            ], 429);
+        }
+
+        // Log activity
+        UserActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'wa_server_restart',
+            'description' => 'User initiated WA Gateway server restart',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        // Set cooldown
+        cache()->put('wa_server_last_restart', now(), 300); // 5 minutes
+
+        // Restart server
+        $result = $this->whatsappService->restart();
+        
+        return response()->json($result);
+    }
+
+    /**
      * Phone list page - Rekap nomor HP pendaftar
      */
     public function phoneList(Request $request)

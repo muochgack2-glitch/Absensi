@@ -41,6 +41,15 @@
                                 <i class="fas fa-sync-alt me-1"></i>Refresh
                             </button>
                             <button 
+                                class="btn btn-sm btn-outline-warning me-2" 
+                                onclick="restartServer()" 
+                                id="restartBtn"
+                                data-bs-toggle="tooltip" 
+                                data-bs-placement="bottom" 
+                                title="Restart Node.js server (gunakan jika server hang, lambat, atau memory leak). Tidak perlu scan QR ulang.">
+                                <i class="fas fa-redo me-1"></i>Restart Server
+                            </button>
+                            <button 
                                 class="btn btn-sm btn-outline-danger" 
                                 onclick="resetConnection()" 
                                 id="resetBtn"
@@ -515,6 +524,51 @@ function resetConnection() {
         showAlert('error', 'Gagal reset koneksi: ' + error.message);
         resetBtn.disabled = false;
         resetBtn.innerHTML = originalHtml;
+    });
+}
+
+// Restart server (PM2 restart via process.exit)
+function restartServer() {
+    if (!confirm('Yakin ingin restart server? Koneksi akan terputus sebentar (5-10 detik). Session WhatsApp tetap tersimpan, tidak perlu scan QR ulang.')) {
+        return;
+    }
+    
+    const restartBtn = document.getElementById('restartBtn');
+    const originalHtml = restartBtn.innerHTML;
+    restartBtn.disabled = true;
+    restartBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Restarting...';
+    
+    fetch('{{ route("whatsapp.restart") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showAlert('success', 'Server restarting... Status akan update otomatis dalam 10 detik.');
+            
+            // Wait 10 seconds then refresh status
+            setTimeout(() => {
+                refreshStatus();
+                restartBtn.disabled = false;
+                restartBtn.innerHTML = originalHtml;
+                showAlert('info', 'Server restart selesai. Checking koneksi...');
+            }, 10000);
+        } else {
+            showAlert('error', data.message || 'Gagal restart server');
+            restartBtn.disabled = false;
+            restartBtn.innerHTML = originalHtml;
+        }
+    })
+    .catch(error => {
+        console.error('Error restarting server:', error);
+        showAlert('error', 'Gagal restart server: ' + error.message);
+        restartBtn.disabled = false;
+        restartBtn.innerHTML = originalHtml;
     });
 }
 

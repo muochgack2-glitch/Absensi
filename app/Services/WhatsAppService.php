@@ -419,6 +419,43 @@ class WhatsAppService
     }
 
     /**
+     * Restart WhatsApp server
+     * 
+     * @return array
+     */
+    public function restart(): array
+    {
+        try {
+            $response = Http::timeout($this->timeout)
+                ->post("{$this->serverUrl}/restart");
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => 'Server is restarting...',
+                    'data' => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Failed to restart server',
+                'error' => $response->body(),
+            ];
+        } catch (Exception $e) {
+            Log::error('WhatsApp server restart failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Connection failed',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Get statistics
      * 
      * @return array

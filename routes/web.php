@@ -176,8 +176,9 @@ Route::middleware('admin')->group(function () {
         Route::get('/phone-list', [\App\Http\Controllers\WhatsAppController::class, 'phoneList'])->name('phone-list');
         Route::post('/broadcast/send-bulk', [\App\Http\Controllers\WhatsAppController::class, 'sendBulkBroadcast'])->name('broadcast.send-bulk');
         
-        // Logout
+        // Logout & Restart
         Route::post('/logout', [\App\Http\Controllers\WhatsAppController::class, 'logout'])->name('logout');
+        Route::post('/restart', [\App\Http\Controllers\WhatsAppController::class, 'restart'])->name('restart')->middleware('throttle:2,60'); // Max 2x per hour
     });
 });
 
