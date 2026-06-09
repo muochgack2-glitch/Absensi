@@ -7,7 +7,7 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1">📱 Rekap Nomor HP Pendaftar</h1>
+            <h1 class="h3 mb-1">📱 Rekap Nomor HP & Status Pesan</h1>
             <p class="text-muted mb-0">Daftar nomor HP pendaftar untuk broadcast WhatsApp</p>
         </div>
         <div>
@@ -17,6 +17,49 @@
             <button class="btn btn-primary" onclick="exportPhones()">
                 <i class="fas fa-download me-2"></i>Export
             </button>
+        </div>
+    </div>
+
+    <!-- Message Status Tabs -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            <ul class="nav nav-tabs nav-fill border-0" role="tablist" style="background: var(--bg-secondary);">
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab == 'all' ? 'active' : '' }}" 
+                       href="{{ route('whatsapp.phone-list', array_merge(request()->except('tab'), ['tab' => 'all'])) }}">
+                        📱 Semua
+                        <span class="badge bg-primary ms-2">{{ $tabCounts['all'] }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab == 'sent' ? 'active' : '' }}" 
+                       href="{{ route('whatsapp.phone-list', array_merge(request()->except('tab'), ['tab' => 'sent'])) }}">
+                        ✅ Terkirim
+                        <span class="badge bg-success ms-2">{{ $tabCounts['sent'] }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab == 'not-sent' ? 'active' : '' }}" 
+                       href="{{ route('whatsapp.phone-list', array_merge(request()->except('tab'), ['tab' => 'not-sent'])) }}">
+                        🔵 Belum Dikirim
+                        <span class="badge bg-secondary ms-2">{{ $tabCounts['not-sent'] }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab == 'failed' ? 'active' : '' }}" 
+                       href="{{ route('whatsapp.phone-list', array_merge(request()->except('tab'), ['tab' => 'failed'])) }}">
+                        ❌ Gagal
+                        <span class="badge bg-danger ms-2">{{ $tabCounts['failed'] }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab == 'no-phone' ? 'active' : '' }}" 
+                       href="{{ route('whatsapp.phone-list', array_merge(request()->except('tab'), ['tab' => 'no-phone'])) }}">
+                        📵 Tidak Ada Nomor
+                        <span class="badge bg-dark ms-2">{{ $tabCounts['no-phone'] }}</span>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 
@@ -160,6 +203,78 @@
         </div>
     </div>
 
+    <!-- Message Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                                <i class="fas fa-check-circle fa-2x text-success"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Sudah Terkirim</h6>
+                            <h3 class="mb-0">{{ $messageStats['total_sent'] }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-danger bg-opacity-10 p-3">
+                                <i class="fas fa-times-circle fa-2x text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Gagal Terkirim</h6>
+                            <h3 class="mb-0">{{ $messageStats['total_failed'] }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                                <i class="fas fa-percentage fa-2x text-info"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Success Rate</h6>
+                            <h3 class="mb-0">{{ $messageStats['success_rate'] }}%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                                <i class="fas fa-calendar-day fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Hari Ini</h6>
+                            <h3 class="mb-0">{{ $messageStats['today_sent'] }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Phone List Table -->
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-bottom">
@@ -191,6 +306,7 @@
                             <th>Gelombang</th>
                             <th>Nomor HP</th>
                             <th>Tipe</th>
+                            <th>Status Pesan</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -198,6 +314,7 @@
                         @foreach($pendaftars as $pendaftar)
                         @php
                             $phoneData = $pendaftar->phone_data;
+                            $msgStatus = $pendaftar->message_status;
                         @endphp
                         <tr>
                             <td>
@@ -240,6 +357,12 @@
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ $msgStatus['badge'] }}" 
+                                      title="{{ $msgStatus['last_message']['date'] ?? 'Belum ada pesan' }}">
+                                    {{ $msgStatus['icon'] }} {{ $msgStatus['label'] }}
+                                </span>
                             </td>
                             <td>
                                 <span class="badge bg-{{ $pendaftar->status_siswa == 'Diterima' ? 'success' : ($pendaftar->status_siswa == 'Sudah Daftar Ulang' ? 'info' : 'warning') }}">

@@ -465,7 +465,47 @@ class WhatsAppController extends Controller
      */
     public function phoneList(Request $request)
     {
-        $query = Pendaftar::with('masterJurusan');
+        // Get active tab (default: not-sent for actionable view)
+        $activeTab = $request->get('tab', 'not-sent');
+        
+        // Save active tab to session for persistence
+        session(['phone_list_active_tab' => $activeTab]);
+        
+        $query = Pendaftar::with(['masterJurusan', 'whatsappLogs']);
+
+        // TAB FILTERING
+        switch ($activeTab) {
+            case 'sent':
+                // Has at least one successful message
+                $query->whereHas('whatsappLogs', function($q) {
+                    $q->where('status', 'sent');
+                });
+                break;
+            case 'not-sent':
+                // No messages sent yet
+                $query->whereDoesntHave('whatsappLogs');
+                break;
+            case 'failed':
+                // Latest message failed
+                $query->whereHas('whatsappLogs', function($q) {
+                    $q->where('status', 'failed')
+                      ->whereRaw('id = (SELECT MAX(id) FROM whatsapp_logs WHERE pendaftar_id = pendaftars.id_pendaftar)');
+                });
+                break;
+            case 'no-phone':
+                // No phone number
+                $query->where(function($q) {
+                    $q->whereNull('no_hp_wali')
+                      ->whereNull('no_hp_ortu')
+                      ->whereNull('no_telepon');
+                })->orWhere(function($q) {
+                    $q->where('no_hp_wali', '')
+                      ->where('no_hp_ortu', '')
+                      ->where('no_telepon', '');
+                });
+                break;
+            // 'all' - no additional filter
+        }
 
         // Filter by jurusan
         if ($request->has('jurusan_id') && $request->jurusan_id != '') {
@@ -513,14 +553,21 @@ class WhatsAppController extends Controller
         
         $pendaftars = $query->orderBy('tgl_daftar', 'desc')->paginate($perPage)->appends($request->except('page'));
 
-        // Add phone data to each pendaftar
+        // Add phone data and message status to each pendaftar
         $pendaftars->getCollection()->transform(function ($pendaftar) use ($phoneType) {
             $pendaftar->phone_data = $this->getPhoneDataForDisplay($pendaftar, $phoneType);
+            $pendaftar->message_status = $this->getMessageStatus($pendaftar);
             return $pendaftar;
         });
 
         // Get statistics
         $statistics = $this->getPhoneStatistics();
+        
+        // Get message statistics
+        $messageStats = $this->getMessageStatistics();
+
+        // Get tab counts
+        $tabCounts = $this->getTabCounts();
 
         // Get jurusans for filter
         $jurusans = Jurusan::where('aktif', true)->orderBy('nama')->get();
@@ -538,6 +585,9 @@ class WhatsAppController extends Controller
         return view('whatsapp.phone-list', compact(
             'pendaftars',
             'statistics',
+            'messageStats',
+            'tabCounts',
+            'activeTab',
             'jurusans',
             'gelombangs',
             'templates'
@@ -1016,4 +1066,126 @@ class WhatsAppController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get message status for a pendaftar
+     */
+    private function getMessageStatus(Pendaftar $pendaftar): array
+    {
+        $totalMessages = $pendaftar->whatsappLogs->count();
+        $sentMessages = $pendaftar->whatsappLogs->where('status', 'sent')->count();
+        $failedMessages = $pendaftar->whatsappLogs->where('status', 'failed')->count();
+        $pendingMessages = $pendaftar->whatsappLogs->where('status', 'pending')->count();
+        
+        // Get last message
+        $lastMessage = $pendaftar->whatsappLogs->sortByDesc('created_at')->first();
+        
+        // Determine status
+        if ($totalMessages == 0) {
+            $status = 'not-sent';
+            $label = 'Belum Dikirim';
+            $badge = 'secondary';
+            $icon = '🔵';
+        } elseif ($lastMessage && $lastMessage->status == 'failed') {
+            $status = 'failed';
+            $label = 'Gagal';
+            $badge = 'danger';
+            $icon = '❌';
+        } elseif ($sentMessages > 0) {
+            $status = 'sent';
+            $label = "Terkirim ({$sentMessages}x)";
+            $badge = 'success';
+            $icon = '✅';
+        } elseif ($pendingMessages > 0) {
+            $status = 'pending';
+            $label = "Pending ({$pendingMessages}x)";
+            $badge = 'warning';
+            $icon = '⏳';
+        } else {
+            $status = 'unknown';
+            $label = 'Unknown';
+            $badge = 'secondary';
+            $icon = '❓';
+        }
+        
+        return [
+            'status' => $status,
+            'label' => $label,
+            'badge' => $badge,
+            'icon' => $icon,
+            'total' => $totalMessages,
+            'sent' => $sentMessages,
+            'failed' => $failedMessages,
+            'pending' => $pendingMessages,
+            'last_message' => $lastMessage ? [
+                'date' => $lastMessage->created_at->format('d M Y, H:i'),
+                'template' => $lastMessage->template->label ?? 'Manual',
+                'status' => $lastMessage->status
+            ] : null
+        ];
+    }
+    
+    /**
+     * Get message statistics
+     */
+    private function getMessageStatistics(): array
+    {
+        $totalSent = WhatsAppLog::where('status', 'sent')->count();
+        $totalFailed = WhatsAppLog::where('status', 'failed')->count();
+        $totalPending = WhatsAppLog::where('status', 'pending')->count();
+        $total = WhatsAppLog::count();
+        
+        $successRate = $total > 0 ? round(($totalSent / $total) * 100, 1) : 0;
+        
+        // Today's messages
+        $todaySent = WhatsAppLog::where('status', 'sent')
+            ->whereDate('created_at', today())
+            ->count();
+        
+        return [
+            'total_sent' => $totalSent,
+            'total_failed' => $totalFailed,
+            'total_pending' => $totalPending,
+            'success_rate' => $successRate,
+            'today_sent' => $todaySent
+        ];
+    }
+    
+    /**
+     * Get tab counts
+     */
+    private function getTabCounts(): array
+    {
+        $total = Pendaftar::count();
+        
+        $sent = Pendaftar::whereHas('whatsappLogs', function($q) {
+            $q->where('status', 'sent');
+        })->count();
+        
+        $notSent = Pendaftar::whereDoesntHave('whatsappLogs')->count();
+        
+        $failed = Pendaftar::whereHas('whatsappLogs', function($q) {
+            $q->where('status', 'failed')
+              ->whereRaw('id = (SELECT MAX(id) FROM whatsapp_logs WHERE pendaftar_id = pendaftars.id_pendaftar)');
+        })->count();
+        
+        $noPhone = Pendaftar::where(function($q) {
+            $q->whereNull('no_hp_wali')
+              ->whereNull('no_hp_ortu')
+              ->whereNull('no_telepon');
+        })->orWhere(function($q) {
+            $q->where('no_hp_wali', '')
+              ->where('no_hp_ortu', '')
+              ->where('no_telepon', '');
+        })->count();
+        
+        return [
+            'all' => $total,
+            'sent' => $sent,
+            'not-sent' => $notSent,
+            'failed' => $failed,
+            'no-phone' => $noPhone
+        ];
+    }
 }
+

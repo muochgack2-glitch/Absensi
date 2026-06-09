@@ -85,4 +85,12 @@ class Pendaftar extends Model
     {
         return $this->belongsTo(Jurusan::class, 'jurusan_id');
     }
+
+    /**
+     * Get all WhatsApp messages sent to this pendaftar
+     */
+    public function whatsappLogs()
+    {
+        return $this->hasMany(WhatsAppLog::class, 'pendaftar_id', 'id_pendaftar');
+    }
 }
