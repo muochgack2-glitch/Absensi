@@ -757,8 +757,8 @@ class WhatsAppController extends Controller
     public function diagnostics()
     {
         try {
-            // Get PM2 process list (using full path)
-            $pm2Output = shell_exec('/usr/bin/pm2 jlist 2>&1');
+            // Get PM2 process list (using full path with sudo for root's PM2)
+            $pm2Output = shell_exec('sudo -u root /usr/bin/pm2 jlist 2>&1');
             $pm2Processes = json_decode($pm2Output, true);
             
             // Find whatsapp-server process
@@ -825,7 +825,7 @@ class WhatsAppController extends Controller
                 }
 
                 // Check for import path errors in logs
-                $errorLog = shell_exec('/usr/bin/pm2 logs whatsapp-server --err --lines 50 --nostream 2>&1');
+                $errorLog = shell_exec('sudo -u root /usr/bin/pm2 logs whatsapp-server --err --lines 50 --nostream 2>&1');
                 if ($errorLog && str_contains($errorLog, 'ERR_UNSUPPORTED_DIR_IMPORT')) {
                     $issues[] = [
                         'type' => 'error',
@@ -902,32 +902,32 @@ class WhatsAppController extends Controller
                 switch ($issue['code']) {
                     case 'PROCESS_NOT_FOUND':
                         // Start new PM2 process
-                        $output = shell_exec('cd ' . base_path('whatsapp-server') . ' && /usr/bin/pm2 start server.js --name whatsapp-server 2>&1');
+                        $output = shell_exec('cd ' . base_path('whatsapp-server') . ' && sudo -u root /usr/bin/pm2 start server.js --name whatsapp-server 2>&1');
                         $fixed = true;
                         $fixMessage = 'Started new PM2 process';
                         break;
 
                     case 'IMPORT_PATH_ERROR':
                         // Delete process and restart with correct path
-                        shell_exec('/usr/bin/pm2 delete whatsapp-server 2>&1');
+                        shell_exec('sudo -u root /usr/bin/pm2 delete whatsapp-server 2>&1');
                         sleep(2);
-                        $output = shell_exec('cd ' . base_path('whatsapp-server') . ' && /usr/bin/pm2 start server.js --name whatsapp-server 2>&1');
+                        $output = shell_exec('cd ' . base_path('whatsapp-server') . ' && sudo -u root /usr/bin/pm2 start server.js --name whatsapp-server 2>&1');
                         $fixed = true;
                         $fixMessage = 'Deleted and restarted process with correct configuration';
                         break;
 
                     case 'CRASH_LOOP':
                         // Flush logs and restart
-                        shell_exec('/usr/bin/pm2 flush whatsapp-server 2>&1');
+                        shell_exec('sudo -u root /usr/bin/pm2 flush whatsapp-server 2>&1');
                         sleep(1);
-                        shell_exec('/usr/bin/pm2 restart whatsapp-server 2>&1');
+                        shell_exec('sudo -u root /usr/bin/pm2 restart whatsapp-server 2>&1');
                         $fixed = true;
                         $fixMessage = 'Flushed logs and restarted process';
                         break;
 
                     case 'PROCESS_STOPPED':
                         // Restart the process
-                        shell_exec('/usr/bin/pm2 restart whatsapp-server 2>&1');
+                        shell_exec('sudo -u root /usr/bin/pm2 restart whatsapp-server 2>&1');
                         $fixed = true;
                         $fixMessage = 'Restarted stopped process';
                         break;

@@ -20,11 +20,19 @@ echo "<p><strong>whoami:</strong> " . ($whoami ? htmlspecialchars($whoami) : "(e
 
 // Test PM2 command
 $pm2Version = shell_exec('/usr/bin/pm2 -v 2>&1');
-echo "<p><strong>PM2 version:</strong> " . ($pm2Version ? htmlspecialchars($pm2Version) : "(empty)") . "</p>";
+echo "<p><strong>PM2 version (as www):</strong> " . ($pm2Version ? htmlspecialchars($pm2Version) : "(empty)") . "</p>";
+
+// Test PM2 with sudo
+$pm2VersionSudo = shell_exec('sudo -u root /usr/bin/pm2 -v 2>&1');
+echo "<p><strong>PM2 version (as root via sudo):</strong> " . ($pm2VersionSudo ? htmlspecialchars($pm2VersionSudo) : "(empty or sudo not configured)") . "</p>";
 
 // Test PM2 jlist
 $pm2List = shell_exec('/usr/bin/pm2 jlist 2>&1');
-echo "<p><strong>PM2 jlist:</strong> " . ($pm2List ? '<pre>' . htmlspecialchars(substr($pm2List, 0, 500)) . '</pre>' : "(empty)") . "</p>";
+echo "<p><strong>PM2 jlist (as www):</strong> " . ($pm2List ? '<pre>' . htmlspecialchars(substr($pm2List, 0, 500)) . '</pre>' : "(empty)") . "</p>";
+
+// Test PM2 jlist with sudo
+$pm2ListSudo = shell_exec('sudo -u root /usr/bin/pm2 jlist 2>&1');
+echo "<p><strong>PM2 jlist (as root via sudo):</strong> " . ($pm2ListSudo ? '<pre>' . htmlspecialchars(substr($pm2ListSudo, 0, 800)) . '</pre>' : "(empty or sudo not configured)") . "</p>";
 
 // PHP version and SAPI
 echo "<p><strong>PHP Version:</strong> " . PHP_VERSION . "</p>";
