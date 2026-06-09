@@ -682,6 +682,60 @@ class WhatsAppController extends Controller
     }
 
     /**
+     * Get pendaftar messages history
+     */
+    public function getPendaftarMessages($id)
+    {
+        try {
+            $pendaftar = Pendaftar::with(['whatsappLogs' => function($q) {
+                $q->with(['template', 'sender'])
+                  ->orderBy('created_at', 'desc');
+            }])->findOrFail($id);
+            
+            // Get phone data
+            $phone = null;
+            if (!empty($pendaftar->no_hp_wali)) {
+                $phone = $pendaftar->no_hp_wali;
+            } elseif (!empty($pendaftar->no_hp_ortu)) {
+                $phone = $pendaftar->no_hp_ortu;
+            } elseif (!empty($pendaftar->no_telepon)) {
+                $phone = $pendaftar->no_telepon;
+            }
+            
+            // Format messages
+            $messages = $pendaftar->whatsappLogs->map(function($log) {
+                return [
+                    'id' => $log->id,
+                    'status' => $log->status,
+                    'message' => $log->message,
+                    'template' => $log->template->label ?? null,
+                    'date' => $log->created_at->format('d M Y, H:i'),
+                    'error_message' => $log->error_message,
+                    'sent_by' => $log->sender->name ?? 'System'
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'pendaftar' => [
+                    'id_pendaftar' => $pendaftar->id_pendaftar,
+                    'nama_lengkap' => $pendaftar->nama_lengkap,
+                    'no_registrasi' => $pendaftar->no_registrasi,
+                    'nisn' => $pendaftar->nisn,
+                    'jurusan' => $pendaftar->masterJurusan->nama_jurusan ?? $pendaftar->jurusan,
+                    'phone' => $phone
+                ],
+                'messages' => $messages
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get phone data for display
      */
     private function getPhoneDataForDisplay(Pendaftar $pendaftar, string $phoneType = 'all'): array

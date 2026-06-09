@@ -185,6 +185,7 @@ Route::middleware('admin')->group(function () {
         // Phone List & Bulk Broadcast
         Route::get('/phone-list', [\App\Http\Controllers\WhatsAppController::class, 'phoneList'])->name('phone-list');
         Route::post('/broadcast/send-bulk', [\App\Http\Controllers\WhatsAppController::class, 'sendBulkBroadcast'])->name('broadcast.send-bulk');
+        Route::get('/pendaftar/{id}/messages', [\App\Http\Controllers\WhatsAppController::class, 'getPendaftarMessages'])->name('pendaftar.messages');
         
         // Logout & Restart
         Route::post('/logout', [\App\Http\Controllers\WhatsAppController::class, 'logout'])->name('logout');

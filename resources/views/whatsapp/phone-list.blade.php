@@ -170,6 +170,13 @@
                                       title="{{ $msgStatus['last_message']['date'] ?? 'Belum ada pesan' }}">
                                     {{ $msgStatus['icon'] }} {{ $msgStatus['label'] }}
                                 </span>
+                                @if($msgStatus['total'] > 0)
+                                    <button class="btn btn-sm btn-link p-0 ms-2" 
+                                            onclick="viewMessages({{ $pendaftar->id_pendaftar }})"
+                                            title="Lihat riwayat pesan">
+                                        <i class="fas fa-eye text-primary"></i>
+                                    </button>
+                                @endif
                             </td>
                             <td>
                                 <span class="badge bg-{{ $pendaftar->status_siswa == 'Diterima' ? 'success' : ($pendaftar->status_siswa == 'Sudah Daftar Ulang' ? 'info' : 'warning') }}">
@@ -195,6 +202,28 @@
                 </a>
             </div>
             @endif
+        </div>
+    </div>
+</div>
+
+<!-- View Messages Modal -->
+<div class="modal fade" id="messagesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-comment-dots me-2"></i>Riwayat Pesan WhatsApp
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="messagesContent">
+                    <div class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                        <p class="mt-2">Memuat data...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -281,6 +310,100 @@
 </style>
 <script>
 let selectedPhones = [];
+
+// View messages for pendaftar
+function viewMessages(pendaftarId) {
+    const modal = new bootstrap.Modal(document.getElementById('messagesModal'));
+    modal.show();
+    
+    // Load messages
+    fetch(`/whatsapp/pendaftar/${pendaftarId}/messages`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayMessages(data.pendaftar, data.messages);
+            } else {
+                document.getElementById('messagesContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${data.message || 'Gagal memuat data'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('messagesContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Terjadi kesalahan saat memuat data
+                </div>
+            `;
+        });
+}
+
+// Display messages
+function displayMessages(pendaftar, messages) {
+    let html = `
+        <div class="mb-3 pb-3 border-bottom">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Nama:</strong> ${pendaftar.nama_lengkap}<br>
+                    <strong>No. Registrasi:</strong> ${pendaftar.no_registrasi}<br>
+                    <strong>NISN:</strong> ${pendaftar.nisn || '-'}
+                </div>
+                <div class="col-md-6">
+                    <strong>Jurusan:</strong> ${pendaftar.jurusan}<br>
+                    <strong>Nomor HP:</strong> ${pendaftar.phone || '-'}<br>
+                    <strong>Total Pesan:</strong> ${messages.length}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    if (messages.length === 0) {
+        html += `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <p>Belum ada riwayat pesan</p>
+            </div>
+        `;
+    } else {
+        html += '<div class="messages-list">';
+        messages.forEach((msg, index) => {
+            const statusBadge = msg.status === 'sent' ? 'success' : (msg.status === 'failed' ? 'danger' : 'warning');
+            const statusIcon = msg.status === 'sent' ? 'check-circle' : (msg.status === 'failed' ? 'times-circle' : 'clock');
+            const statusText = msg.status === 'sent' ? 'Terkirim' : (msg.status === 'failed' ? 'Gagal' : 'Pending');
+            
+            html += `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-${statusBadge}">
+                                    <i class="fas fa-${statusIcon} me-1"></i>${statusText}
+                                </span>
+                                ${msg.template ? `<span class="badge bg-info ms-2">${msg.template}</span>` : ''}
+                            </div>
+                            <small class="text-muted">${msg.date}</small>
+                        </div>
+                        <div class="message-text p-3 rounded" style="background-color: var(--bg-secondary); white-space: pre-wrap;">
+                            ${msg.message || '-'}
+                        </div>
+                        ${msg.error_message ? `
+                            <div class="alert alert-danger mt-2 mb-0">
+                                <small><i class="fas fa-exclamation-triangle me-1"></i>${msg.error_message}</small>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    document.getElementById('messagesContent').innerHTML = html;
+}
 
 // Toggle select all
 function toggleSelectAll(checkbox) {
