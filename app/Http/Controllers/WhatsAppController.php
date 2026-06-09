@@ -489,7 +489,7 @@ class WhatsAppController extends Controller
                 // Latest message failed
                 $query->whereHas('whatsappLogs', function($q) {
                     $q->where('status', 'failed')
-                      ->whereRaw('id = (SELECT MAX(id) FROM whatsapp_logs WHERE pendaftar_id = pendaftars.id_pendaftar)');
+                      ->whereRaw('whatsapp_logs.id = (SELECT MAX(id) FROM whatsapp_logs AS wl WHERE wl.pendaftar_id = whatsapp_logs.pendaftar_id)');
                 });
                 break;
             case 'no-phone':
@@ -1166,7 +1166,7 @@ class WhatsAppController extends Controller
         
         $failed = Pendaftar::whereHas('whatsappLogs', function($q) {
             $q->where('status', 'failed')
-              ->whereRaw('id = (SELECT MAX(id) FROM whatsapp_logs WHERE pendaftar_id = pendaftars.id_pendaftar)');
+              ->whereRaw('whatsapp_logs.id = (SELECT MAX(id) FROM whatsapp_logs AS wl WHERE wl.pendaftar_id = whatsapp_logs.pendaftar_id)');
         })->count();
         
         $noPhone = Pendaftar::where(function($q) {

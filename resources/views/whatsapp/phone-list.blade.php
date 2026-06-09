@@ -63,215 +63,22 @@
         </div>
     </div>
 
-    <!-- Filter Card -->
+    <!-- Search Box -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('whatsapp.phone-list') }}" id="filterForm">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Jurusan</label>
-                        <select name="jurusan_id" class="form-select" onchange="this.form.submit()">
-                            <option value="">Semua Jurusan</option>
-                            @foreach($jurusans as $jurusan)
-                            <option value="{{ $jurusan->id }}" {{ request('jurusan_id') == $jurusan->id ? 'selected' : '' }}>
-                                {{ $jurusan->nama_jurusan }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Gelombang</label>
-                        <select name="gelombang" class="form-select" onchange="this.form.submit()">
-                            <option value="">Semua Gelombang</option>
-                            @foreach($gelombangs as $gelombang)
-                            <option value="{{ $gelombang }}" {{ request('gelombang') == $gelombang ? 'selected' : '' }}>
-                                {{ $gelombang }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Status Siswa</label>
-                        <select name="status_siswa" class="form-select" onchange="this.form.submit()">
-                            <option value="">Semua Status</option>
-                            <option value="Belum Daftar Ulang" {{ request('status_siswa') == 'Belum Daftar Ulang' ? 'selected' : '' }}>Belum Daftar Ulang</option>
-                            <option value="Sudah Daftar Ulang" {{ request('status_siswa') == 'Sudah Daftar Ulang' ? 'selected' : '' }}>Sudah Daftar Ulang</option>
-                            <option value="Diterima" {{ request('status_siswa') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Tipe Nomor</label>
-                        <select name="phone_type" class="form-select" onchange="this.form.submit()">
-                            <option value="all" {{ request('phone_type', 'all') == 'all' ? 'selected' : '' }}>Semua (Prioritas)</option>
-                            <option value="wali" {{ request('phone_type') == 'wali' ? 'selected' : '' }}>Wali Saja</option>
-                            <option value="ortu" {{ request('phone_type') == 'ortu' ? 'selected' : '' }}>Orang Tua Saja</option>
-                            <option value="siswa" {{ request('phone_type') == 'siswa' ? 'selected' : '' }}>Siswa Saja</option>
-                        </select>
-                    </div>
+            <form method="GET" action="{{ route('whatsapp.phone-list') }}" class="row g-3">
+                <input type="hidden" name="tab" value="{{ $activeTab }}">
+                <div class="col-md-10">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Cari berdasarkan nama, NISN, atau nomor registrasi..." 
+                           value="{{ request('search') }}">
                 </div>
-                <div class="row g-3 mt-2">
-                    <div class="col-md-6">
-                        <label class="form-label">Cari Nama/NISN</label>
-                        <input type="text" name="search" class="form-control" placeholder="Cari nama atau NISN..." value="{{ request('search') }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">&nbsp;</label>
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-2"></i>Filter
-                            </button>
-                            <a href="{{ route('whatsapp.phone-list') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-redo me-2"></i>Reset
-                            </a>
-                        </div>
-                    </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Cari
+                    </button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                                <i class="fas fa-users fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Total Pendaftar</h6>
-                            <h3 class="mb-0">{{ $statistics['total_pendaftar'] }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                                <i class="fas fa-phone fa-2x text-success"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Punya Nomor HP</h6>
-                            <h3 class="mb-0">{{ $statistics['with_phone'] }}</h3>
-                            <small class="text-success">{{ $statistics['phone_percentage'] }}%</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                                <i class="fas fa-phone-slash fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Tanpa Nomor HP</h6>
-                            <h3 class="mb-0">{{ $statistics['without_phone'] }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                                <i class="fas fa-filter fa-2x text-info"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Hasil Filter</h6>
-                            <h3 class="mb-0">{{ $pendaftars->total() }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Message Statistics -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                                <i class="fas fa-check-circle fa-2x text-success"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Sudah Terkirim</h6>
-                            <h3 class="mb-0">{{ $messageStats['total_sent'] }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-danger bg-opacity-10 p-3">
-                                <i class="fas fa-times-circle fa-2x text-danger"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Gagal Terkirim</h6>
-                            <h3 class="mb-0">{{ $messageStats['total_failed'] }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                                <i class="fas fa-percentage fa-2x text-info"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Success Rate</h6>
-                            <h3 class="mb-0">{{ $messageStats['success_rate'] }}%</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                                <i class="fas fa-calendar-day fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Hari Ini</h6>
-                            <h3 class="mb-0">{{ $messageStats['today_sent'] }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
