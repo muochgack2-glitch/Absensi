@@ -17,6 +17,87 @@
         </div>
     </div>
 
+    <!-- Auto-Healing Diagnostics Panel -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm border-start border-5 border-primary">
+                <div class="card-header bg-gradient-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>Auto-Healing Diagnostics
+                        </h5>
+                        <div>
+                            <button class="btn btn-sm btn-light me-2" onclick="refreshDiagnostics()">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="runAutoFix()" id="autoFixBtn">
+                                <i class="fas fa-magic me-1"></i>Auto-Fix Issues
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Diagnostics Status -->
+                    <div id="diagnosticsStatus" class="mb-3">
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 mb-0 text-muted">Loading diagnostics...</p>
+                        </div>
+                    </div>
+
+                    <!-- Issues Panel -->
+                    <div id="issuesPanel" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div id="issuesList"></div>
+                            </div>
+                        </div>
+
+                        <!-- Error Log Viewer (Collapsible) -->
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#errorLogCollapse">
+                                <i class="fas fa-file-alt me-1"></i>View Error Logs (Last 100 lines)
+                            </button>
+                            <div class="collapse mt-2" id="errorLogCollapse">
+                                <div class="card card-body bg-dark text-light" style="max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                                    <div id="errorLogContent" class="text-white">
+                                        <div class="text-center py-3">
+                                            <div class="spinner-border spinner-border-sm text-light" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 mb-0">Loading error logs...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fix History Table -->
+                    <div id="fixHistoryPanel" class="mt-4" style="display: none;">
+                        <h6 class="mb-3"><i class="fas fa-history me-2"></i>Fix History (Last 10)</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>User</th>
+                                        <th>Issues Fixed</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fixHistoryTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Connection Status Card -->
     <div class="row mb-4">
         <div class="col-12">
@@ -335,16 +416,28 @@ let statusInterval;
 document.addEventListener('DOMContentLoaded', function() {
     refreshStatus();
     loadHealthMetrics(); // Load health metrics on page load
+    loadDiagnostics(); // Load diagnostics on page load
     statusInterval = setInterval(refreshStatus, 5000);
     
     // Refresh health metrics every 30 seconds
     setInterval(loadHealthMetrics, 30000);
+    
+    // Refresh diagnostics every 60 seconds
+    setInterval(loadDiagnostics, 60000);
     
     // Initialize Bootstrap tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    
+    // Load error logs when collapse is shown
+    const errorLogCollapse = document.getElementById('errorLogCollapse');
+    if (errorLogCollapse) {
+        errorLogCollapse.addEventListener('show.bs.collapse', function () {
+            loadErrorLogs();
+        });
+    }
 });
 
 function refreshStatus() {
@@ -680,6 +773,220 @@ window.addEventListener('beforeunload', function() {
         clearInterval(statusInterval);
     }
 });
+
+// ===== AUTO-HEALING DIAGNOSTICS FUNCTIONS =====
+
+// Load diagnostics
+function loadDiagnostics() {
+    fetch('{{ route("whatsapp.diagnostics") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateDiagnosticsUI(data.data);
+            } else {
+                showDiagnosticsError(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load diagnostics:', error);
+            showDiagnosticsError('Failed to load diagnostics: ' + error.message);
+        });
+}
+
+// Refresh diagnostics
+function refreshDiagnostics() {
+    document.getElementById('diagnosticsStatus').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 mb-0 text-muted">Refreshing diagnostics...</p>
+        </div>
+    `;
+    loadDiagnostics();
+}
+
+// Update diagnostics UI
+function updateDiagnosticsUI(data) {
+    const issues = data.issues || [];
+    const fixHistory = data.fix_history || [];
+    const diagnosticsStatus = document.getElementById('diagnosticsStatus');
+    const issuesPanel = document.getElementById('issuesPanel');
+    const fixHistoryPanel = document.getElementById('fixHistoryPanel');
+
+    if (issues.length === 0) {
+        // No issues found - show success state
+        diagnosticsStatus.innerHTML = `
+            <div class="alert alert-success border-0 mb-0">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                    <div>
+                        <h6 class="mb-1">All Systems Healthy</h6>
+                        <small class="text-muted">No issues detected. Server is running normally.</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        issuesPanel.style.display = 'none';
+    } else {
+        // Issues found - show them
+        diagnosticsStatus.style.display = 'none';
+        issuesPanel.style.display = 'block';
+        
+        let issuesHtml = '';
+        issues.forEach(issue => {
+            const badgeClass = issue.type === 'error' ? 'danger' : 'warning';
+            const icon = issue.type === 'error' ? 'times-circle' : 'exclamation-triangle';
+            
+            issuesHtml += `
+                <div class="alert alert-${badgeClass} border-0 mb-2">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-${icon} fa-lg me-3 mt-1"></i>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${issue.title}</h6>
+                            <p class="mb-1 small">${issue.description}</p>
+                            ${issue.auto_fixable 
+                                ? '<span class="badge bg-success"><i class="fas fa-magic me-1"></i>Auto-fixable</span>' 
+                                : '<span class="badge bg-secondary"><i class="fas fa-ban me-1"></i>Manual fix required</span>'
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        document.getElementById('issuesList').innerHTML = issuesHtml;
+    }
+
+    // Update fix history
+    if (fixHistory.length > 0) {
+        fixHistoryPanel.style.display = 'block';
+        let historyHtml = '';
+        
+        fixHistory.reverse().forEach(fix => {
+            const timestamp = new Date(fix.timestamp).toLocaleString('id-ID');
+            const fixedCount = fix.fixed_issues?.length || 0;
+            const failedCount = fix.failed_issues?.length || 0;
+            
+            historyHtml += `
+                <tr>
+                    <td class="text-nowrap"><small>${timestamp}</small></td>
+                    <td><small>${fix.user_name || 'Unknown'}</small></td>
+                    <td>
+                        <small>
+                            ${fix.fixed_issues?.map(i => i.title).join(', ') || 'None'}
+                        </small>
+                    </td>
+                    <td>
+                        ${fixedCount > 0 
+                            ? `<span class="badge bg-success">${fixedCount} fixed</span>` 
+                            : '<span class="badge bg-secondary">No fixes</span>'
+                        }
+                        ${failedCount > 0 ? `<span class="badge bg-danger ms-1">${failedCount} failed</span>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        document.getElementById('fixHistoryTable').innerHTML = historyHtml;
+    } else {
+        fixHistoryPanel.style.display = 'none';
+    }
+}
+
+// Show diagnostics error
+function showDiagnosticsError(message) {
+    document.getElementById('diagnosticsStatus').innerHTML = `
+        <div class="alert alert-danger border-0 mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+        </div>
+    `;
+    document.getElementById('issuesPanel').style.display = 'none';
+}
+
+// Run auto-fix
+function runAutoFix() {
+    if (!confirm('Run auto-fix to automatically resolve detected issues? This may restart the server.')) {
+        return;
+    }
+
+    const autoFixBtn = document.getElementById('autoFixBtn');
+    const originalHtml = autoFixBtn.innerHTML;
+    autoFixBtn.disabled = true;
+    autoFixBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Fixing...';
+
+    fetch('{{ route("whatsapp.auto-fix") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            
+            // Reload diagnostics after 3 seconds
+            setTimeout(() => {
+                loadDiagnostics();
+                autoFixBtn.disabled = false;
+                autoFixBtn.innerHTML = originalHtml;
+            }, 3000);
+        } else {
+            showAlert('error', data.message || 'Auto-fix failed');
+            autoFixBtn.disabled = false;
+            autoFixBtn.innerHTML = originalHtml;
+        }
+    })
+    .catch(error => {
+        console.error('Auto-fix error:', error);
+        showAlert('error', 'Auto-fix failed: ' + error.message);
+        autoFixBtn.disabled = false;
+        autoFixBtn.innerHTML = originalHtml;
+    });
+}
+
+// Load error logs
+function loadErrorLogs() {
+    const errorLogContent = document.getElementById('errorLogContent');
+    errorLogContent.innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border spinner-border-sm text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 mb-0">Loading error logs...</p>
+        </div>
+    `;
+
+    fetch('{{ route("whatsapp.error-logs") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const logs = data.data.logs || 'No error logs found';
+                errorLogContent.innerHTML = `<pre class="mb-0 text-light" style="white-space: pre-wrap;">${escapeHtml(logs)}</pre>`;
+            } else {
+                errorLogContent.innerHTML = `<div class="alert alert-danger mb-0">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load error logs:', error);
+            errorLogContent.innerHTML = `<div class="alert alert-danger mb-0">Failed to load error logs: ${error.message}</div>`;
+        });
+}
+
+// Escape HTML helper
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
 </script>
 @endpush
 @endsection

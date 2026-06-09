@@ -152,6 +152,11 @@ Route::middleware('admin')->group(function () {
         Route::get('/health', [\App\Http\Controllers\WhatsAppController::class, 'health'])->name('health');
         Route::get('/qr', [\App\Http\Controllers\WhatsAppController::class, 'qrCode'])->name('qr');
         
+        // Diagnostics & Auto-Fix
+        Route::get('/diagnostics', [\App\Http\Controllers\WhatsAppController::class, 'diagnostics'])->name('diagnostics');
+        Route::post('/auto-fix', [\App\Http\Controllers\WhatsAppController::class, 'autoFix'])->name('auto-fix')->middleware('throttle:3,60'); // Max 3x per hour
+        Route::get('/error-logs', [\App\Http\Controllers\WhatsAppController::class, 'getErrorLogs'])->name('error-logs');
+        
         // Send message
         Route::get('/send', [\App\Http\Controllers\WhatsAppController::class, 'sendPage'])->name('send');
         Route::post('/send', [\App\Http\Controllers\WhatsAppController::class, 'send'])->name('send.submit');

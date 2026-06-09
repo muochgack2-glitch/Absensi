@@ -750,4 +750,270 @@ class WhatsAppController extends Controller
 
         return str_replace(array_keys($replacements), array_values($replacements), $message);
     }
+
+    /**
+     * Get PM2 diagnostics
+     */
+    public function diagnostics()
+    {
+        try {
+            // Get PM2 process list
+            $pm2Output = shell_exec('pm2 jlist 2>&1');
+            $pm2Processes = json_decode($pm2Output, true);
+            
+            // Find wa-server process
+            $process = null;
+            if (is_array($pm2Processes)) {
+                foreach ($pm2Processes as $p) {
+                    if (isset($p['name']) && $p['name'] === 'wa-server') {
+                        $process = $p;
+                        break;
+                    }
+                }
+            }
+
+            $issues = [];
+            $recommendations = [];
+
+            if (!$process) {
+                $issues[] = [
+                    'type' => 'error',
+                    'code' => 'PROCESS_NOT_FOUND',
+                    'title' => 'PM2 Process Not Found',
+                    'description' => 'WhatsApp server process tidak ditemukan di PM2',
+                    'auto_fixable' => true
+                ];
+            } else {
+                $pm2 = $process['pm2_env'] ?? [];
+                $monit = $process['monit'] ?? [];
+                $restarts = $pm2['restart_time'] ?? 0;
+                $status = $pm2['status'] ?? 'unknown';
+                $memory = $monit['memory'] ?? 0;
+                $memoryMB = round($memory / 1024 / 1024, 2);
+
+                // Check crash loop (restarts > 10)
+                if ($restarts > 10) {
+                    $issues[] = [
+                        'type' => 'warning',
+                        'code' => 'CRASH_LOOP',
+                        'title' => 'High Restart Count',
+                        'description' => "Server telah restart {$restarts} kali. Mungkin ada masalah yang perlu diperbaiki.",
+                        'auto_fixable' => true
+                    ];
+                }
+
+                // Check memory usage (> 500 MB)
+                if ($memoryMB > 500) {
+                    $issues[] = [
+                        'type' => 'warning',
+                        'code' => 'HIGH_MEMORY',
+                        'title' => 'High Memory Usage',
+                        'description' => "Memory usage tinggi: {$memoryMB} MB. Pertimbangkan restart server.",
+                        'auto_fixable' => false
+                    ];
+                }
+
+                // Check if process is stopped
+                if ($status === 'stopped' || $status === 'errored') {
+                    $issues[] = [
+                        'type' => 'error',
+                        'code' => 'PROCESS_STOPPED',
+                        'title' => 'Process Stopped',
+                        'description' => "Server dalam status: {$status}",
+                        'auto_fixable' => true
+                    ];
+                }
+
+                // Check for import path errors in logs
+                $errorLog = shell_exec('pm2 logs wa-server --err --lines 50 --nostream 2>&1');
+                if ($errorLog && str_contains($errorLog, 'ERR_UNSUPPORTED_DIR_IMPORT')) {
+                    $issues[] = [
+                        'type' => 'error',
+                        'code' => 'IMPORT_PATH_ERROR',
+                        'title' => 'Import Path Error',
+                        'description' => 'Ditemukan error import path di logs. Server perlu direstart dengan konfigurasi yang benar.',
+                        'auto_fixable' => true
+                    ];
+                }
+            }
+
+            // Get fix history from cache
+            $fixHistory = cache()->get('wa_diagnostics_fix_history', []);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'process' => $process,
+                    'issues' => $issues,
+                    'recommendations' => $recommendations,
+                    'fix_history' => array_slice($fixHistory, -10), // Last 10 fixes
+                    'timestamp' => now()->toIso8601String()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get diagnostics: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Auto-fix detected issues
+     */
+    public function autoFix()
+    {
+        try {
+            // Rate limiting: Max 3 auto-fixes per hour
+            $fixCount = cache()->get('wa_autofix_count', 0);
+            $fixTimestamp = cache()->get('wa_autofix_timestamp');
+            
+            if ($fixCount >= 3 && $fixTimestamp && now()->diffInHours($fixTimestamp) < 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Rate limit exceeded. Maximum 3 auto-fixes per hour. Please wait.'
+                ], 429);
+            }
+
+            // Get diagnostics first
+            $diagnosticsResponse = $this->diagnostics();
+            $diagnostics = $diagnosticsResponse->getData(true);
+            
+            if (!$diagnostics['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to get diagnostics'
+                ], 500);
+            }
+
+            $issues = $diagnostics['data']['issues'] ?? [];
+            $fixedIssues = [];
+            $failedIssues = [];
+
+            foreach ($issues as $issue) {
+                if (!$issue['auto_fixable']) {
+                    continue;
+                }
+
+                $fixed = false;
+                $fixMessage = '';
+
+                switch ($issue['code']) {
+                    case 'PROCESS_NOT_FOUND':
+                        // Start new PM2 process
+                        $output = shell_exec('cd ' . base_path('../whatsapp-server') . ' && pm2 start server.js --name wa-server 2>&1');
+                        $fixed = true;
+                        $fixMessage = 'Started new PM2 process';
+                        break;
+
+                    case 'IMPORT_PATH_ERROR':
+                        // Delete process and restart with correct path
+                        shell_exec('pm2 delete wa-server 2>&1');
+                        sleep(2);
+                        $output = shell_exec('cd ' . base_path('../whatsapp-server') . ' && pm2 start server.js --name wa-server 2>&1');
+                        $fixed = true;
+                        $fixMessage = 'Deleted and restarted process with correct configuration';
+                        break;
+
+                    case 'CRASH_LOOP':
+                        // Flush logs and restart
+                        shell_exec('pm2 flush wa-server 2>&1');
+                        sleep(1);
+                        shell_exec('pm2 restart wa-server 2>&1');
+                        $fixed = true;
+                        $fixMessage = 'Flushed logs and restarted process';
+                        break;
+
+                    case 'PROCESS_STOPPED':
+                        // Restart the process
+                        shell_exec('pm2 restart wa-server 2>&1');
+                        $fixed = true;
+                        $fixMessage = 'Restarted stopped process';
+                        break;
+                }
+
+                if ($fixed) {
+                    $fixedIssues[] = [
+                        'code' => $issue['code'],
+                        'title' => $issue['title'],
+                        'fix' => $fixMessage
+                    ];
+                } else {
+                    $failedIssues[] = [
+                        'code' => $issue['code'],
+                        'title' => $issue['title'],
+                        'reason' => 'No auto-fix available'
+                    ];
+                }
+            }
+
+            // Update fix counter
+            if (!empty($fixedIssues)) {
+                cache()->put('wa_autofix_count', $fixCount + 1, 3600);
+                cache()->put('wa_autofix_timestamp', now(), 3600);
+
+                // Add to fix history
+                $fixHistory = cache()->get('wa_diagnostics_fix_history', []);
+                $fixHistory[] = [
+                    'timestamp' => now()->toIso8601String(),
+                    'user_id' => auth()->id(),
+                    'user_name' => auth()->user()->name,
+                    'fixed_issues' => $fixedIssues,
+                    'failed_issues' => $failedIssues
+                ];
+                cache()->put('wa_diagnostics_fix_history', $fixHistory, 86400 * 7); // 7 days
+
+                // Log activity
+                UserActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'action' => 'wa_auto_fix',
+                    'description' => 'Applied auto-fix for ' . count($fixedIssues) . ' issue(s)',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => count($fixedIssues) > 0 
+                    ? 'Auto-fix applied successfully. Fixed ' . count($fixedIssues) . ' issue(s).'
+                    : 'No fixable issues found.',
+                'data' => [
+                    'fixed' => $fixedIssues,
+                    'failed' => $failedIssues
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Auto-fix failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get error logs from PM2
+     */
+    public function getErrorLogs()
+    {
+        try {
+            $errorLog = shell_exec('pm2 logs wa-server --err --lines 100 --nostream 2>&1');
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'logs' => $errorLog ?? 'No error logs found',
+                    'timestamp' => now()->toIso8601String()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get error logs: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
