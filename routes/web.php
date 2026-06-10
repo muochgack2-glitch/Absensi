@@ -182,6 +182,12 @@ Route::middleware('admin')->group(function () {
         Route::get('/broadcast', [\App\Http\Controllers\WhatsAppController::class, 'broadcastPage'])->name('broadcast');
         Route::post('/broadcast', [\App\Http\Controllers\WhatsAppController::class, 'sendBroadcast'])->name('broadcast.send');
         
+        // External Broadcast (Tasks 6.1-6.4)
+        Route::get('/broadcast/external', [\App\Http\Controllers\WhatsAppController::class, 'externalBroadcastPage'])->name('broadcast.external');
+        Route::post('/broadcast/external/parse', [\App\Http\Controllers\WhatsAppController::class, 'parseExternalRecipients'])->name('broadcast.external.parse');
+        Route::post('/broadcast/external/send', [\App\Http\Controllers\WhatsAppController::class, 'sendExternalBroadcast'])->name('broadcast.external.send');
+        Route::get('/external/{id}/messages', [\App\Http\Controllers\WhatsAppController::class, 'getExternalMessages'])->name('external.messages');
+        
         // Phone List & Bulk Broadcast
         Route::get('/phone-list', [\App\Http\Controllers\WhatsAppController::class, 'phoneList'])->name('phone-list');
         Route::post('/broadcast/send-bulk', [\App\Http\Controllers\WhatsAppController::class, 'sendBulkBroadcast'])->name('broadcast.send-bulk');
