@@ -212,32 +212,32 @@ class ExternalBroadcastService
         // Extract normalized phones
         $normalizedPhones = array_column($recipients, 'phone_normalized');
         
-        // Batch query to SPMB database
+        // Get ALL pendaftars with phone numbers (we'll normalize and compare in PHP)
         $duplicates = DB::table('pendaftar')
-            ->where(function($query) use ($normalizedPhones) {
-                $query->whereIn('no_hp_wali', $normalizedPhones)
-                      ->orWhereIn('no_hp_ortu', $normalizedPhones)
-                      ->orWhereIn('no_telepon', $normalizedPhones);
+            ->where(function($query) {
+                $query->whereNotNull('no_hp_wali')
+                      ->orWhereNotNull('no_hp_ortu')
+                      ->orWhereNotNull('no_telepon');
             })
             ->select('id_pendaftar', 'no_hp_wali', 'no_hp_ortu', 'no_telepon', 'nama_lengkap')
             ->get();
         
-        // Create lookup map for faster matching
+        // Create lookup map with normalized phones
         $duplicateMap = [];
         foreach ($duplicates as $dup) {
-            if (!empty($dup->no_hp_wali)) {
+            if (!empty($dup->no_hp_wali) && trim($dup->no_hp_wali) !== '' && $dup->no_hp_wali !== '-') {
                 $normalized = $this->normalizePhone($dup->no_hp_wali);
                 if ($normalized) {
                     $duplicateMap[$normalized] = $dup->id_pendaftar;
                 }
             }
-            if (!empty($dup->no_hp_ortu)) {
+            if (!empty($dup->no_hp_ortu) && trim($dup->no_hp_ortu) !== '' && $dup->no_hp_ortu !== '-') {
                 $normalized = $this->normalizePhone($dup->no_hp_ortu);
                 if ($normalized) {
                     $duplicateMap[$normalized] = $dup->id_pendaftar;
                 }
             }
-            if (!empty($dup->no_telepon)) {
+            if (!empty($dup->no_telepon) && trim($dup->no_telepon) !== '' && $dup->no_telepon !== '-') {
                 $normalized = $this->normalizePhone($dup->no_telepon);
                 if ($normalized) {
                     $duplicateMap[$normalized] = $dup->id_pendaftar;
