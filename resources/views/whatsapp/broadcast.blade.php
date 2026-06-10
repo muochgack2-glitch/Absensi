@@ -266,9 +266,12 @@
                                     </h6>
                                     
                                     <div class="alert alert-info">
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <strong>Total:</strong> <span id="previewTotalCount">0</span> recipients
+                                            </div>
+                                            <div>
+                                                <strong>Terpilih:</strong> <span id="previewSelectedCount" class="text-success">0</span>
                                             </div>
                                             <div>
                                                 <strong>Duplikat SPMB:</strong> <span id="previewDuplicateCount">0</span>
@@ -277,10 +280,22 @@
                                         </div>
                                     </div>
 
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllPreview" checked onchange="toggleAllPreviewRecipients(this)">
+                                            <label class="form-check-label" for="selectAllPreview">
+                                                <strong>Pilih Semua</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+
                                     <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                                         <table class="table table-sm table-hover">
                                             <thead class="sticky-top bg-light">
                                                 <tr>
+                                                    <th width="50">
+                                                        <input type="checkbox" class="form-check-input" id="selectAllHeader" checked onchange="toggleAllPreviewRecipients(this)">
+                                                    </th>
                                                     <th>Nama</th>
                                                     <th>Nomor HP</th>
                                                     <th>Notes</th>
@@ -674,11 +689,12 @@ function displayPreview(data) {
     document.getElementById('parsedBatchId').value = data.batch_id;
     document.getElementById('previewTotalCount').textContent = data.total_count;
     document.getElementById('previewDuplicateCount').textContent = data.duplicates_count;
+    document.getElementById('previewSelectedCount').textContent = data.total_count;
     
     const tbody = document.getElementById('previewTableBody');
     tbody.innerHTML = '';
     
-    data.preview.forEach(recipient => {
+    data.preview.forEach((recipient, index) => {
         const row = document.createElement('tr');
         
         const duplicateBadge = recipient.is_duplicate_spmb 
@@ -686,6 +702,14 @@ function displayPreview(data) {
             : '';
         
         row.innerHTML = `
+            <td>
+                <input type="checkbox" class="form-check-input preview-recipient-checkbox" 
+                       value="${index}" 
+                       data-phone="${recipient.phone_normalized}"
+                       data-name="${recipient.name}"
+                       checked 
+                       onchange="updatePreviewSelectedCount()">
+            </td>
             <td>${recipient.name}</td>
             <td>${recipient.phone}${duplicateBadge}</td>
             <td><small class="text-muted">${recipient.notes || '-'}</small></td>
@@ -695,8 +719,34 @@ function displayPreview(data) {
         tbody.appendChild(row);
     });
     
+    // Store full data for later use
+    window.previewData = data;
+    
     document.getElementById('previewSection').style.display = 'block';
     document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Toggle all preview recipients
+function toggleAllPreviewRecipients(checkbox) {
+    const checkboxes = document.querySelectorAll('.preview-recipient-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+    document.getElementById('selectAllPreview').checked = checkbox.checked;
+    document.getElementById('selectAllHeader').checked = checkbox.checked;
+    updatePreviewSelectedCount();
+}
+
+// Update selected count
+function updatePreviewSelectedCount() {
+    const checkboxes = document.querySelectorAll('.preview-recipient-checkbox:checked');
+    document.getElementById('previewSelectedCount').textContent = checkboxes.length;
+    
+    // Update "select all" checkbox state
+    const allCheckboxes = document.querySelectorAll('.preview-recipient-checkbox');
+    const allChecked = allCheckboxes.length > 0 && checkboxes.length === allCheckboxes.length;
+    document.getElementById('selectAllPreview').checked = allChecked;
+    document.getElementById('selectAllHeader').checked = allChecked;
 }
 
 // Task 9.5: Send external broadcast
@@ -716,8 +766,17 @@ function sendExternalBroadcast() {
         return;
     }
     
+    // Get checked recipients only
+    const checkedCheckboxes = document.querySelectorAll('.preview-recipient-checkbox:checked');
+    const selectedCount = checkedCheckboxes.length;
+    
+    if (selectedCount === 0) {
+        alert('Pilih minimal 1 recipient untuk dikirim');
+        return;
+    }
+    
     const totalCount = document.getElementById('previewTotalCount').textContent;
-    if (!confirm(`Kirim broadcast ke ${totalCount} recipients?`)) {
+    if (!confirm(`Kirim broadcast ke ${selectedCount} dari ${totalCount} recipients?`)) {
         return;
     }
     
