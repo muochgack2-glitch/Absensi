@@ -358,7 +358,10 @@ class WhatsAppController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'recipients' => 'required|array',
-            'recipients.*' => 'required|string',
+            'recipients.*.phone' => 'required|string',
+            'recipients.*.id_pendaftar' => 'nullable|integer',
+            'recipients.*.nama' => 'nullable|string',
+            'recipients.*.jurusan' => 'nullable|string',
             'message' => 'required|string',
         ]);
 
@@ -375,13 +378,22 @@ class WhatsAppController extends Controller
         $failedCount = 0;
         $results = [];
 
-        foreach ($request->recipients as $phone) {
-            // Find pendaftar by phone number
-            $pendaftar = Pendaftar::where(function($query) use ($phone) {
-                $query->where('no_hp_wali', $phone)
-                      ->orWhere('no_hp_ortu', $phone)
-                      ->orWhere('no_telepon', $phone);
-            })->first();
+        foreach ($request->recipients as $recipient) {
+            $phone = $recipient['phone'];
+            $pendaftarId = $recipient['id_pendaftar'] ?? null;
+            
+            // Find pendaftar by ID or phone number
+            $pendaftar = null;
+            if ($pendaftarId) {
+                $pendaftar = Pendaftar::find($pendaftarId);
+            } else {
+                // Fallback: find by phone if id not provided
+                $pendaftar = Pendaftar::where(function($query) use ($phone) {
+                    $query->where('no_hp_wali', $phone)
+                          ->orWhere('no_hp_ortu', $phone)
+                          ->orWhere('no_telepon', $phone);
+                })->first();
+            }
 
             // Replace variables in message
             $personalizedMessage = $request->message;
@@ -399,6 +411,7 @@ class WhatsAppController extends Controller
             $messages[] = [
                 'phone' => $phone,
                 'message' => $personalizedMessage,
+                'pendaftar_id' => $pendaftar ? $pendaftar->id_pendaftar : null,
             ];
         }
 
@@ -749,6 +762,7 @@ class WhatsAppController extends Controller
                 return [
                     'id' => $log->id,
                     'status' => $log->status,
+                    'type' => $log->type,
                     'message' => $log->message,
                     'template' => $log->template->label ?? null,
                     'date' => $log->created_at->format('d M Y, H:i'),

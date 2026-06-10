@@ -262,11 +262,39 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
     let recipients = [];
     
     if (type === 'all') {
-        recipients = @json($pendaftars->pluck('primary_phone')->filter()->values());
+        // Kirim semua dengan data lengkap
+        recipients = @json($pendaftars->map(function($p) {
+            return [
+                'phone' => $p->primary_phone,
+                'id_pendaftar' => $p->id_pendaftar,
+                'nama' => $p->nama_lengkap,
+                'jurusan' => $p->jurusan
+            ];
+        })->filter(fn($p) => !empty($p['phone']))->values());
     } else if (type === 'select') {
-        recipients = Array.from(document.querySelectorAll('.pendaftar-checkbox:checked')).map(cb => cb.value);
+        // Kirim yang dipilih dengan data lengkap
+        recipients = Array.from(document.querySelectorAll('.pendaftar-checkbox:checked')).map(cb => {
+            const pendaftarId = cb.id.replace('pendaftar', '');
+            const label = document.querySelector(`label[for="${cb.id}"]`);
+            const nama = label.querySelector('strong').textContent;
+            const jurusan = label.querySelector('small').textContent.split(' - ')[0];
+            return {
+                phone: cb.value,
+                id_pendaftar: parseInt(pendaftarId),
+                nama: nama,
+                jurusan: jurusan
+            };
+        });
     } else if (type === 'custom') {
-        recipients = document.getElementById('customNumbersInput').value.split('\n').filter(n => n.trim());
+        // Custom numbers - tanpa id_pendaftar (null)
+        recipients = document.getElementById('customNumbersInput').value.split('\n')
+            .filter(n => n.trim())
+            .map(phone => ({
+                phone: phone.trim(),
+                id_pendaftar: null,
+                nama: 'Custom',
+                jurusan: '-'
+            }));
     }
     
     if (recipients.length === 0) {

@@ -320,6 +320,7 @@ class WhatsAppService
         foreach ($messages as $item) {
             $phone = $item['phone'] ?? null;
             $message = $item['message'] ?? null;
+            $pendaftarId = $item['pendaftar_id'] ?? null;
 
             if (!$phone || !$message) {
                 $results[] = [
@@ -331,7 +332,12 @@ class WhatsAppService
                 continue;
             }
 
-            $result = $this->send($phone, $message, $options);
+            // Merge pendaftar_id into options for this specific message
+            $messageOptions = array_merge($options, [
+                'pendaftar_id' => $pendaftarId
+            ]);
+
+            $result = $this->send($phone, $message, $messageOptions);
             
             $results[] = [
                 'phone' => $phone,
