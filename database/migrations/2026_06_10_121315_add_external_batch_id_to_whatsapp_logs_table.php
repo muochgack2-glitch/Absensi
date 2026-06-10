@@ -23,12 +23,8 @@ return new class extends Migration
             // This improves performance when filtering logs by external batch
             $table->index('external_batch_id');
             
-            // Add foreign key constraint to external_broadcast_batches table
-            // ON DELETE SET NULL ensures logs are preserved if batch is deleted
-            $table->foreign('external_batch_id')
-                  ->references('id')
-                  ->on('external_broadcast_batches')
-                  ->onDelete('set null');
+            // Note: Foreign key constraint removed to avoid migration order issues
+            // The column still works for relationships via Eloquent
         });
     }
 
@@ -38,9 +34,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('whatsapp_logs', function (Blueprint $table) {
-            // Drop foreign key first
-            $table->dropForeign(['external_batch_id']);
-            
             // Drop index
             $table->dropIndex(['external_batch_id']);
             
