@@ -10,17 +10,25 @@ use App\Models\WhatsAppLog;
 use App\Models\WhatsAppTemplate;
 use App\Models\WhatsAppSetting;
 use App\Models\UserActivityLog;
+use App\Models\ExternalBroadcastBatch;
+use App\Models\ExternalBroadcastRecipient;
 use App\Services\WhatsAppService;
+use App\Services\ExternalBroadcastService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class WhatsAppController extends Controller
 {
     protected WhatsAppService $whatsappService;
+    protected ExternalBroadcastService $externalBroadcastService;
 
-    public function __construct(WhatsAppService $whatsappService)
-    {
+    public function __construct(
+        WhatsAppService $whatsappService,
+        ExternalBroadcastService $externalBroadcastService
+    ) {
         $this->whatsappService = $whatsappService;
+        $this->externalBroadcastService = $externalBroadcastService;
     }
 
     /**
@@ -496,6 +504,11 @@ class WhatsAppController extends Controller
         // Save active tab to session for persistence
         session(['phone_list_active_tab' => $activeTab]);
         
+        // EXTERNAL TAB HANDLING (Task 5.5)
+        if ($activeTab === 'external') {
+            return $this->handleExternalTab($request);
+        }
+        
         $query = Pendaftar::with(['masterJurusan', 'whatsappLogs']);
 
         // TAB FILTERING
@@ -651,6 +664,63 @@ class WhatsAppController extends Controller
 
         return view('whatsapp.phone-list', compact(
             'pendaftars',
+            'statistics',
+            'messageStats',
+            'tabCounts',
+            'activeTab',
+            'jurusans',
+            'gelombangs',
+            'templates'
+        ));
+    }
+
+    /**
+     * Handle external tab in phone list (Task 5.5)
+     */
+    private function handleExternalTab(Request $request)
+    {
+        $query = ExternalBroadcastRecipient::with(['batch', 'matchedPendaftar']);
+
+        // Filter: show duplicates only
+        if ($request->get('show_duplicates_only') === 'true') {
+            $query->where('is_duplicate_spmb', true);
+        }
+
+        // Search by name or phone
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('phone_normalized', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort by created_at desc
+        $query->orderBy('created_at', 'desc');
+
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+        
+        $externalRecipients = $query->paginate($perPage)->appends($request->except('page'));
+
+        // Get statistics
+        $statistics = $this->getPhoneStatistics();
+        $messageStats = $this->getMessageStatistics();
+        $tabCounts = $this->getTabCounts();
+
+        // Add external tab count
+        $tabCounts['external'] = ExternalBroadcastRecipient::count();
+
+        $activeTab = 'external';
+        $jurusans = Jurusan::where('aktif', true)->orderBy('nama')->get();
+        $gelombangs = collect();
+        $templates = WhatsAppTemplate::active()->get();
+        $pendaftars = collect(); // Empty for external tab
+
+        return view('whatsapp.phone-list', compact(
+            'pendaftars',
+            'externalRecipients',
             'statistics',
             'messageStats',
             'tabCounts',
@@ -1308,6 +1378,273 @@ class WhatsAppController extends Controller
             'failed' => $failed,
             'no-phone' => $noPhone
         ];
+    }
+
+    // ===== EXTERNAL BROADCAST METHODS =====
+
+    /**
+     * External broadcast page (Task 5.1)
+     */
+    public function externalBroadcastPage()
+    {
+        $templates = WhatsAppTemplate::active()->get();
+        return view('whatsapp.external-broadcast', compact('templates'));
+    }
+
+    /**
+     * Parse external recipients from CSV or manual input (Task 5.2)
+     */
+    public function parseExternalRecipients(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'batch_name' => 'required|string|max:255',
+            'source_type' => 'required|in:csv,manual',
+            'csv_file' => 'required_if:source_type,csv|file|mimes:csv,txt|max:2048',
+            'manual_input' => 'required_if:source_type,manual|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            // Check for duplicate batch name in last 30 days
+            $duplicateBatch = ExternalBroadcastBatch::where('batch_name', $request->batch_name)
+                ->where('created_at', '>=', now()->subDays(30))
+                ->exists();
+
+            if ($duplicateBatch) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nama batch sudah digunakan dalam 30 hari terakhir. Gunakan nama yang berbeda.',
+                ], 422);
+            }
+
+            // Parse recipients based on source type
+            $recipients = [];
+            if ($request->source_type === 'csv') {
+                $recipients = $this->externalBroadcastService->parseCSV($request->file('csv_file'));
+            } else {
+                $recipients = $this->externalBroadcastService->parseManualInput($request->manual_input);
+            }
+
+            if (empty($recipients)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada recipient valid yang ditemukan.',
+                ], 422);
+            }
+
+            // Detect duplicates with SPMB database
+            $recipients = $this->externalBroadcastService->detectDuplicates($recipients);
+
+            // Create batch and save recipients in transaction
+            DB::beginTransaction();
+            try {
+                $batch = $this->externalBroadcastService->createBatch(
+                    $request->batch_name,
+                    $request->source_type,
+                    auth()->id()
+                );
+
+                $this->externalBroadcastService->saveRecipients($batch->id, $recipients);
+
+                // Update batch total count
+                $batch->total_recipients = count($recipients);
+                $batch->save();
+
+                DB::commit();
+
+                // Count duplicates
+                $duplicatesCount = collect($recipients)->where('is_duplicate_spmb', true)->count();
+
+                // Get preview (first 10 recipients)
+                $preview = array_slice($recipients, 0, 10);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Recipients berhasil diparse',
+                    'data' => [
+                        'batch_id' => $batch->id,
+                        'total_count' => count($recipients),
+                        'duplicates_count' => $duplicatesCount,
+                        'preview' => $preview,
+                    ],
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error parsing recipients: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Send external broadcast (Task 5.3)
+     */
+    public function sendExternalBroadcast(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'batch_id' => 'required|exists:external_broadcast_batches,id',
+            'message' => 'required|string',
+            'template_id' => 'nullable|exists:whatsapp_templates,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            // Check WhatsApp Gateway status
+            $status = $this->whatsappService->getStatus();
+            if (!$status['is_connected']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'WhatsApp Gateway tidak terhubung. Silakan scan QR code terlebih dahulu.',
+                ], 422);
+            }
+
+            // Load batch and recipients
+            $batch = ExternalBroadcastBatch::with('recipients')->findOrFail($request->batch_id);
+
+            // Mark batch as in progress
+            $batch->markAsInProgress();
+
+            $successCount = 0;
+            $failedCount = 0;
+
+            foreach ($batch->recipients as $recipient) {
+                // Replace variables in message
+                $personalizedMessage = str_replace(
+                    ['{nama}', '{phone}'],
+                    [$recipient->name, $recipient->phone],
+                    $request->message
+                );
+
+                // Send message
+                $result = $this->whatsappService->send(
+                    $recipient->phone_normalized,
+                    $personalizedMessage,
+                    [
+                        'type' => 'external_broadcast',
+                        'sent_by' => auth()->id(),
+                        'template_id' => $request->template_id,
+                        'external_batch_id' => $batch->id,
+                    ]
+                );
+
+                if ($result['success']) {
+                    $successCount++;
+                    $batch->incrementSent();
+                } else {
+                    $failedCount++;
+                    $batch->incrementFailed();
+                }
+
+                // Rate limiting: 1 second delay between messages
+                if ($batch->recipients->count() > 1) {
+                    sleep(1);
+                }
+            }
+
+            // Mark batch as completed
+            $batch->markAsCompleted();
+
+            // Log activity
+            UserActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'external_broadcast_sent',
+                'description' => "Sent external broadcast '{$batch->batch_name}' to {$batch->total_recipients} recipients",
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Broadcast selesai. Terkirim: {$successCount}, Gagal: {$failedCount}",
+                'data' => [
+                    'total' => $batch->total_recipients,
+                    'success_count' => $successCount,
+                    'failed_count' => $failedCount,
+                    'batch_id' => $batch->id,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error sending broadcast: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get external recipient messages (Task 5.4)
+     */
+    public function getExternalMessages($id)
+    {
+        try {
+            $recipient = ExternalBroadcastRecipient::with(['batch', 'matchedPendaftar'])->findOrFail($id);
+
+            // Get messages by phone number and batch
+            $messages = WhatsAppLog::with(['template', 'sender'])
+                ->where('phone', $recipient->phone_normalized)
+                ->where('external_batch_id', $recipient->batch_id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Format messages
+            $formattedMessages = $messages->map(function($log) {
+                return [
+                    'id' => $log->id,
+                    'status' => $log->status,
+                    'type' => $log->type,
+                    'message' => $log->message,
+                    'template' => $log->template->label ?? null,
+                    'date' => $log->created_at->format('d M Y, H:i'),
+                    'error_message' => $log->error_message,
+                    'sent_by' => $log->sender->name ?? 'System',
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'recipient' => [
+                    'id' => $recipient->id,
+                    'name' => $recipient->name,
+                    'phone' => $recipient->phone,
+                    'notes' => $recipient->notes,
+                    'is_duplicate_spmb' => $recipient->is_duplicate_spmb,
+                    'batch_name' => $recipient->batch->batch_name,
+                    'matched_pendaftar' => $recipient->matchedPendaftar ? [
+                        'id' => $recipient->matchedPendaftar->id_pendaftar,
+                        'nama' => $recipient->matchedPendaftar->nama_lengkap,
+                        'no_registrasi' => $recipient->matchedPendaftar->no_registrasi,
+                    ] : null,
+                ],
+                'messages' => $formattedMessages,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
 
