@@ -185,13 +185,14 @@
                         <small><strong>Contoh:</strong><br>
                         Hai {nama}, pendaftaran Anda di {jurusan} dengan nomor {no_registrasi} telah diterima.</small>
                     </div>
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
+    </div>
 
-        <!-- TAB 2: DATA EKSTERNAL (Tasks 7.2-7.8) -->
-        <div class="tab-pane fade" id="external-broadcast" role="tabpanel">
+    <!-- TAB 2: DATA EKSTERNAL (Tasks 7.2-7.8) -->
+    <div class="tab-pane fade" id="external-broadcast" role="tabpanel">
             <div class="row">
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm">
