@@ -249,10 +249,10 @@ class ExternalBroadcastService
         foreach ($recipients as &$recipient) {
             $normalized = $recipient['phone_normalized'];
             if (isset($duplicateMap[$normalized])) {
-                $recipient['is_duplicate'] = true;
+                $recipient['is_duplicate_spmb'] = true;
                 $recipient['matched_pendaftar_id'] = $duplicateMap[$normalized];
             } else {
-                $recipient['is_duplicate'] = false;
+                $recipient['is_duplicate_spmb'] = false;
                 $recipient['matched_pendaftar_id'] = null;
             }
         }
