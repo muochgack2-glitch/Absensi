@@ -270,7 +270,7 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
                 'nama' => $p->nama_lengkap,
                 'jurusan' => $p->jurusan
             ];
-        })->filter(fn($p) => !empty($p['phone']))->values());
+        })->filter(function($p) { return !empty($p['phone']); })->values());
     } else if (type === 'select') {
         // Kirim yang dipilih dengan data lengkap
         recipients = Array.from(document.querySelectorAll('.pendaftar-checkbox:checked')).map(cb => {
