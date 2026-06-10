@@ -263,14 +263,7 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
     
     if (type === 'all') {
         // Kirim semua dengan data lengkap
-        recipients = @json($pendaftars->map(function($p) {
-            return [
-                'phone' => $p->primary_phone,
-                'id_pendaftar' => $p->id_pendaftar,
-                'nama' => $p->nama_lengkap,
-                'jurusan' => $p->jurusan
-            ];
-        })->filter(function($p) { return !empty($p['phone']); })->values());
+        recipients = @json($recipientsData);
     } else if (type === 'select') {
         // Kirim yang dipilih dengan data lengkap
         recipients = Array.from(document.querySelectorAll('.pendaftar-checkbox:checked')).map(cb => {

@@ -348,7 +348,19 @@ class WhatsAppController extends Controller
             }
         });
         
-        return view('whatsapp.broadcast', compact('templates', 'pendaftars'));
+        // Prepare recipients data for JavaScript (filter only those with phone)
+        $recipientsData = $pendaftars->filter(function($p) {
+            return !empty($p->primary_phone);
+        })->map(function($p) {
+            return [
+                'phone' => $p->primary_phone,
+                'id_pendaftar' => $p->id_pendaftar,
+                'nama' => $p->nama_lengkap,
+                'jurusan' => $p->jurusan
+            ];
+        })->values();
+        
+        return view('whatsapp.broadcast', compact('templates', 'pendaftars', 'recipientsData'));
     }
 
     /**
