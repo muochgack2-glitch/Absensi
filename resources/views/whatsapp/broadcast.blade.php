@@ -17,11 +17,28 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <form id="broadcastForm">
+    <!-- Tab Navigation (Task 7.1) -->
+    <ul class="nav nav-tabs mb-4" id="broadcastTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="spmb-tab" data-bs-toggle="tab" data-bs-target="#spmb-broadcast" type="button" role="tab">
+                <i class="fas fa-users me-2"></i>Data SPMB
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="external-tab" data-bs-toggle="tab" data-bs-target="#external-broadcast" type="button" role="tab">
+                <i class="fas fa-external-link-alt me-2"></i>Data Eksternal
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="broadcastTabContent">
+        <!-- TAB 1: DATA SPMB (Existing broadcast form) -->
+        <div class="tab-pane fade show active" id="spmb-broadcast" role="tabpanel">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <form id="broadcastForm">
                         @csrf
                         
                         <div class="mb-4">
@@ -108,11 +125,11 @@
                             <div id="resultContent"></div>
                         </div>
                     </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-lg-4">
+                <div class="col-lg-4">
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-body">
                     <h6 class="card-title">
@@ -167,6 +184,198 @@
                     <div class="alert alert-light mt-2 mb-0">
                         <small><strong>Contoh:</strong><br>
                         Hai {nama}, pendaftaran Anda di {jurusan} dengan nomor {no_registrasi} telah diterima.</small>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: DATA EKSTERNAL (Tasks 7.2-7.8) -->
+        <div class="tab-pane fade" id="external-broadcast" role="tabpanel">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <form id="externalBroadcastForm">
+                                @csrf
+                                
+                                <!-- Batch Name (Task 7.5) -->
+                                <div class="mb-4">
+                                    <label class="form-label">Nama Batch <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="batchName" placeholder="Misal: Alumni 2024, Broadcast Umum Januari" required>
+                                    <small class="text-muted">Nama batch harus unik dalam 30 hari terakhir</small>
+                                    <div class="invalid-feedback" id="batchNameError"></div>
+                                </div>
+
+                                <!-- Data Source Selection (Task 7.2) -->
+                                <div class="mb-4">
+                                    <label class="form-label">Sumber Data <span class="text-danger">*</span></label>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="sourceType" id="sourceCSV" value="csv" checked>
+                                        <label class="btn btn-outline-primary" for="sourceCSV">
+                                            <i class="fas fa-file-csv me-2"></i>Upload CSV
+                                        </label>
+                                        
+                                        <input type="radio" class="btn-check" name="sourceType" id="sourceManual" value="manual">
+                                        <label class="btn btn-outline-primary" for="sourceManual">
+                                            <i class="fas fa-keyboard me-2"></i>Input Manual
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- CSV Upload Section (Task 7.3) -->
+                                <div id="csvSection" class="mb-4">
+                                    <label class="form-label">Upload File CSV <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control" id="csvFile" accept=".csv,.txt">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Format: <code>name,phone,notes</code> (header wajib). Max 2MB.
+                                    </small>
+                                    <div class="alert alert-light mt-2">
+                                        <strong>Contoh format CSV:</strong><br>
+                                        <code>
+                                            name,phone,notes<br>
+                                            Budi Santoso,081234567890,Alumni 2023<br>
+                                            Siti Aminah,082345678901,Orang Tua Siswa
+                                        </code>
+                                    </div>
+                                </div>
+
+                                <!-- Manual Input Section (Task 7.4) -->
+                                <div id="manualSection" class="mb-4" style="display: none;">
+                                    <label class="form-label">Input Manual <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="manualInput" rows="8" placeholder="Format: phone|name|notes (satu per baris)&#10;atau hanya nomor telepon saja&#10;&#10;Contoh:&#10;081234567890|Budi Santoso|Alumni 2023&#10;082345678901|Siti Aminah|Orang Tua&#10;083456789012"></textarea>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Format: <code>phone|name|notes</code> atau hanya <code>phone</code>. Max 500 entries.
+                                    </small>
+                                </div>
+
+                                <div class="d-grid mb-3">
+                                    <button type="button" class="btn btn-primary" id="parseBtn" onclick="parseRecipients()">
+                                        <i class="fas fa-search me-2"></i>Parse & Preview Recipients
+                                    </button>
+                                </div>
+
+                                <!-- Recipient Preview Section (Task 7.6) -->
+                                <div id="previewSection" style="display: none;">
+                                    <hr>
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-eye me-2 text-info"></i>Preview Recipients
+                                    </h6>
+                                    
+                                    <div class="alert alert-info">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong>Total:</strong> <span id="previewTotalCount">0</span> recipients
+                                            </div>
+                                            <div>
+                                                <strong>Duplikat SPMB:</strong> <span id="previewDuplicateCount">0</span>
+                                                <span class="badge bg-warning text-dark ms-1">🔄</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="sticky-top bg-light">
+                                                <tr>
+                                                    <th>Nama</th>
+                                                    <th>Nomor HP</th>
+                                                    <th>Notes</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="previewTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <input type="hidden" id="parsedBatchId">
+
+                                    <!-- Message Template and Text (Task 7.7) -->
+                                    <hr class="my-4">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-envelope me-2 text-success"></i>Komposisi Pesan
+                                    </h6>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Pilih Template (Opsional)</label>
+                                        <select class="form-select" id="externalTemplateSelect">
+                                            <option value="">-- Pilih Template --</option>
+                                            @foreach($templates as $template)
+                                            <option value="{{ $template->id }}" data-message="{{ $template->message }}">
+                                                {{ $template->label }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Pesan <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="externalMessage" rows="6" placeholder="Ketik pesan Anda di sini..." required></textarea>
+                                        <small class="text-muted">
+                                            Variabel: <code>{nama}</code>, <code>{phone}</code>
+                                        </small>
+                                        <div id="templateWarning" class="alert alert-warning mt-2" style="display: none;">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>Peringatan:</strong> Template ini menggunakan variabel SPMB yang tidak tersedia untuk data eksternal: 
+                                            <span id="warningVariables"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Send Button (Task 7.8) -->
+                                    <div class="d-grid">
+                                        <button type="button" class="btn btn-success btn-lg" id="sendExternalBtn" onclick="sendExternalBroadcast()">
+                                            <i class="fas fa-paper-plane me-2"></i>Kirim Broadcast
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Result Section -->
+                                <div id="externalResultSection" class="mt-4" style="display: none;">
+                                    <div class="alert alert-success">
+                                        <h6 class="alert-heading">
+                                            <i class="fas fa-check-circle me-2"></i>Broadcast Terkirim
+                                        </h6>
+                                        <div id="externalResultContent"></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-info-circle me-2 text-info"></i>Informasi
+                            </h6>
+                            <ul class="small mb-0 ps-3">
+                                <li class="mb-2">Upload CSV atau input manual untuk broadcast ke nomor eksternal</li>
+                                <li class="mb-2">Sistem akan deteksi duplikat dengan database SPMB</li>
+                                <li class="mb-2">Pesan tetap terkirim meskipun duplikat</li>
+                                <li class="mb-2">Rate limit: 1 pesan per detik</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-code me-2 text-success"></i>Variabel Template
+                            </h6>
+                            <p class="small text-muted mb-2">Variabel yang tersedia:</p>
+                            <div class="small">
+                                <code>{nama}</code> - Nama recipient<br>
+                                <code>{phone}</code> - Nomor HP
+                            </div>
+                            <div class="alert alert-light mt-3 mb-0">
+                                <small><strong>Contoh:</strong><br>
+                                Halo {nama}, ini adalah pesan broadcast untuk Anda.</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -358,6 +567,221 @@ function showResult(data) {
     resultContent.innerHTML = html;
     resultSection.style.display = 'block';
     resultSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== EXTERNAL BROADCAST JAVASCRIPT (Tasks 9.1-9.5) =====
+
+// Task 9.1: Source type toggle
+document.querySelectorAll('input[name="sourceType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        if (this.value === 'csv') {
+            document.getElementById('csvSection').style.display = 'block';
+            document.getElementById('manualSection').style.display = 'none';
+        } else {
+            document.getElementById('csvSection').style.display = 'none';
+            document.getElementById('manualSection').style.display = 'block';
+        }
+    });
+});
+
+// Task 9.4: Template variable warning
+document.getElementById('externalTemplateSelect').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const message = selectedOption.dataset.message;
+    if (message) {
+        document.getElementById('externalMessage').value = message;
+        
+        // Check for SPMB-specific variables
+        const spmbVariables = ['{no_registrasi}', '{no_pendaftaran}', '{jurusan}', '{nisn}', '{asal_sekolah}'];
+        const foundVariables = spmbVariables.filter(v => message.includes(v));
+        
+        if (foundVariables.length > 0) {
+            document.getElementById('warningVariables').textContent = foundVariables.join(', ');
+            document.getElementById('templateWarning').style.display = 'block';
+        } else {
+            document.getElementById('templateWarning').style.display = 'none';
+        }
+    }
+});
+
+// Task 9.2: Parse recipients AJAX call
+function parseRecipients() {
+    const batchName = document.getElementById('batchName').value.trim();
+    const sourceType = document.querySelector('input[name="sourceType"]:checked').value;
+    
+    if (!batchName) {
+        alert('Nama batch harus diisi');
+        document.getElementById('batchName').focus();
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('batch_name', batchName);
+    formData.append('source_type', sourceType);
+    
+    if (sourceType === 'csv') {
+        const fileInput = document.getElementById('csvFile');
+        if (!fileInput.files.length) {
+            alert('Pilih file CSV terlebih dahulu');
+            return;
+        }
+        formData.append('csv_file', fileInput.files[0]);
+    } else {
+        const manualInput = document.getElementById('manualInput').value.trim();
+        if (!manualInput) {
+            alert('Input manual tidak boleh kosong');
+            return;
+        }
+        formData.append('manual_input', manualInput);
+    }
+    
+    const btn = document.getElementById('parseBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Parsing...';
+    
+    fetch('{{ route("whatsapp.broadcast.external.parse") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayPreview(data.data);
+        } else {
+            alert('Error: ' + data.message);
+            if (data.message.includes('sudah digunakan')) {
+                document.getElementById('batchName').classList.add('is-invalid');
+                document.getElementById('batchNameError').textContent = data.message;
+            }
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error.message);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+// Task 9.3: Display recipient preview
+function displayPreview(data) {
+    document.getElementById('parsedBatchId').value = data.batch_id;
+    document.getElementById('previewTotalCount').textContent = data.total_count;
+    document.getElementById('previewDuplicateCount').textContent = data.duplicates_count;
+    
+    const tbody = document.getElementById('previewTableBody');
+    tbody.innerHTML = '';
+    
+    data.preview.forEach(recipient => {
+        const row = document.createElement('tr');
+        
+        const duplicateBadge = recipient.is_duplicate_spmb 
+            ? '<span class="badge bg-warning text-dark ms-1" title="Duplikat dengan database SPMB">🔄</span>'
+            : '';
+        
+        row.innerHTML = `
+            <td>${recipient.name}</td>
+            <td>${recipient.phone}${duplicateBadge}</td>
+            <td><small class="text-muted">${recipient.notes || '-'}</small></td>
+            <td><span class="badge bg-success">Valid</span></td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    document.getElementById('previewSection').style.display = 'block';
+    document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Task 9.5: Send external broadcast
+function sendExternalBroadcast() {
+    const batchId = document.getElementById('parsedBatchId').value;
+    const message = document.getElementById('externalMessage').value.trim();
+    const templateId = document.getElementById('externalTemplateSelect').value;
+    
+    if (!batchId) {
+        alert('Parse recipients terlebih dahulu');
+        return;
+    }
+    
+    if (!message) {
+        alert('Pesan tidak boleh kosong');
+        document.getElementById('externalMessage').focus();
+        return;
+    }
+    
+    const totalCount = document.getElementById('previewTotalCount').textContent;
+    if (!confirm(`Kirim broadcast ke ${totalCount} recipients?`)) {
+        return;
+    }
+    
+    const btn = document.getElementById('sendExternalBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+    
+    const payload = {
+        batch_id: batchId,
+        message: message
+    };
+    
+    if (templateId) {
+        payload.template_id = templateId;
+    }
+    
+    fetch('{{ route("whatsapp.broadcast.external.send") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showExternalResult(data);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error.message);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function showExternalResult(data) {
+    const resultSection = document.getElementById('externalResultSection');
+    const resultContent = document.getElementById('externalResultContent');
+    
+    let html = `
+        <p class="mb-2">${data.message}</p>
+        <div class="mb-0">
+            <strong>Total:</strong> ${data.data.total}<br>
+            <strong>Berhasil:</strong> <span class="text-success">${data.data.success_count}</span><br>
+            <strong>Gagal:</strong> <span class="text-danger">${data.data.failed_count}</span>
+        </div>
+    `;
+    
+    resultContent.innerHTML = html;
+    resultSection.style.display = 'block';
+    resultSection.scrollIntoView({ behavior: 'smooth' });
+    
+    // Reset form
+    setTimeout(() => {
+        document.getElementById('externalBroadcastForm').reset();
+        document.getElementById('previewSection').style.display = 'none';
+        document.getElementById('batchName').classList.remove('is-invalid');
+    }, 3000);
 }
 </script>
 @endpush

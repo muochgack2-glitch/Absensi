@@ -59,6 +59,13 @@
                         <span class="badge bg-dark ms-2">{{ $tabCounts['no-phone'] }}</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeTab == 'external' ? 'active' : '' }}" 
+                       href="{{ route('whatsapp.phone-list', array_merge(request()->except('tab'), ['tab' => 'external'])) }}">
+                        🌐 Eksternal
+                        <span class="badge bg-info ms-2">{{ $tabCounts['external'] ?? 0 }}</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
@@ -98,7 +105,105 @@
     </div>
 
     <!-- Phone List Table -->
-    <div class="card border-0 shadow-sm">
+    @if($activeTab === 'external')
+        <!-- EXTERNAL TAB CONTENT (Tasks 8.2-8.5) -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="showDuplicatesOnly" 
+                           {{ request('show_duplicates_only') === 'true' ? 'checked' : '' }}
+                           onchange="toggleDuplicateFilter(this)">
+                    <label class="form-check-label" for="showDuplicatesOnly">
+                        🔄 Tampilkan hanya duplikat SPMB
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Daftar Recipient Eksternal
+                </h5>
+            </div>
+            <div class="card-body p-0" style="background: var(--bg-primary);">
+                @if(isset($externalRecipients) && $externalRecipients->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Nomor HP</th>
+                                <th>Batch</th>
+                                <th>Notes</th>
+                                <th>Pesan</th>
+                                <th>Terakhir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($externalRecipients as $recipient)
+                            <tr>
+                                <td style="color: var(--text-primary);">
+                                    {{ $recipient->name }}
+                                    @if($recipient->is_duplicate_spmb)
+                                        <span class="badge bg-warning text-dark ms-1" 
+                                              title="Duplikat dengan database SPMB"
+                                              style="cursor: pointer;"
+                                              onclick="window.location.href='{{ route('pendaftar.show', $recipient->matched_pendaftar_id) }}'">
+                                            🔄 Duplikat
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="https://wa.me/{{ $recipient->phone_normalized }}" target="_blank" class="text-decoration-none">
+                                        <i class="fab fa-whatsapp text-success me-1"></i>
+                                        {{ $recipient->phone }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ $recipient->batch->batch_name }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ $recipient->notes ?? '-' }}</small>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            onclick="viewExternalMessages({{ $recipient->id }})"
+                                            title="Lihat riwayat pesan">
+                                        <i class="fas fa-eye me-1"></i>Lihat
+                                    </button>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ $recipient->created_at->diffForHumans() }}
+                                    </small>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="p-3">
+                    <x-custom-pagination :paginator="$externalRecipients" :showPerPage="true" />
+                </div>
+                @else
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Belum ada data eksternal</p>
+                    <a href="{{ route('whatsapp.broadcast.external') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-2"></i>Buat Broadcast Eksternal
+                    </a>
+                </div>
+                @endif
+            </div>
+        </div>
+    @else
+        <!-- REGULAR SPMB TABLE -->
+        <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-bottom">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
@@ -219,6 +324,7 @@
             @endif
         </div>
     </div>
+    @endif
 </div>
 
 <!-- View Messages Modal -->
@@ -648,6 +754,130 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// ===== EXTERNAL TAB FUNCTIONS (Tasks 8.3, 8.4) =====
+
+// Task 8.3: Toggle duplicate filter
+function toggleDuplicateFilter(checkbox) {
+    const url = new URL(window.location.href);
+    if (checkbox.checked) {
+        url.searchParams.set('show_duplicates_only', 'true');
+    } else {
+        url.searchParams.delete('show_duplicates_only');
+    }
+    window.location.href = url.toString();
+}
+
+// Task 8.4: View external messages
+function viewExternalMessages(recipientId) {
+    const modal = new bootstrap.Modal(document.getElementById('messagesModal'));
+    modal.show();
+    
+    // Load messages
+    fetch(`/whatsapp/external/${recipientId}/messages`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayExternalMessages(data.recipient, data.messages);
+            } else {
+                document.getElementById('messagesContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${data.message || 'Gagal memuat data'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('messagesContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Terjadi kesalahan saat memuat data
+                </div>
+            `;
+        });
+}
+
+// Display external messages
+function displayExternalMessages(recipient, messages) {
+    let html = `
+        <div class="mb-3 pb-3 border-bottom">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Nama:</strong> ${recipient.name}<br>
+                    <strong>Nomor HP:</strong> ${recipient.phone}<br>
+                    <strong>Batch:</strong> ${recipient.batch_name}
+                </div>
+                <div class="col-md-6">
+                    <strong>Notes:</strong> ${recipient.notes || '-'}<br>
+                    <strong>Status:</strong> ${recipient.is_duplicate_spmb 
+                        ? '<span class="badge bg-warning text-dark">🔄 Duplikat SPMB</span>' 
+                        : '<span class="badge bg-success">✓ Unik</span>'}<br>
+                    <strong>Total Pesan:</strong> ${messages.length}
+                </div>
+            </div>
+            ${recipient.matched_pendaftar ? `
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="fas fa-link me-2"></i>
+                    <strong>Duplikat dengan:</strong> 
+                    <a href="/pendaftar/${recipient.matched_pendaftar.id}" target="_blank">
+                        ${recipient.matched_pendaftar.nama} (${recipient.matched_pendaftar.no_registrasi})
+                    </a>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    if (messages.length === 0) {
+        html += `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <p>Belum ada riwayat pesan</p>
+            </div>
+        `;
+    } else {
+        html += '<div class="messages-list">';
+        messages.forEach((msg) => {
+            const statusBadge = msg.status === 'sent' ? 'success' : (msg.status === 'failed' ? 'danger' : 'warning');
+            const statusIcon = msg.status === 'sent' ? 'check-circle' : (msg.status === 'failed' ? 'times-circle' : 'clock');
+            const statusText = msg.status === 'sent' ? 'Terkirim' : (msg.status === 'failed' ? 'Gagal' : 'Pending');
+            
+            html += `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="badge bg-${statusBadge}">
+                                    <i class="fas fa-${statusIcon} me-1"></i>${statusText}
+                                </span>
+                                ${msg.template ? `<span class="badge bg-info ms-2">${msg.template}</span>` : ''}
+                                <span class="badge bg-secondary ms-2">Eksternal</span>
+                            </div>
+                            <small class="text-muted">${msg.date}</small>
+                        </div>
+                        <div class="message-text p-3 rounded" style="background-color: var(--bg-secondary); white-space: pre-wrap;">
+                            ${msg.message || '-'}
+                        </div>
+                        ${msg.error_message ? `
+                            <div class="alert alert-danger mt-2 mb-0">
+                                <small><i class="fas fa-exclamation-triangle me-1"></i>${msg.error_message}</small>
+                            </div>
+                        ` : ''}
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>Dikirim oleh: ${msg.sent_by}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    document.getElementById('messagesContent').innerHTML = html;
+}
 </script>
 @endpush
 @endsection
