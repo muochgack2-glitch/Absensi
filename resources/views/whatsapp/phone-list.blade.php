@@ -69,9 +69,13 @@
             <form method="GET" action="{{ route('whatsapp.phone-list') }}" id="searchForm" class="row g-3">
                 <input type="hidden" name="tab" value="{{ $activeTab }}">
                 <div class="col-md-6">
-                    <input type="text" name="search" class="form-control" 
+                    <input type="text" name="search" id="searchInput" class="form-control" 
                            placeholder="Cari berdasarkan nama, NISN, atau nomor registrasi..." 
-                           value="{{ request('search') }}">
+                           value="{{ request('search') }}"
+                           autocomplete="off">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Ketik untuk mencari otomatis...
+                    </small>
                 </div>
                 <div class="col-md-4">
                     <select name="sort" class="form-select" onchange="document.getElementById('searchForm').submit()">
@@ -608,7 +612,42 @@ function exportPhones() {
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     updateSelectedCount();
+    
+    // Auto-search with debounce
+    const searchInput = document.getElementById('searchInput');
+    const searchForm = document.getElementById('searchForm');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            
+            // Show loading indicator
+            searchInput.style.backgroundImage = 'linear-gradient(to right, #e9ecef 0%, #dee2e6 50%, #e9ecef 100%)';
+            searchInput.style.backgroundSize = '200% 100%';
+            searchInput.style.animation = 'shimmer 1s infinite';
+            
+            searchTimeout = setTimeout(function() {
+                // Remove loading indicator
+                searchInput.style.backgroundImage = '';
+                searchInput.style.animation = '';
+                
+                // Submit form
+                searchForm.submit();
+            }, 500); // Wait 500ms after user stops typing
+        });
+    }
 });
+
+// Add shimmer animation for loading effect
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+`;
+document.head.appendChild(style);
 </script>
 @endpush
 @endsection
