@@ -20,6 +20,7 @@ class WhatsAppLog extends Model
         'pendaftar_id',
         'template_id',
         'sent_by',
+        'external_batch_id',
         'error_message',
         'sent_at',
         'metadata',
@@ -52,6 +53,14 @@ class WhatsAppLog extends Model
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by');
+    }
+
+    /**
+     * Relasi ke External Broadcast Batch
+     */
+    public function externalBatch(): BelongsTo
+    {
+        return $this->belongsTo(ExternalBroadcastBatch::class, 'external_batch_id');
     }
 
     /**
@@ -169,6 +178,7 @@ class WhatsAppLog extends Model
             'manual' => 'Manual',
             'auto_registration' => 'Auto Registrasi',
             'broadcast' => 'Broadcast',
+            'external_broadcast' => 'Broadcast Eksternal',
             'reminder' => 'Pengingat',
             default => ucfirst($this->type),
         };
