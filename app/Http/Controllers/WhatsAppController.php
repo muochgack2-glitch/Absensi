@@ -548,10 +548,52 @@ class WhatsAppController extends Controller
             });
         }
 
+        // Sorting
+        $sort = $request->get('sort', '');
+        switch ($sort) {
+            case 'has_phone':
+                // Punya WA dulu (prioritas: wali > ortu > siswa)
+                $query->orderByRaw("
+                    CASE 
+                        WHEN no_hp_wali IS NOT NULL AND no_hp_wali != '' THEN 1
+                        WHEN no_hp_ortu IS NOT NULL AND no_hp_ortu != '' THEN 2
+                        WHEN no_telepon IS NOT NULL AND no_telepon != '' THEN 3
+                        ELSE 4
+                    END
+                ");
+                break;
+            case 'no_phone':
+                // Tidak punya WA dulu
+                $query->orderByRaw("
+                    CASE 
+                        WHEN (no_hp_wali IS NULL OR no_hp_wali = '') 
+                         AND (no_hp_ortu IS NULL OR no_hp_ortu = '') 
+                         AND (no_telepon IS NULL OR no_telepon = '') THEN 1
+                        ELSE 2
+                    END
+                ");
+                break;
+            case 'name_asc':
+                $query->orderBy('nama_lengkap', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('nama_lengkap', 'desc');
+                break;
+            case 'reg_newest':
+                $query->orderBy('tgl_daftar', 'desc');
+                break;
+            case 'reg_oldest':
+                $query->orderBy('tgl_daftar', 'asc');
+                break;
+            default:
+                // Default: terbaru daftar
+                $query->orderBy('tgl_daftar', 'desc');
+        }
+
         $perPage = $request->get('per_page', 20);
         $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
         
-        $pendaftars = $query->orderBy('tgl_daftar', 'desc')->paginate($perPage)->appends($request->except('page'));
+        $pendaftars = $query->paginate($perPage)->appends($request->except('page'));
 
         // Add phone data and message status to each pendaftar
         $pendaftars->getCollection()->transform(function ($pendaftar) use ($phoneType) {

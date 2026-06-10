@@ -66,12 +66,23 @@
     <!-- Search Box -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('whatsapp.phone-list') }}" class="row g-3">
+            <form method="GET" action="{{ route('whatsapp.phone-list') }}" id="searchForm" class="row g-3">
                 <input type="hidden" name="tab" value="{{ $activeTab }}">
-                <div class="col-md-10">
+                <div class="col-md-6">
                     <input type="text" name="search" class="form-control" 
                            placeholder="Cari berdasarkan nama, NISN, atau nomor registrasi..." 
                            value="{{ request('search') }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="sort" class="form-select" onchange="document.getElementById('searchForm').submit()">
+                        <option value="">Urutkan: Default</option>
+                        <option value="has_phone" {{ request('sort') == 'has_phone' ? 'selected' : '' }}>📞 Punya WA Dulu</option>
+                        <option value="no_phone" {{ request('sort') == 'no_phone' ? 'selected' : '' }}>📵 Tidak Punya WA Dulu</option>
+                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>📝 Nama (A → Z)</option>
+                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>📝 Nama (Z → A)</option>
+                        <option value="reg_newest" {{ request('sort') == 'reg_newest' ? 'selected' : '' }}>🆕 Terbaru Daftar</option>
+                        <option value="reg_oldest" {{ request('sort') == 'reg_oldest' ? 'selected' : '' }}>📅 Terlama Daftar</option>
+                    </select>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">
