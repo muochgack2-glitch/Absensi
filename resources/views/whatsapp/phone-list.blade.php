@@ -328,14 +328,14 @@
 </div>
 
 <!-- View Messages Modal -->
-<div class="modal fade" id="messagesModal" tabindex="-1">
+<div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="messagesModalLabel">
                     <i class="fas fa-comment-dots me-2"></i>Riwayat Pesan WhatsApp
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="messagesContent">
@@ -350,14 +350,14 @@
 </div>
 
 <!-- Broadcast Modal -->
-<div class="modal fade" id="broadcastModal" tabindex="-1">
+<div class="modal fade" id="broadcastModal" tabindex="-1" aria-labelledby="broadcastModalLabel" aria-hidden="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="broadcastModalLabel">
                     <i class="fas fa-paper-plane me-2"></i>Kirim Broadcast WhatsApp
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-info">
