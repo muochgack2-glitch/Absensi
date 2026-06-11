@@ -1551,13 +1551,30 @@ class WhatsAppController extends Controller
             $successCount = 0;
             $failedCount = 0;
 
+            // Prepare common variables (date, time, school info)
+            $now = now();
+            $hariIndonesia = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            $bulanIndonesia = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            $commonVariables = [
+                '{tanggal}' => $now->format('d-m-Y'),
+                '{hari}' => $hariIndonesia[$now->dayOfWeek],
+                '{bulan}' => $bulanIndonesia[(int)$now->format('n')],
+                '{tahun}' => $now->format('Y'),
+                '{waktu}' => $now->format('H:i'),
+                '{sekolah}' => config('app.name', 'SMK PGRI Blora'),
+                '{alamat_sekolah}' => env('SCHOOL_ADDRESS', 'Jl. Raya Blora'),
+                '{telepon_sekolah}' => env('SCHOOL_PHONE', '(0296) 531xxx'),
+                '{website}' => url('/'),
+            ];
+
             foreach ($batch->recipients as $recipient) {
                 // Prepare variables for replacement
-                $variables = [
+                $variables = array_merge($commonVariables, [
                     '{nama}' => $recipient->name,
                     '{phone}' => $recipient->phone,
                     '{notes}' => $recipient->notes ?? '',
-                ];
+                ]);
                 
                 // Add SPMB data if recipient has matched pendaftar
                 if ($recipient->matchedPendaftar) {

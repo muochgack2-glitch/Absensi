@@ -429,13 +429,48 @@
                                 <i class="fas fa-code me-2 text-success"></i>Variabel Template
                             </h6>
                             <p class="small text-muted mb-2">Variabel yang tersedia:</p>
-                            <div class="small">
+                            
+                            <div class="small mb-3">
+                                <strong class="d-block mb-1">📋 Data Dasar:</strong>
                                 <code>{nama}</code> - Nama recipient<br>
-                                <code>{phone}</code> - Nomor HP
+                                <code>{phone}</code> - Nomor HP<br>
+                                <code>{notes}</code> - Catatan tambahan
                             </div>
+                            
+                            <div class="small mb-3">
+                                <strong class="d-block mb-1">📅 Tanggal & Waktu:</strong>
+                                <code>{tanggal}</code> - Tanggal hari ini<br>
+                                <code>{hari}</code> - Nama hari (Senin, Selasa, dll)<br>
+                                <code>{bulan}</code> - Nama bulan (Januari, Februari, dll)<br>
+                                <code>{tahun}</code> - Tahun sekarang<br>
+                                <code>{waktu}</code> - Waktu sekarang (HH:MM)
+                            </div>
+                            
+                            <div class="small mb-3">
+                                <strong class="d-block mb-1">🏫 Info Sekolah:</strong>
+                                <code>{sekolah}</code> - Nama sekolah<br>
+                                <code>{alamat_sekolah}</code> - Alamat sekolah<br>
+                                <code>{telepon_sekolah}</code> - Telepon sekolah<br>
+                                <code>{website}</code> - Website sekolah
+                            </div>
+                            
+                            <details class="small">
+                                <summary class="text-primary mb-2" style="cursor: pointer;">
+                                    <i class="fas fa-info-circle me-1"></i>Variabel SPMB (untuk data duplikat)
+                                </summary>
+                                <div class="ms-2">
+                                    <em class="text-muted d-block mb-2">Variabel ini hanya akan terisi jika nomor HP terdeteksi duplikat dengan database SPMB:</em>
+                                    <code>{no_registrasi}</code>, <code>{nisn}</code>, <code>{jurusan}</code>, 
+                                    <code>{email}</code>, <code>{asal_sekolah}</code>, <code>{nama_ayah}</code>, 
+                                    <code>{nama_ibu}</code>, <code>{gelombang}</code>, dan lainnya
+                                </div>
+                            </details>
+                            
                             <div class="alert alert-light mt-3 mb-0">
                                 <small><strong>Contoh:</strong><br>
-                                Halo {nama}, ini adalah pesan broadcast untuk Anda.</small>
+                                Halo {nama},<br>
+                                Pesan ini dikirim pada {hari}, {tanggal} oleh {sekolah}.<br>
+                                Info: {website}</small>
                             </div>
                         </div>
                     </div>
