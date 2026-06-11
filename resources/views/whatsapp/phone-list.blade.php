@@ -540,7 +540,7 @@ function displayMessages(pendaftar, messages, statistics) {
                             </div>
                             <small class="text-muted">${msg.date}</small>
                         </div>
-                        <div class="message-text p-3 rounded" style="background-color: var(--bs-secondary-bg); white-space: pre-wrap;">
+                        <div class="message-text p-3 rounded" style="background-color: var(--bs-secondary-bg); color: var(--bs-body-color); white-space: pre-wrap;">
                             ${msg.message || '-'}
                         </div>
                         ${msg.error_message ? `
