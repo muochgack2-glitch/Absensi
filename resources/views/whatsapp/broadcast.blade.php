@@ -679,10 +679,6 @@ function updateBroadcastProgress(current, total, success, failed) {
 
 // Show broadcast result in modal
 function showBroadcastResult(data) {
-    // DEBUG: Log data untuk troubleshooting
-    console.log('showBroadcastResult called with data:', data);
-    console.log('window.broadcastData:', window.broadcastData);
-    
     // Set header color based on success rate
     const successRate = (data.success_count / data.total) * 100;
     const headerClass = successRate === 100 ? 'bg-success' : successRate > 50 ? 'bg-warning' : 'bg-danger';
@@ -720,11 +716,8 @@ function showBroadcastResult(data) {
             // Normalize phone numbers for comparison (remove +, spaces, etc)
             const normalizedPhone = String(r.phone).replace(/[\s\-\+]/g, '');
             phoneToNameMap[normalizedPhone] = r.nama || r.name || 'Unknown';
-            console.log('Mapped:', normalizedPhone, '=>', phoneToNameMap[normalizedPhone]);
         });
     }
-    
-    console.log('phoneToNameMap:', phoneToNameMap);
     
     // Populate success list
     const successList = document.getElementById('successList');
@@ -733,7 +726,6 @@ function showBroadcastResult(data) {
         successList.innerHTML = successResults.map(result => {
             const normalizedResultPhone = String(result.phone).replace(/[\s\-\+]/g, '');
             const name = result.name || phoneToNameMap[normalizedResultPhone] || phoneToNameMap[result.phone] || 'Unknown';
-            console.log('Result phone:', result.phone, '=> name:', name);
             return `
                 <tr>
                     <td>${name}</td>
