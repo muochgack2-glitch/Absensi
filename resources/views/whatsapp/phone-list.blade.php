@@ -418,6 +418,13 @@
     border-color: #dee2e6 !important;
 }
 
+/* Message Text Styling */
+.message-text {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+    white-space: pre-wrap;
+}
+
 /* Dark Mode Support */
 .admin-dark .message-preview {
     background-color: #1e293b !important;
@@ -427,6 +434,16 @@
 
 .admin-dark .message-preview .text-muted {
     color: #94a3b8 !important;
+}
+
+.admin-dark .message-text {
+    background-color: #1e293b !important;
+    color: #e5e7eb !important;
+}
+
+[data-bs-theme="dark"] .message-text {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+    color: #e5e7eb !important;
 }
 </style>
 <script>
@@ -540,7 +557,7 @@ function displayMessages(pendaftar, messages, statistics) {
                             </div>
                             <small class="text-muted">${msg.date}</small>
                         </div>
-                        <div class="message-text p-3 rounded" style="background-color: var(--bs-secondary-bg); color: var(--bs-body-color); white-space: pre-wrap;">
+                        <div class="message-text p-3 rounded">
                             ${msg.message || '-'}
                         </div>
                         ${msg.error_message ? `
