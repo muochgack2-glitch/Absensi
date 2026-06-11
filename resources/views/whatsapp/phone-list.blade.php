@@ -796,6 +796,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 focusedElement.blur();
             }
         });
+        
+        // Clean up backdrop when modal is fully hidden
+        messagesModal.addEventListener('hidden.bs.modal', function() {
+            // Remove any leftover backdrops
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // Reset body classes
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
     }
     
     if (broadcastModal) {
@@ -805,6 +819,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (focusedElement) {
                 focusedElement.blur();
             }
+        });
+        
+        // Clean up backdrop when modal is fully hidden
+        broadcastModal.addEventListener('hidden.bs.modal', function() {
+            // Remove any leftover backdrops
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // Reset body classes
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         });
     }
     
