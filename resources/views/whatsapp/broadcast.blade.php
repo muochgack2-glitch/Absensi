@@ -926,4 +926,218 @@ function showExternalResult(data) {
 }
 </script>
 @endpush
+
+<!-- Modals Section -->
+
+<!-- 1. Confirm Send Modal (SPMB Broadcast) -->
+<div class="modal fade" id="confirmSendModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-paper-plane me-2"></i>Konfirmasi Kirim Broadcast
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Pastikan informasi berikut sudah benar:
+                </div>
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <td width="40%"><strong>Jumlah Penerima:</strong></td>
+                        <td id="confirmRecipientCount">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Estimasi Waktu:</strong></td>
+                        <td id="confirmEstimatedTime">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Panjang Pesan:</strong></td>
+                        <td id="confirmMessageLength">-</td>
+                    </tr>
+                </table>
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <small><strong>Perhatian:</strong> Broadcast tidak dapat dibatalkan setelah dimulai.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="confirmSendBtn" onclick="executeBroadcast()">
+                    <i class="fas fa-check me-2"></i>Ya, Kirim Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Broadcast Progress Modal -->
+<div class="modal fade" id="progressModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-spinner fa-spin me-2"></i>Mengirim Broadcast...
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Progress:</span>
+                        <span><strong id="progressText">0 / 0</strong></span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="progressBar" 
+                             role="progressbar" 
+                             style="width: 0%">
+                            0%
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="text-success">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                            <div class="mt-1"><strong id="successCount">0</strong></div>
+                            <small class="text-muted">Berhasil</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-danger">
+                            <i class="fas fa-times-circle fa-2x"></i>
+                            <div class="mt-1"><strong id="failedCount">0</strong></div>
+                            <small class="text-muted">Gagal</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-warning">
+                            <i class="fas fa-clock fa-2x"></i>
+                            <div class="mt-1"><strong id="remainingCount">0</strong></div>
+                            <small class="text-muted">Tersisa</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>Mohon jangan tutup halaman ini sampai broadcast selesai.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Broadcast Result Modal -->
+<div class="modal fade" id="resultModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" id="resultModalHeader">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Hasil Broadcast
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert" id="resultSummary">
+                    <!-- Summary will be inserted here -->
+                </div>
+                
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#successTab">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            Berhasil <span class="badge bg-success" id="successBadge">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#failedTab">
+                            <i class="fas fa-times-circle text-danger me-1"></i>
+                            Gagal <span class="badge bg-danger" id="failedBadge">0</span>
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="successTab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Nomor HP</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="successList">
+                                    <!-- Success list will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="failedTab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Nomor HP</th>
+                                        <th>Error</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="failedList">
+                                    <!-- Failed list will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <a href="{{ route('whatsapp.logs') }}" class="btn btn-primary">
+                    <i class="fas fa-list me-2"></i>Lihat Log Lengkap
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Template Preview Modal -->
+<div class="modal fade" id="templatePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Preview Template
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong>Template:</strong></label>
+                    <div id="previewTemplateName" class="text-muted"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Pesan:</strong></label>
+                    <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;" id="previewMessage"></div>
+                </div>
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>Variabel akan otomatis diganti dengan data penerima saat pengiriman.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="useTemplate()">
+                    <i class="fas fa-check me-2"></i>Gunakan Template
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
