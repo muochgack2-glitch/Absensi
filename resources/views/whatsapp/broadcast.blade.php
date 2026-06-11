@@ -709,17 +709,28 @@ function showBroadcastResult(data) {
     document.getElementById('successBadge').textContent = data.success_count;
     document.getElementById('failedBadge').textContent = data.failed_count;
     
+    // Create phone-to-name mapping from stored recipients data
+    const phoneToNameMap = {};
+    if (window.broadcastData && window.broadcastData.recipients) {
+        window.broadcastData.recipients.forEach(r => {
+            phoneToNameMap[r.phone] = r.nama || r.name || '-';
+        });
+    }
+    
     // Populate success list
     const successList = document.getElementById('successList');
     const successResults = data.results.filter(r => r.success);
     if (successResults.length > 0) {
-        successList.innerHTML = successResults.map(result => `
-            <tr>
-                <td>${result.name || '-'}</td>
-                <td>${result.phone}</td>
-                <td><span class="badge bg-success">Terkirim</span></td>
-            </tr>
-        `).join('');
+        successList.innerHTML = successResults.map(result => {
+            const name = result.name || phoneToNameMap[result.phone] || '-';
+            return `
+                <tr>
+                    <td>${name}</td>
+                    <td>${result.phone}</td>
+                    <td><span class="badge bg-success">Terkirim</span></td>
+                </tr>
+            `;
+        }).join('');
     } else {
         successList.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Tidak ada pesan yang berhasil terkirim</td></tr>';
     }
@@ -728,13 +739,16 @@ function showBroadcastResult(data) {
     const failedList = document.getElementById('failedList');
     const failedResults = data.results.filter(r => !r.success);
     if (failedResults.length > 0) {
-        failedList.innerHTML = failedResults.map(result => `
-            <tr>
-                <td>${result.name || '-'}</td>
-                <td>${result.phone}</td>
-                <td><small class="text-danger">${result.error || result.message || 'Unknown error'}</small></td>
-            </tr>
-        `).join('');
+        failedList.innerHTML = failedResults.map(result => {
+            const name = result.name || phoneToNameMap[result.phone] || '-';
+            return `
+                <tr>
+                    <td>${name}</td>
+                    <td>${result.phone}</td>
+                    <td><small class="text-danger">${result.error || result.message || 'Unknown error'}</small></td>
+                </tr>
+            `;
+        }).join('');
     } else {
         failedList.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Semua pesan berhasil terkirim</td></tr>';
     }
