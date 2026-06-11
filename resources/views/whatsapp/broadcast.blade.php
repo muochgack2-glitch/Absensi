@@ -559,7 +559,7 @@ function updateRecipientCount() {
     document.getElementById('estimatedTime').textContent = '~' + Math.ceil(count / 60) + ' menit';
 }
 
-// Form submit
+// Form submit - Show confirm modal first
 document.getElementById('broadcastForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -568,10 +568,8 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
     let recipients = [];
     
     if (type === 'all') {
-        // Kirim semua dengan data lengkap
         recipients = @json($recipientsData);
     } else if (type === 'select') {
-        // Kirim yang dipilih dengan data lengkap
         recipients = Array.from(document.querySelectorAll('.pendaftar-checkbox:checked')).map(cb => {
             const pendaftarId = cb.id.replace('pendaftar', '');
             const label = document.querySelector(`label[for="${cb.id}"]`);
@@ -585,7 +583,6 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
             };
         });
     } else if (type === 'custom') {
-        // Custom numbers - tanpa id_pendaftar (null)
         recipients = document.getElementById('customNumbersInput').value.split('\n')
             .filter(n => n.trim())
             .map(phone => ({
@@ -606,15 +603,38 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
         return;
     }
     
-    if (!confirm(`Kirim broadcast ke ${recipients.length} penerima?`)) {
-        return;
-    }
+    // Store data for later use
+    window.broadcastData = { recipients, message };
     
-    const btn = document.getElementById('sendBtn');
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+    // Show confirm modal
+    document.getElementById('confirmRecipientCount').textContent = recipients.length + ' penerima';
+    document.getElementById('confirmEstimatedTime').textContent = '~' + Math.ceil(recipients.length / 60) + ' menit';
+    document.getElementById('confirmMessageLength').textContent = message.length + ' karakter';
     
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
+    confirmModal.show();
+});
+
+// Execute broadcast after confirmation
+function executeBroadcast() {
+    // Hide confirm modal
+    bootstrap.Modal.getInstance(document.getElementById('confirmSendModal')).hide();
+    
+    const { recipients, message } = window.broadcastData;
+    
+    // Show progress modal
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    progressModal.show();
+    
+    // Initialize progress
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressBar').textContent = '0%';
+    document.getElementById('progressText').textContent = '0 / ' + recipients.length;
+    document.getElementById('successCount').textContent = '0';
+    document.getElementById('failedCount').textContent = '0';
+    document.getElementById('remainingCount').textContent = recipients.length;
+    
+    // Send broadcast
     fetch('{{ route("whatsapp.broadcast.send") }}', {
         method: 'POST',
         headers: {
@@ -628,42 +648,105 @@ document.getElementById('broadcastForm').addEventListener('submit', function(e) 
     })
     .then(response => response.json())
     .then(data => {
-        showResult(data);
+        // Update progress to 100%
+        updateBroadcastProgress(recipients.length, recipients.length, data.success_count, data.failed_count);
+        
+        // Hide progress modal after short delay
+        setTimeout(() => {
+            progressModal.hide();
+            // Show result modal
+            showBroadcastResult(data);
+        }, 1000);
     })
     .catch(error => {
+        progressModal.hide();
         alert('Error: ' + error.message);
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
     });
-});
+}
 
-function showResult(data) {
-    const resultSection = document.getElementById('resultSection');
-    const resultContent = document.getElementById('resultContent');
+// Update broadcast progress
+function updateBroadcastProgress(current, total, success, failed) {
+    const percent = Math.round((current / total) * 100);
+    const remaining = total - current;
     
-    let html = `
-        <div class="mb-3">
-            <strong>Total:</strong> ${data.total}<br>
-            <strong>Berhasil:</strong> <span class="text-success">${data.success_count}</span><br>
-            <strong>Gagal:</strong> <span class="text-danger">${data.failed_count}</span>
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressBar').textContent = percent + '%';
+    document.getElementById('progressText').textContent = current + ' / ' + total;
+    document.getElementById('successCount').textContent = success;
+    document.getElementById('failedCount').textContent = failed;
+    document.getElementById('remainingCount').textContent = remaining;
+}
+
+// Show broadcast result in modal
+function showBroadcastResult(data) {
+    // Set header color based on success rate
+    const successRate = (data.success_count / data.total) * 100;
+    const headerClass = successRate === 100 ? 'bg-success' : successRate > 50 ? 'bg-warning' : 'bg-danger';
+    document.getElementById('resultModalHeader').className = 'modal-header text-white ' + headerClass;
+    
+    // Set summary
+    const summaryClass = successRate === 100 ? 'alert-success' : successRate > 50 ? 'alert-warning' : 'alert-danger';
+    document.getElementById('resultSummary').className = 'alert ' + summaryClass;
+    document.getElementById('resultSummary').innerHTML = `
+        <h6 class="alert-heading"><i class="fas fa-chart-bar me-2"></i>Ringkasan Broadcast</h6>
+        <div class="row text-center">
+            <div class="col-4">
+                <h3 class="mb-0">${data.total}</h3>
+                <small>Total</small>
+            </div>
+            <div class="col-4">
+                <h3 class="mb-0 text-success">${data.success_count}</h3>
+                <small>Berhasil</small>
+            </div>
+            <div class="col-4">
+                <h3 class="mb-0 text-danger">${data.failed_count}</h3>
+                <small>Gagal</small>
+            </div>
         </div>
     `;
     
-    if (data.results && data.results.length > 0) {
-        html += '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Nomor</th><th>Status</th></tr></thead><tbody>';
-        data.results.forEach(result => {
-            const statusClass = result.success ? 'success' : 'danger';
-            const statusText = result.success ? 'Berhasil' : 'Gagal';
-            html += `<tr><td>${result.phone}</td><td><span class="badge bg-${statusClass}">${statusText}</span></td></tr>`;
-        });
-        html += '</tbody></table></div>';
+    // Update badge counts
+    document.getElementById('successBadge').textContent = data.success_count;
+    document.getElementById('failedBadge').textContent = data.failed_count;
+    
+    // Populate success list
+    const successList = document.getElementById('successList');
+    const successResults = data.results.filter(r => r.success);
+    if (successResults.length > 0) {
+        successList.innerHTML = successResults.map(result => `
+            <tr>
+                <td>${result.name || '-'}</td>
+                <td>${result.phone}</td>
+                <td><span class="badge bg-success">Terkirim</span></td>
+            </tr>
+        `).join('');
+    } else {
+        successList.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Tidak ada pesan yang berhasil terkirim</td></tr>';
     }
     
-    resultContent.innerHTML = html;
-    resultSection.style.display = 'block';
-    resultSection.scrollIntoView({ behavior: 'smooth' });
+    // Populate failed list
+    const failedList = document.getElementById('failedList');
+    const failedResults = data.results.filter(r => !r.success);
+    if (failedResults.length > 0) {
+        failedList.innerHTML = failedResults.map(result => `
+            <tr>
+                <td>${result.name || '-'}</td>
+                <td>${result.phone}</td>
+                <td><small class="text-danger">${result.error || result.message || 'Unknown error'}</small></td>
+            </tr>
+        `).join('');
+    } else {
+        failedList.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Semua pesan berhasil terkirim</td></tr>';
+    }
+    
+    // Show modal
+    const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+    resultModal.show();
+}
+
+function showResult(data) {
+    // Legacy function - now using modal
+    showBroadcastResult(data);
 }
 
 // ===== EXTERNAL BROADCAST JAVASCRIPT (Tasks 9.1-9.5) =====
@@ -857,14 +940,41 @@ function sendExternalBroadcast() {
     }
     
     const totalCount = document.getElementById('previewTotalCount').textContent;
-    if (!confirm(`Kirim broadcast ke ${selectedCount} dari ${totalCount} recipients?`)) {
-        return;
-    }
     
-    const btn = document.getElementById('sendExternalBtn');
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+    // Store data for confirmation
+    window.externalBroadcastData = { batchId, message, templateId, selectedCount };
+    
+    // Show confirm modal
+    document.getElementById('confirmRecipientCount').textContent = selectedCount + ' penerima';
+    document.getElementById('confirmEstimatedTime').textContent = '~' + Math.ceil(selectedCount / 60) + ' menit';
+    document.getElementById('confirmMessageLength').textContent = message.length + ' karakter';
+    
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
+    confirmModal.show();
+    
+    // Update confirm button to call executeExternalBroadcast
+    const confirmBtn = document.getElementById('confirmSendBtn');
+    confirmBtn.onclick = executeExternalBroadcast;
+}
+
+// Execute external broadcast after confirmation
+function executeExternalBroadcast() {
+    // Hide confirm modal
+    bootstrap.Modal.getInstance(document.getElementById('confirmSendModal')).hide();
+    
+    const { batchId, message, templateId, selectedCount } = window.externalBroadcastData;
+    
+    // Show progress modal
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    progressModal.show();
+    
+    // Initialize progress
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressBar').textContent = '0%';
+    document.getElementById('progressText').textContent = '0 / ' + selectedCount;
+    document.getElementById('successCount').textContent = '0';
+    document.getElementById('failedCount').textContent = '0';
+    document.getElementById('remainingCount').textContent = selectedCount;
     
     const payload = {
         batch_id: batchId,
@@ -886,35 +996,50 @@ function sendExternalBroadcast() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showExternalResult(data);
+            // Update progress to 100%
+            const total = data.data?.total || selectedCount;
+            const successCount = data.data?.success_count || 0;
+            const failedCount = data.data?.failed_count || 0;
+            
+            updateBroadcastProgress(total, total, successCount, failedCount);
+            
+            // Hide progress modal after short delay
+            setTimeout(() => {
+                progressModal.hide();
+                // Show result modal
+                showExternalBroadcastResult(data);
+            }, 1000);
         } else {
+            progressModal.hide();
             alert('Error: ' + data.message);
         }
     })
     .catch(error => {
+        progressModal.hide();
         alert('Error: ' + error.message);
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
     });
+    
+    // Reset confirm button onclick for SPMB broadcast
+    document.getElementById('confirmSendBtn').onclick = executeBroadcast;
+}
+
+// Show external broadcast result in modal
+function showExternalBroadcastResult(data) {
+    const resultData = {
+        total: data.data?.total || 0,
+        success_count: data.data?.success_count || 0,
+        failed_count: data.data?.failed_count || 0,
+        results: [] // External broadcast doesn't provide detailed results yet
+    };
+    
+    // Use the same modal as SPMB broadcast
+    showBroadcastResult(resultData);
 }
 
 function showExternalResult(data) {
-    const resultSection = document.getElementById('externalResultSection');
-    const resultContent = document.getElementById('externalResultContent');
-    
-    let html = `
-        <p class="mb-2">${data.message}</p>
-        <div class="mb-0">
-            <strong>Total:</strong> ${data.data.total}<br>
-            <strong>Berhasil:</strong> <span class="text-success">${data.data.success_count}</span><br>
-            <strong>Gagal:</strong> <span class="text-danger">${data.data.failed_count}</span>
-        </div>
-    `;
-    
-    resultContent.innerHTML = html;
-    resultSection.style.display = 'block';
+    // Legacy function - now using modal
+    showExternalBroadcastResult(data);
+}
     resultSection.scrollIntoView({ behavior: 'smooth' });
     
     // Reset form
