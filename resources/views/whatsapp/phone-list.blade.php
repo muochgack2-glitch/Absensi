@@ -328,7 +328,7 @@
 </div>
 
 <!-- View Messages Modal -->
-<div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="false">
+<div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -350,7 +350,7 @@
 </div>
 
 <!-- Broadcast Modal -->
-<div class="modal fade" id="broadcastModal" tabindex="-1" aria-labelledby="broadcastModalLabel" aria-hidden="false">
+<div class="modal fade" id="broadcastModal" tabindex="-1" aria-labelledby="broadcastModalLabel">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -783,6 +783,30 @@ function exportPhones() {
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     updateSelectedCount();
+    
+    // Fix modal focus issue - Remove focus from close button before hiding
+    const messagesModal = document.getElementById('messagesModal');
+    const broadcastModal = document.getElementById('broadcastModal');
+    
+    if (messagesModal) {
+        messagesModal.addEventListener('hide.bs.modal', function() {
+            // Remove focus from any focused element inside modal
+            const focusedElement = messagesModal.querySelector(':focus');
+            if (focusedElement) {
+                focusedElement.blur();
+            }
+        });
+    }
+    
+    if (broadcastModal) {
+        broadcastModal.addEventListener('hide.bs.modal', function() {
+            // Remove focus from any focused element inside modal
+            const focusedElement = broadcastModal.querySelector(':focus');
+            if (focusedElement) {
+                focusedElement.blur();
+            }
+        });
+    }
     
     // Auto-search with debounce
     const searchInput = document.getElementById('searchInput');
