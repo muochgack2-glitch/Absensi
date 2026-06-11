@@ -1511,7 +1511,14 @@ class WhatsAppController extends Controller
         try {
             // Check WhatsApp Gateway status
             $status = $this->whatsappService->getStatus();
-            if (!$status['is_connected']) {
+            
+            // Validate status structure and check connection
+            $isConnected = false;
+            if (isset($status['success']) && $status['success'] && isset($status['data']['is_connected'])) {
+                $isConnected = $status['data']['is_connected'];
+            }
+            
+            if (!$isConnected) {
                 return response()->json([
                     'success' => false,
                     'message' => 'WhatsApp Gateway tidak terhubung. Silakan scan QR code terlebih dahulu.',
