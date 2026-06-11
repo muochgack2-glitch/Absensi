@@ -337,33 +337,48 @@
                                             <summary class="text-primary" style="cursor: pointer;">
                                                 <small><i class="fas fa-info-circle me-1"></i>Variabel SPMB (hanya untuk data duplikat) - Klik untuk lihat</small>
                                             </summary>
-                                            <div class="mt-2 p-3 border rounded" style="background-color: var(--bs-secondary-bg);">
+                                            <div class="mt-2 p-3 border rounded variable-box">
                                                 <small>
                                                     <div class="mb-2">
-                                                        <strong style="color: var(--bs-emphasis-color);">📋 Data Pribadi:</strong><br>
+                                                        <strong class="variable-label">📋 Data Pribadi:</strong><br>
                                                         <code>{no_registrasi}</code>, <code>{nisn}</code>, <code>{nik}</code>, <code>{email}</code>, 
                                                         <code>{tempat_lahir}</code>, <code>{tanggal_lahir}</code>, <code>{jenis_kelamin}</code>, <code>{agama}</code>
                                                     </div>
                                                     
                                                     <div class="mb-2">
-                                                        <strong style="color: var(--bs-emphasis-color);">🏫 Data Sekolah:</strong><br>
+                                                        <strong class="variable-label">🏫 Data Sekolah:</strong><br>
                                                         <code>{asal_sekolah}</code>, <code>{tahun_lulus}</code>, <code>{jurusan}</code>
                                                     </div>
                                                     
                                                     <div class="mb-2">
-                                                        <strong style="color: var(--bs-emphasis-color);">👨‍👩‍👧 Data Keluarga:</strong><br>
+                                                        <strong class="variable-label">👨‍👩‍👧 Data Keluarga:</strong><br>
                                                         <code>{nama_ayah}</code>, <code>{nama_ibu}</code>, <code>{no_hp_ortu}</code>, 
                                                         <code>{nama_wali}</code>, <code>{no_hp_wali}</code>
                                                     </div>
                                                     
                                                     <div class="mb-0">
-                                                        <strong style="color: var(--bs-emphasis-color);">📝 Data Pendaftaran:</strong><br>
+                                                        <strong class="variable-label">📝 Data Pendaftaran:</strong><br>
                                                         <code>{nama_jaringan}</code>, <code>{gelombang}</code>, <code>{tgl_daftar}</code>, 
                                                         <code>{status_siswa}</code>, <code>{alamat}</code>
                                                     </div>
                                                 </small>
                                             </div>
                                         </details>
+                                        
+                                        <style>
+                                        .variable-box {
+                                            background-color: rgba(0, 0, 0, 0.05);
+                                        }
+                                        [data-bs-theme="dark"] .variable-box {
+                                            background-color: rgba(255, 255, 255, 0.05) !important;
+                                        }
+                                        .variable-label {
+                                            color: #000;
+                                        }
+                                        [data-bs-theme="dark"] .variable-label {
+                                            color: #fff !important;
+                                        }
+                                        </style>
                                         <div id="templateWarning" class="alert alert-warning mt-2" style="display: none;">
                                             <i class="fas fa-exclamation-triangle me-2"></i>
                                             <strong>Peringatan:</strong> Template ini menggunakan variabel SPMB yang tidak tersedia untuk data eksternal: 
