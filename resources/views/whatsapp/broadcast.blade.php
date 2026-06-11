@@ -1043,11 +1043,33 @@ function executeExternalBroadcast() {
 
 // Show external broadcast result in modal
 function showExternalBroadcastResult(data) {
+    // Build results array from stored recipients
+    const results = [];
+    
+    if (window.externalBroadcastData && window.externalBroadcastData.selectedCount > 0) {
+        // Get all checked recipients from preview
+        const checkedCheckboxes = document.querySelectorAll('.preview-recipient-checkbox:checked');
+        
+        checkedCheckboxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            const nameCell = row.querySelector('td:nth-child(2)');
+            const phoneCell = row.querySelector('td:nth-child(3)');
+            
+            if (nameCell && phoneCell) {
+                results.push({
+                    name: nameCell.textContent.trim(),
+                    phone: phoneCell.textContent.trim(),
+                    success: true // Assume success since we got success_count from backend
+                });
+            }
+        });
+    }
+    
     const resultData = {
-        total: data.data?.total || 0,
-        success_count: data.data?.success_count || 0,
+        total: data.data?.total || results.length,
+        success_count: data.data?.success_count || results.length,
         failed_count: data.data?.failed_count || 0,
-        results: [] // External broadcast doesn't provide detailed results yet
+        results: results
     };
     
     // Use the same modal as SPMB broadcast
