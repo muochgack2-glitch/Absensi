@@ -442,7 +442,7 @@ function viewMessages(pendaftarId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                displayMessages(data.pendaftar, data.messages);
+                displayMessages(data.pendaftar, data.messages, data.statistics);
             } else {
                 document.getElementById('messagesContent').innerHTML = `
                     <div class="alert alert-danger">
@@ -464,7 +464,7 @@ function viewMessages(pendaftarId) {
 }
 
 // Display messages
-function displayMessages(pendaftar, messages) {
+function displayMessages(pendaftar, messages, statistics) {
     let html = `
         <div class="mb-3 pb-3 border-bottom">
             <div class="row">
@@ -482,6 +482,32 @@ function displayMessages(pendaftar, messages) {
         </div>
     `;
     
+    // Add statistics if available
+    if (statistics) {
+        html += `
+            <div class="alert alert-info mb-3">
+                <div class="row text-center">
+                    <div class="col-3">
+                        <h5 class="mb-0">${statistics.total}</h5>
+                        <small>Total</small>
+                    </div>
+                    <div class="col-3">
+                        <h5 class="mb-0">🏫 ${statistics.spmb}</h5>
+                        <small>SPMB</small>
+                    </div>
+                    <div class="col-3">
+                        <h5 class="mb-0">📤 ${statistics.external}</h5>
+                        <small>Eksternal</small>
+                    </div>
+                    <div class="col-3">
+                        <h5 class="mb-0 text-success">${statistics.sent}</h5>
+                        <small>Terkirim</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
     if (messages.length === 0) {
         html += `
             <div class="text-center text-muted py-4">
@@ -496,6 +522,10 @@ function displayMessages(pendaftar, messages) {
             const statusIcon = msg.status === 'sent' ? 'check-circle' : (msg.status === 'failed' ? 'times-circle' : 'clock');
             const statusText = msg.status === 'sent' ? 'Terkirim' : (msg.status === 'failed' ? 'Gagal' : 'Pending');
             
+            // Source badge
+            const sourceBadge = msg.source_badge || (msg.source === 'external' ? '📤 Eksternal' : '🏫 SPMB');
+            const sourceBadgeColor = msg.source === 'external' ? 'warning' : 'primary';
+            
             html += `
                 <div class="card mb-3">
                     <div class="card-body">
@@ -504,16 +534,25 @@ function displayMessages(pendaftar, messages) {
                                 <span class="badge bg-${statusBadge}">
                                     <i class="fas fa-${statusIcon} me-1"></i>${statusText}
                                 </span>
+                                <span class="badge bg-${sourceBadgeColor} ms-2">${sourceBadge}</span>
                                 ${msg.template ? `<span class="badge bg-info ms-2">${msg.template}</span>` : ''}
+                                ${msg.batch_name ? `<span class="badge bg-secondary ms-2" title="Batch">${msg.batch_name}</span>` : ''}
                             </div>
                             <small class="text-muted">${msg.date}</small>
                         </div>
-                        <div class="message-text p-3 rounded" style="background-color: var(--bg-secondary); white-space: pre-wrap;">
+                        <div class="message-text p-3 rounded" style="background-color: var(--bs-secondary-bg); white-space: pre-wrap;">
                             ${msg.message || '-'}
                         </div>
                         ${msg.error_message ? `
                             <div class="alert alert-danger mt-2 mb-0">
                                 <small><i class="fas fa-exclamation-triangle me-1"></i>${msg.error_message}</small>
+                            </div>
+                        ` : ''}
+                        ${msg.sent_by ? `
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>Dikirim oleh: ${msg.sent_by}
+                                </small>
                             </div>
                         ` : ''}
                     </div>
