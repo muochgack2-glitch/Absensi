@@ -1040,14 +1040,6 @@ function showExternalResult(data) {
     // Legacy function - now using modal
     showExternalBroadcastResult(data);
 }
-    resultSection.scrollIntoView({ behavior: 'smooth' });
-    
-    // Reset form
-    setTimeout(() => {
-        document.getElementById('externalBroadcastForm').reset();
-        document.getElementById('previewSection').style.display = 'none';
-        document.getElementById('batchName').classList.remove('is-invalid');
-    }, 3000);
 }
 </script>
 @endpush
