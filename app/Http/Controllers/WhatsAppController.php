@@ -824,12 +824,30 @@ class WhatsAppController extends Controller
     public function getPendaftarMessages($id)
     {
         try {
-            $pendaftar = Pendaftar::with(['whatsappLogs' => function($q) {
-                $q->with(['template', 'sender'])
-                  ->orderBy('created_at', 'desc');
-            }])->findOrFail($id);
+            $pendaftar = Pendaftar::findOrFail($id);
             
-            // Get phone data
+            // Get all phone numbers from pendaftar
+            $phones = collect([
+                $pendaftar->no_hp_wali,
+                $pendaftar->no_hp_ortu,
+                $pendaftar->no_telepon
+            ])->filter()->unique();
+
+            // Normalize phone numbers
+            $normalizedPhones = $phones->map(function($phone) {
+                return WhatsAppLog::normalizePhone($phone);
+            })->filter()->unique()->values()->toArray();
+
+            // Get all messages (SPMB + External)
+            $allMessages = WhatsAppLog::with(['template', 'sender', 'externalBatch'])
+                ->where(function($query) use ($pendaftar, $normalizedPhones) {
+                    $query->where('pendaftar_id', $pendaftar->id_pendaftar)
+                          ->orWhereIn('phone_normalized', $normalizedPhones);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            // Get phone data (priority: wali > ortu > siswa)
             $phone = null;
             if (!empty($pendaftar->no_hp_wali)) {
                 $phone = $pendaftar->no_hp_wali;
@@ -840,7 +858,10 @@ class WhatsAppController extends Controller
             }
             
             // Format messages
-            $messages = $pendaftar->whatsappLogs->map(function($log) {
+            $messages = $allMessages->map(function($log) {
+                $source = $log->external_batch_id ? 'external' : 'spmb';
+                $sourceBadge = $source === 'external' ? '📤 Eksternal' : '🏫 SPMB';
+                
                 return [
                     'id' => $log->id,
                     'status' => $log->status,
@@ -849,7 +870,10 @@ class WhatsAppController extends Controller
                     'template' => $log->template->label ?? null,
                     'date' => $log->created_at->format('d M Y, H:i'),
                     'error_message' => $log->error_message,
-                    'sent_by' => $log->sender->name ?? 'System'
+                    'sent_by' => $log->sender->name ?? 'System',
+                    'source' => $source,
+                    'source_badge' => $sourceBadge,
+                    'batch_name' => $log->externalBatch->batch_name ?? null
                 ];
             });
             
@@ -863,7 +887,14 @@ class WhatsAppController extends Controller
                     'jurusan' => $pendaftar->masterJurusan->nama_jurusan ?? $pendaftar->jurusan,
                     'phone' => $phone
                 ],
-                'messages' => $messages
+                'messages' => $messages,
+                'statistics' => [
+                    'total' => $allMessages->count(),
+                    'spmb' => $allMessages->whereNull('external_batch_id')->count(),
+                    'external' => $allMessages->whereNotNull('external_batch_id')->count(),
+                    'sent' => $allMessages->where('status', 'sent')->count(),
+                    'failed' => $allMessages->where('status', 'failed')->count(),
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -1264,13 +1295,46 @@ class WhatsAppController extends Controller
      */
     private function getMessageStatus(Pendaftar $pendaftar): array
     {
-        $totalMessages = $pendaftar->whatsappLogs->count();
-        $sentMessages = $pendaftar->whatsappLogs->where('status', 'sent')->count();
-        $failedMessages = $pendaftar->whatsappLogs->where('status', 'failed')->count();
-        $pendingMessages = $pendaftar->whatsappLogs->where('status', 'pending')->count();
+        // Get all phone numbers from pendaftar
+        $phones = collect([
+            $pendaftar->no_hp_wali,
+            $pendaftar->no_hp_ortu,
+            $pendaftar->no_telepon
+        ])->filter()->unique();
+
+        // Normalize phone numbers
+        $normalizedPhones = $phones->map(function($phone) {
+            return WhatsAppLog::normalizePhone($phone);
+        })->filter()->unique()->values()->toArray();
+
+        // Get SPMB messages (from whatsapp_logs)
+        $spmbMessages = WhatsAppLog::where('pendaftar_id', $pendaftar->id_pendaftar)
+            ->orWhereIn('phone_normalized', $normalizedPhones)
+            ->get();
+
+        // Get External broadcast messages (from external_broadcast_recipients via whatsapp_logs)
+        $externalMessages = collect();
+        if (!empty($normalizedPhones)) {
+            $externalMessages = WhatsAppLog::whereIn('phone_normalized', $normalizedPhones)
+                ->whereNotNull('external_batch_id')
+                ->get();
+        }
+
+        // Merge all messages
+        $allMessages = $spmbMessages->merge($externalMessages)->unique('id')->sortByDesc('created_at');
+
+        // Calculate statistics
+        $totalMessages = $allMessages->count();
+        $sentMessages = $allMessages->where('status', 'sent')->count();
+        $failedMessages = $allMessages->where('status', 'failed')->count();
+        $pendingMessages = $allMessages->where('status', 'pending')->count();
+        
+        // Count messages by source
+        $spmbCount = $allMessages->whereNull('external_batch_id')->count();
+        $externalCount = $allMessages->whereNotNull('external_batch_id')->count();
         
         // Get last message
-        $lastMessage = $pendaftar->whatsappLogs->sortByDesc('created_at')->first();
+        $lastMessage = $allMessages->first();
         
         // Determine status
         if ($totalMessages == 0) {
@@ -1309,10 +1373,13 @@ class WhatsAppController extends Controller
             'sent' => $sentMessages,
             'failed' => $failedMessages,
             'pending' => $pendingMessages,
+            'spmb_count' => $spmbCount,
+            'external_count' => $externalCount,
             'last_message' => $lastMessage ? [
                 'date' => $lastMessage->created_at->format('d M Y, H:i'),
                 'template' => $lastMessage->template->label ?? 'Manual',
-                'status' => $lastMessage->status
+                'status' => $lastMessage->status,
+                'source' => $lastMessage->external_batch_id ? 'external' : 'spmb'
             ] : null
         ];
     }

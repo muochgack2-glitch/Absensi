@@ -14,6 +14,7 @@ class WhatsAppLog extends Model
 
     protected $fillable = [
         'phone',
+        'phone_normalized',
         'message',
         'status',
         'type',
@@ -182,5 +183,53 @@ class WhatsAppLog extends Model
             'reminder' => 'Pengingat',
             default => ucfirst($this->type),
         };
+    }
+
+    /**
+     * Normalize phone number to standard format (62xxx)
+     * 
+     * @param string $phone
+     * @return string
+     */
+    public static function normalizePhone($phone)
+    {
+        if (empty($phone)) {
+            return null;
+        }
+
+        // Remove +, -, spaces
+        $phone = str_replace(['+', '-', ' '], '', trim($phone));
+
+        // Convert 08xxx to 628xxx
+        if (substr($phone, 0, 2) === '08') {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        // Ensure starts with 62
+        if (substr($phone, 0, 2) !== '62') {
+            $phone = '62' . $phone;
+        }
+
+        return $phone;
+    }
+
+    /**
+     * Boot method to auto-fill phone_normalized
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($log) {
+            if (!empty($log->phone) && empty($log->phone_normalized)) {
+                $log->phone_normalized = self::normalizePhone($log->phone);
+            }
+        });
+
+        static::updating(function ($log) {
+            if ($log->isDirty('phone')) {
+                $log->phone_normalized = self::normalizePhone($log->phone);
+            }
+        });
     }
 }
