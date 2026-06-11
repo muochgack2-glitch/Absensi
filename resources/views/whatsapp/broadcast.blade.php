@@ -334,25 +334,33 @@
                                             <strong>Variabel Dasar:</strong> <code>{nama}</code>, <code>{phone}</code>, <code>{notes}</code>
                                         </small>
                                         <details class="mb-2">
-                                            <summary class="text-muted" style="cursor: pointer;">
-                                                <small><i class="fas fa-info-circle me-1"></i>Variabel SPMB (hanya untuk data duplikat)</small>
+                                            <summary class="text-primary" style="cursor: pointer;">
+                                                <small><i class="fas fa-info-circle me-1"></i>Variabel SPMB (hanya untuk data duplikat) - Klik untuk lihat</small>
                                             </summary>
-                                            <div class="mt-2 p-2 bg-light rounded">
-                                                <small class="text-muted">
-                                                    <strong>Data Pribadi:</strong><br>
-                                                    <code>{no_registrasi}</code>, <code>{nisn}</code>, <code>{nik}</code>, <code>{email}</code>, 
-                                                    <code>{tempat_lahir}</code>, <code>{tanggal_lahir}</code>, <code>{jenis_kelamin}</code>, <code>{agama}</code><br>
+                                            <div class="mt-2 p-3 bg-light border rounded">
+                                                <small>
+                                                    <div class="mb-2">
+                                                        <strong class="text-dark">📋 Data Pribadi:</strong><br>
+                                                        <code>{no_registrasi}</code>, <code>{nisn}</code>, <code>{nik}</code>, <code>{email}</code>, 
+                                                        <code>{tempat_lahir}</code>, <code>{tanggal_lahir}</code>, <code>{jenis_kelamin}</code>, <code>{agama}</code>
+                                                    </div>
                                                     
-                                                    <strong>Data Sekolah:</strong><br>
-                                                    <code>{asal_sekolah}</code>, <code>{tahun_lulus}</code>, <code>{jurusan}</code><br>
+                                                    <div class="mb-2">
+                                                        <strong class="text-dark">🏫 Data Sekolah:</strong><br>
+                                                        <code>{asal_sekolah}</code>, <code>{tahun_lulus}</code>, <code>{jurusan}</code>
+                                                    </div>
                                                     
-                                                    <strong>Data Keluarga:</strong><br>
-                                                    <code>{nama_ayah}</code>, <code>{nama_ibu}</code>, <code>{no_hp_ortu}</code>, 
-                                                    <code>{nama_wali}</code>, <code>{no_hp_wali}</code><br>
+                                                    <div class="mb-2">
+                                                        <strong class="text-dark">👨‍👩‍👧 Data Keluarga:</strong><br>
+                                                        <code>{nama_ayah}</code>, <code>{nama_ibu}</code>, <code>{no_hp_ortu}</code>, 
+                                                        <code>{nama_wali}</code>, <code>{no_hp_wali}</code>
+                                                    </div>
                                                     
-                                                    <strong>Data Pendaftaran:</strong><br>
-                                                    <code>{nama_jaringan}</code>, <code>{gelombang}</code>, <code>{tgl_daftar}</code>, 
-                                                    <code>{status_siswa}</code>, <code>{alamat}</code>
+                                                    <div class="mb-0">
+                                                        <strong class="text-dark">📝 Data Pendaftaran:</strong><br>
+                                                        <code>{nama_jaringan}</code>, <code>{gelombang}</code>, <code>{tgl_daftar}</code>, 
+                                                        <code>{status_siswa}</code>, <code>{alamat}</code>
+                                                    </div>
                                                 </small>
                                             </div>
                                         </details>
