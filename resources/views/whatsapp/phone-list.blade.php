@@ -877,7 +877,7 @@ function displayExternalMessages(recipient, messages) {
                 <div class="alert alert-info mt-3 mb-0">
                     <i class="fas fa-link me-2"></i>
                     <strong>Duplikat dengan:</strong> 
-                    <a href="/pendaftar/${recipient.matched_pendaftar.id}" target="_blank">
+                    <a href="javascript:void(0)" onclick="viewMessages(${recipient.matched_pendaftar.id})" class="text-primary">
                         ${recipient.matched_pendaftar.nama} (${recipient.matched_pendaftar.no_registrasi})
                     </a>
                 </div>
