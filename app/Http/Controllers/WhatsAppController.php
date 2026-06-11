@@ -1542,8 +1542,8 @@ class WhatsAppController extends Controller
                 ], 422);
             }
 
-            // Load batch and recipients
-            $batch = ExternalBroadcastBatch::with('recipients')->findOrFail($request->batch_id);
+            // Load batch and recipients with matched pendaftar data
+            $batch = ExternalBroadcastBatch::with(['recipients.matchedPendaftar.masterJurusan'])->findOrFail($request->batch_id);
 
             // Mark batch as in progress
             $batch->markAsInProgress();
@@ -1552,10 +1552,44 @@ class WhatsAppController extends Controller
             $failedCount = 0;
 
             foreach ($batch->recipients as $recipient) {
+                // Prepare variables for replacement
+                $variables = [
+                    '{nama}' => $recipient->name,
+                    '{phone}' => $recipient->phone,
+                    '{notes}' => $recipient->notes ?? '',
+                ];
+                
+                // Add SPMB data if recipient has matched pendaftar
+                if ($recipient->matchedPendaftar) {
+                    $pendaftar = $recipient->matchedPendaftar;
+                    
+                    $variables['{no_registrasi}'] = $pendaftar->no_registrasi ?? '';
+                    $variables['{nisn}'] = $pendaftar->nisn ?? '';
+                    $variables['{nik}'] = $pendaftar->nik ?? '';
+                    $variables['{email}'] = $pendaftar->email ?? '';
+                    $variables['{tempat_lahir}'] = $pendaftar->tempat_lahir ?? '';
+                    $variables['{tanggal_lahir}'] = $pendaftar->tanggal_lahir ? $pendaftar->tanggal_lahir->format('d-m-Y') : '';
+                    $variables['{jenis_kelamin}'] = $pendaftar->jenis_kelamin ?? '';
+                    $variables['{agama}'] = $pendaftar->agama ?? '';
+                    $variables['{asal_sekolah}'] = $pendaftar->asal_sekolah ?? '';
+                    $variables['{tahun_lulus}'] = $pendaftar->tahun_lulus ?? '';
+                    $variables['{alamat}'] = $pendaftar->alamat ?? '';
+                    $variables['{nama_ayah}'] = $pendaftar->nama_ayah ?? '';
+                    $variables['{nama_ibu}'] = $pendaftar->nama_ibu ?? '';
+                    $variables['{no_hp_ortu}'] = $pendaftar->no_hp_ortu ?? '';
+                    $variables['{nama_wali}'] = $pendaftar->nama_wali ?? '';
+                    $variables['{no_hp_wali}'] = $pendaftar->no_hp_wali ?? '';
+                    $variables['{jurusan}'] = $pendaftar->jurusan ?? '';
+                    $variables['{nama_jaringan}'] = $pendaftar->nama_jaringan ?? '';
+                    $variables['{gelombang}'] = $pendaftar->gelombang ?? '';
+                    $variables['{tgl_daftar}'] = $pendaftar->tgl_daftar ? $pendaftar->tgl_daftar->format('d-m-Y') : '';
+                    $variables['{status_siswa}'] = $pendaftar->status_siswa ?? '';
+                }
+
                 // Replace variables in message
                 $personalizedMessage = str_replace(
-                    ['{nama}', '{phone}'],
-                    [$recipient->name, $recipient->phone],
+                    array_keys($variables),
+                    array_values($variables),
                     $request->message
                 );
 

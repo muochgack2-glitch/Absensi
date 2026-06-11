@@ -163,6 +163,7 @@ class WhatsAppService
             'pendaftar_id' => $options['pendaftar_id'] ?? null,
             'template_id' => $options['template_id'] ?? null,
             'sent_by' => $options['sent_by'] ?? auth()->id(),
+            'external_batch_id' => $options['external_batch_id'] ?? null,
         ]);
 
         try {

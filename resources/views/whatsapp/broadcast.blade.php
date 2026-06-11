@@ -330,9 +330,32 @@
                                     <div class="mb-3">
                                         <label class="form-label">Pesan <span class="text-danger">*</span></label>
                                         <textarea class="form-control" id="externalMessage" rows="6" placeholder="Ketik pesan Anda di sini..." required></textarea>
-                                        <small class="text-muted">
-                                            Variabel: <code>{nama}</code>, <code>{phone}</code>
+                                        <small class="text-muted d-block mb-2">
+                                            <strong>Variabel Dasar:</strong> <code>{nama}</code>, <code>{phone}</code>, <code>{notes}</code>
                                         </small>
+                                        <details class="mb-2">
+                                            <summary class="text-muted" style="cursor: pointer;">
+                                                <small><i class="fas fa-info-circle me-1"></i>Variabel SPMB (hanya untuk data duplikat)</small>
+                                            </summary>
+                                            <div class="mt-2 p-2 bg-light rounded">
+                                                <small class="text-muted">
+                                                    <strong>Data Pribadi:</strong><br>
+                                                    <code>{no_registrasi}</code>, <code>{nisn}</code>, <code>{nik}</code>, <code>{email}</code>, 
+                                                    <code>{tempat_lahir}</code>, <code>{tanggal_lahir}</code>, <code>{jenis_kelamin}</code>, <code>{agama}</code><br>
+                                                    
+                                                    <strong>Data Sekolah:</strong><br>
+                                                    <code>{asal_sekolah}</code>, <code>{tahun_lulus}</code>, <code>{jurusan}</code><br>
+                                                    
+                                                    <strong>Data Keluarga:</strong><br>
+                                                    <code>{nama_ayah}</code>, <code>{nama_ibu}</code>, <code>{no_hp_ortu}</code>, 
+                                                    <code>{nama_wali}</code>, <code>{no_hp_wali}</code><br>
+                                                    
+                                                    <strong>Data Pendaftaran:</strong><br>
+                                                    <code>{nama_jaringan}</code>, <code>{gelombang}</code>, <code>{tgl_daftar}</code>, 
+                                                    <code>{status_siswa}</code>, <code>{alamat}</code>
+                                                </small>
+                                            </div>
+                                        </details>
                                         <div id="templateWarning" class="alert alert-warning mt-2" style="display: none;">
                                             <i class="fas fa-exclamation-triangle me-2"></i>
                                             <strong>Peringatan:</strong> Template ini menggunakan variabel SPMB yang tidak tersedia untuk data eksternal: 
