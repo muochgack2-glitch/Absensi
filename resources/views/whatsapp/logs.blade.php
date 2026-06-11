@@ -121,18 +121,26 @@
                             <td>
                                 @if($log->type === 'broadcast')
                                     @if($log->external_batch_id)
-                                        <span class="badge bg-warning text-dark" title="Broadcast Eksternal">
+                                        <span class="badge bg-warning text-dark" title="Broadcast Eksternal (Batch ID: {{ $log->external_batch_id }})">
                                             📤 Eksternal
                                         </span>
                                     @elseif($log->template_id)
-                                        <span class="badge bg-info" title="Broadcast dari Rekap HP">
+                                        <span class="badge bg-info" title="Broadcast dari Rekap HP (Template ID: {{ $log->template_id }})">
                                             📋 Rekap HP
                                         </span>
                                     @else
-                                        <span class="badge bg-primary" title="Broadcast dari Halaman Broadcast">
+                                        <span class="badge bg-primary" title="Broadcast dari Halaman Broadcast (No Template)">
                                             📢 Broadcast
                                         </span>
                                     @endif
+                                @elseif($log->type === 'manual')
+                                    <span class="badge bg-secondary" title="Manual Send">
+                                        ✍️ Manual
+                                    </span>
+                                @elseif($log->type === 'auto_registration')
+                                    <span class="badge bg-success" title="Auto Registration">
+                                        🤖 Auto
+                                    </span>
                                 @else
                                     <span class="badge bg-secondary">
                                         -

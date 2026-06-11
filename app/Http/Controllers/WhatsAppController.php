@@ -152,7 +152,7 @@ class WhatsAppController extends Controller
      */
     public function logs(Request $request)
     {
-        $query = WhatsAppLog::with(['pendaftar', 'template', 'sender'])
+        $query = WhatsAppLog::with(['pendaftar', 'template', 'sender', 'externalBatch'])
             ->latest();
 
         // Filter by status
