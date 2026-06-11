@@ -602,8 +602,17 @@ function updateSelectedCount() {
         jurusan: cb.dataset.jurusan
     }));
     
-    document.getElementById('selectedCount').textContent = selectedPhones.length;
-    document.getElementById('selectAll').checked = checkboxes.length > 0 && checkboxes.length === document.querySelectorAll('.phone-checkbox').length;
+    // Null checks for elements that might not exist in all tabs
+    const selectedCountEl = document.getElementById('selectedCount');
+    const selectAllEl = document.getElementById('selectAll');
+    
+    if (selectedCountEl) {
+        selectedCountEl.textContent = selectedPhones.length;
+    }
+    
+    if (selectAllEl) {
+        selectAllEl.checked = checkboxes.length > 0 && checkboxes.length === document.querySelectorAll('.phone-checkbox').length;
+    }
 }
 
 // Character counter
