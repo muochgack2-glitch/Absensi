@@ -1040,7 +1040,6 @@ function showExternalResult(data) {
     // Legacy function - now using modal
     showExternalBroadcastResult(data);
 }
-}
 </script>
 @endpush
 
