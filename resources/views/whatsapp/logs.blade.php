@@ -79,13 +79,14 @@
                     <thead class="table-light">
                         <tr>
                             <th width="5%">#</th>
-                            <th width="12%">Waktu</th>
-                            <th width="15%">Nomor HP</th>
-                            <th width="30%">Pesan</th>
+                            <th width="10%">Waktu</th>
+                            <th width="13%">Nomor HP</th>
+                            <th width="25%">Pesan</th>
                             <th width="10%">Tipe</th>
+                            <th width="10%">Source</th>
                             <th width="10%">Status</th>
                             <th width="10%">Pengirim</th>
-                            <th width="8%">Aksi</th>
+                            <th width="7%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,6 +117,27 @@
                             </td>
                             <td>
                                 <span class="badge bg-secondary">{{ $log->type_label }}</span>
+                            </td>
+                            <td>
+                                @if($log->type === 'broadcast')
+                                    @if($log->external_batch_id)
+                                        <span class="badge bg-warning text-dark" title="Broadcast Eksternal">
+                                            📤 Eksternal
+                                        </span>
+                                    @elseif($log->template_id)
+                                        <span class="badge bg-info" title="Broadcast dari Rekap HP">
+                                            📋 Rekap HP
+                                        </span>
+                                    @else
+                                        <span class="badge bg-primary" title="Broadcast dari Halaman Broadcast">
+                                            📢 Broadcast
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="badge bg-secondary">
+                                        -
+                                    </span>
+                                @endif
                             </td>
                             <td>
                                 <span class="badge bg-{{ $log->status_color }}">
@@ -225,6 +247,16 @@ function showDetail(logId) {
                 <div class="col-md-6 mb-3">
                     <label class="form-label small text-muted">Tipe</label>
                     <div><span class="badge bg-secondary">${logData.type_label}</span></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small text-muted">Source</label>
+                    <div>
+                        ${logData.type === 'broadcast' ? (
+                            logData.external_batch_id ? '<span class="badge bg-warning text-dark">📤 Eksternal</span>' :
+                            logData.template_id ? '<span class="badge bg-info">📋 Rekap HP</span>' :
+                            '<span class="badge bg-primary">📢 Broadcast</span>'
+                        ) : '<span class="badge bg-secondary">-</span>'}
+                    </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label small text-muted">Waktu Dibuat</label>
