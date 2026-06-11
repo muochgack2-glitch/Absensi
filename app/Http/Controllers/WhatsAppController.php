@@ -1521,17 +1521,18 @@ class WhatsAppController extends Controller
             
             // Validate status structure and check connection
             $isConnected = false;
-            if (isset($status['success']) && $status['success'] && isset($status['data']['is_connected'])) {
-                $isConnected = $status['data']['is_connected'];
+            if (isset($status['success']) && $status['success'] && isset($status['data']['status'])) {
+                $isConnected = $status['data']['status'] === 'connected';
             }
             
             // DEBUG: Log connection check result
             \Log::info('External Broadcast - Connection Check', [
                 'is_connected' => $isConnected,
+                'status_value' => $status['data']['status'] ?? null,
                 'has_success_key' => isset($status['success']),
                 'success_value' => $status['success'] ?? null,
                 'has_data_key' => isset($status['data']),
-                'has_is_connected_key' => isset($status['data']['is_connected']),
+                'has_status_key' => isset($status['data']['status']),
             ]);
             
             if (!$isConnected) {
