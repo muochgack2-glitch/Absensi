@@ -1547,7 +1547,8 @@ class WhatsAppController extends Controller
                     ]
                 );
 
-                if ($result['success']) {
+                // Validate result is an array with 'success' key
+                if (is_array($result) && isset($result['success']) && $result['success']) {
                     $successCount++;
                     $batch->incrementSent();
                 } else {
