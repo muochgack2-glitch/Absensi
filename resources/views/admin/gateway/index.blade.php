@@ -3,6 +3,11 @@
 @section('styles')
 <style>
     /* Light Mode Base Styles */
+    .metric-box {
+        background: #f8f9fa !important;
+        border: 1px solid #e9ecef !important;
+    }
+    
     .spinner-lg {
         width: 3rem !important;
         height: 3rem !important;
@@ -47,10 +52,27 @@
     .modal-footer-custom {
         background: #f8f9fa !important;
     }
+    
+    .connection-status-box {
+        background: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    .connection-status-box.connected {
+        background: #d1e7dd !important;
+        border-color: #a3cfbb !important;
+    }
+    
+    .connection-status-box.disconnected {
+        background: #fff3cd !important;
+        border-color: #ffecb5 !important;
+    }
 
-    /* Dark Mode Support for Gateway Management */
+    /* ==================== DARK MODE ==================== */
+    
+    /* Main card backgrounds */
     .admin-dark .card {
-        background: var(--bg-secondary) !important;
+        background: #1e293b !important;
         border-color: rgba(255,255,255,0.1) !important;
     }
     
@@ -60,9 +82,10 @@
     
     .admin-dark .card-body,
     .admin-dark .card-footer {
-        color: var(--text-primary) !important;
+        color: #e2e8f0 !important;
     }
     
+    /* Text colors */
     .admin-dark .text-muted {
         color: rgba(255,255,255,0.6) !important;
     }
@@ -71,16 +94,52 @@
         color: rgba(255,255,255,0.5) !important;
     }
     
-    .admin-dark .bg-light {
-        background: rgba(255,255,255,0.05) !important;
-        color: var(--text-primary) !important;
+    .admin-dark h6 {
+        color: #f1f5f9 !important;
     }
     
+    /* Metric boxes in dark mode */
+    .admin-dark .metric-box {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #e2e8f0 !important;
+    }
+    
+    .admin-dark .metric-box h6 {
+        color: #f1f5f9 !important;
+    }
+    
+    .admin-dark .metric-box small {
+        color: rgba(255,255,255,0.6) !important;
+    }
+    
+    /* Connection status boxes in dark mode */
+    .admin-dark .connection-status-box {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    
+    .admin-dark .connection-status-box.connected {
+        background: rgba(25, 135, 84, 0.15) !important;
+        border-color: rgba(25, 135, 84, 0.4) !important;
+    }
+    
+    .admin-dark .connection-status-box.disconnected {
+        background: rgba(255, 193, 7, 0.15) !important;
+        border-color: rgba(255, 193, 7, 0.4) !important;
+    }
+    
+    .admin-dark .connection-status-box h6 {
+        color: #f1f5f9 !important;
+    }
+    
+    /* Background utilities */
     .admin-dark .bg-primary.bg-opacity-10 {
         background: rgba(102, 126, 234, 0.2) !important;
         color: #b8c5ff !important;
     }
     
+    /* Alert styles */
     .admin-dark .alert-info {
         background: rgba(13, 110, 253, 0.2) !important;
         border-color: rgba(13, 110, 253, 0.3) !important;
@@ -99,9 +158,10 @@
         color: #ffecb5 !important;
     }
     
+    /* Modal styles */
     .admin-dark .modal-content {
-        background: var(--bg-secondary) !important;
-        color: var(--text-primary) !important;
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
     }
     
     .admin-dark .modal-header {
@@ -113,6 +173,7 @@
         border-color: rgba(255,255,255,0.1) !important;
     }
     
+    /* Buttons */
     .admin-dark .btn-outline-primary,
     .admin-dark .btn-outline-warning,
     .admin-dark .btn-outline-danger,
@@ -127,28 +188,12 @@
         color: #fff !important;
     }
     
-    /* Gradient headers stay vibrant in dark mode */
+    /* Gradient headers - stay vibrant */
     .gradient-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     }
     
-    /* Connection status boxes in dark mode */
-    .admin-dark .connection-status-box {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-    }
-    
-    .admin-dark .connection-status-box.connected {
-        background: rgba(25, 135, 84, 0.2) !important;
-        border-color: rgba(25, 135, 84, 0.4) !important;
-    }
-    
-    .admin-dark .connection-status-box.disconnected {
-        background: rgba(255, 193, 7, 0.2) !important;
-        border-color: rgba(255, 193, 7, 0.4) !important;
-    }
-    
-    /* Success/Danger headers in dark mode */
+    /* Success/Danger headers */
     .admin-dark .bg-success {
         background: rgba(25, 135, 84, 0.9) !important;
     }
@@ -157,18 +202,12 @@
         background: rgba(220, 53, 69, 0.9) !important;
     }
     
-    /* Badge colors in dark mode */
+    /* Badge colors */
     .admin-dark .badge {
         font-weight: 600;
     }
     
-    /* Health metrics boxes */
-    .admin-dark .health-metric-box {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-    }
-    
-    /* Icon colors in dark mode */
+    /* Icon colors */
     .admin-dark .text-primary {
         color: #8b9fff !important;
     }
@@ -185,22 +224,17 @@
         color: #20c997 !important;
     }
     
-    /* QR Code box in dark mode */
+    /* QR Code box - stays white */
     .admin-dark .qr-code-box {
         background: #ffffff !important;
         border: 2px solid rgba(255,255,255,0.2) !important;
     }
     
-    /* Logs pre tag - darker in dark mode */
+    /* Logs pre tag - GitHub style */
     .admin-dark .logs-pre {
         background: #0d1117 !important;
         color: #c9d1d9 !important;
         border: 1px solid rgba(255,255,255,0.1) !important;
-    }
-    
-    /* Container background in dark mode */
-    .admin-dark .container-fluid {
-        background: transparent !important;
     }
 </style>
 @endsection
@@ -270,7 +304,7 @@
                         <!-- Health Metrics -->
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <div class="health-metric-box p-3 rounded bg-light">
+                                <div class="metric-box p-3 rounded">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-clock text-primary me-2"></i>
                                         <small class="text-muted">Uptime</small>
@@ -293,7 +327,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="health-metric-box p-3 rounded bg-light">
+                                <div class="metric-box p-3 rounded">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-memory text-info me-2"></i>
                                         <small class="text-muted">Memory</small>
@@ -305,7 +339,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="health-metric-box p-3 rounded bg-light">
+                                <div class="metric-box p-3 rounded">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-microchip text-warning me-2"></i>
                                         <small class="text-muted">CPU Time</small>
@@ -316,7 +350,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="health-metric-box p-3 rounded bg-light">
+                                <div class="metric-box p-3 rounded">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-qrcode text-success me-2"></i>
                                         <small class="text-muted">QR Status</small>
