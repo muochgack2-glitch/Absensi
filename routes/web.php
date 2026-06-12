@@ -197,5 +197,14 @@ Route::middleware('admin')->group(function () {
         Route::post('/logout', [\App\Http\Controllers\WhatsAppController::class, 'logout'])->name('logout');
         Route::post('/restart', [\App\Http\Controllers\WhatsAppController::class, 'restart'])->name('restart')->middleware('throttle:2,60'); // Max 2x per hour
     });
+
+    // Gateway Management - For Administrator and Admin WA
+    Route::middleware(['checkRole:administrator,admin_wa'])->prefix('admin/gateway')->name('gateway.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\WhatsAppGatewayController::class, 'index'])->name('index');
+        Route::get('/{gateway}/qr', [\App\Http\Controllers\WhatsAppGatewayController::class, 'getQRCode'])->name('qr');
+        Route::post('/{gateway}/restart', [\App\Http\Controllers\WhatsAppGatewayController::class, 'restart'])->name('restart');
+        Route::post('/{gateway}/logout', [\App\Http\Controllers\WhatsAppGatewayController::class, 'logout'])->name('logout');
+        Route::get('/{gateway}/logs', [\App\Http\Controllers\WhatsAppGatewayController::class, 'getLogs'])->name('logs');
+    });
 });
 

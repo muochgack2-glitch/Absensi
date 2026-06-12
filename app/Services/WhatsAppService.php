@@ -31,9 +31,68 @@ class WhatsAppService
      */
     public function __construct()
     {
-        $this->serverUrl = WhatsAppSetting::getServerUrl();
+        $this->serverUrl = $this->getActiveServerUrl();
         $this->timeout = WhatsAppSetting::getTimeout();
         $this->retryAttempts = WhatsAppSetting::getRetryAttempts();
+    }
+
+    /**
+     * Get active server URL with failover support
+     * 
+     * @return string
+     */
+    protected function getActiveServerUrl(): string
+    {
+        $primary = WhatsAppSetting::get('wa_server_url', 'http://localhost:3000');
+        $backup = WhatsAppSetting::get('wa_server_url_backup');
+        $failoverEnabled = WhatsAppSetting::get('wa_failover_enabled', false);
+
+        // If failover not enabled or no backup configured, always use primary
+        if (!$failoverEnabled || !$backup) {
+            return $primary;
+        }
+
+        // Check primary health
+        if ($this->checkServerHealth($primary)) {
+            return $primary;
+        }
+
+        // Primary unhealthy, use backup
+        Log::warning('Primary WhatsApp gateway unhealthy, switching to backup', [
+            'primary' => $primary,
+            'backup' => $backup,
+        ]);
+
+        return $backup;
+    }
+
+    /**
+     * Check if server is healthy
+     * 
+     * @param string $url
+     * @return bool
+     */
+    protected function checkServerHealth(string $url): bool
+    {
+        try {
+            $timeout = WhatsAppSetting::get('wa_failover_timeout', 5);
+            
+            $response = Http::timeout($timeout)->get("{$url}/status");
+            
+            if (!$response->successful()) {
+                return false;
+            }
+
+            $data = $response->json();
+            return isset($data['status']) && $data['status'] === 'connected';
+            
+        } catch (Exception $e) {
+            Log::debug('Server health check failed', [
+                'url' => $url,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**

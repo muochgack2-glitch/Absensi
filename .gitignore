@@ -31,3 +31,18 @@ composer.local.json
 /whatsapp-server/auth_info
 /whatsapp-server/*.log
 /whatsapp-server/logs
+# Absensi Laravel
+absensi/vendor/
+absensi/node_modules/
+absensi/.env
+absensi/storage/*.key
+absensi/storage/framework/cache/data/*
+absensi/storage/framework/sessions/*
+absensi/storage/framework/views/*
+absensi/storage/logs/*
+absensi/.phpunit.result.cache
+
+# Absensi Gateway
+absensi/whatsapp-server-absensi/node_modules/
+absensi/whatsapp-server-absensi/.env
+absensi/whatsapp-server-absensi/spmb-wa-session-absensi/
