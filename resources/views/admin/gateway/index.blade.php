@@ -2,10 +2,20 @@
 
 @section('styles')
 <style>
-    /* Light Mode Base Styles */
+    /* ==================== LIGHT MODE (Default) ==================== */
     .metric-box {
-        background: #f8f9fa !important;
-        border: 1px solid #e9ecef !important;
+        background: #f1f3f5 !important;
+        border: 1px solid #dee2e6 !important;
+        color: #212529 !important;
+    }
+    
+    .metric-box h6 {
+        color: #212529 !important;
+        font-weight: 600;
+    }
+    
+    .metric-box small {
+        color: #6c757d !important;
     }
     
     .spinner-lg {
@@ -71,87 +81,111 @@
     /* ==================== DARK MODE ==================== */
     
     /* Main card backgrounds */
+    html.admin-dark .card,
     .admin-dark .card {
         background: #1e293b !important;
         border-color: rgba(255,255,255,0.1) !important;
     }
     
+    html.admin-dark .card-header,
     .admin-dark .card-header {
         border-color: rgba(255,255,255,0.1) !important;
     }
     
+    html.admin-dark .card-body,
+    html.admin-dark .card-footer,
     .admin-dark .card-body,
     .admin-dark .card-footer {
         color: #e2e8f0 !important;
     }
     
-    /* Text colors */
+    /* Metric boxes in dark mode - FORCE OVERRIDE */
+    html.admin-dark .metric-box,
+    .admin-dark .metric-box {
+        background: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
+        color: #f7fafc !important;
+    }
+    
+    html.admin-dark .metric-box h6,
+    .admin-dark .metric-box h6 {
+        color: #f7fafc !important;
+        font-weight: 600;
+    }
+    
+    html.admin-dark .metric-box small,
+    .admin-dark .metric-box small {
+        color: #cbd5e0 !important;
+    }
+    
+    html.admin-dark .metric-box .text-muted,
+    .admin-dark .metric-box .text-muted {
+        color: #cbd5e0 !important;
+    }
+    
+    /* Text colors in dark mode */
+    html.admin-dark .text-muted,
     .admin-dark .text-muted {
         color: rgba(255,255,255,0.6) !important;
     }
     
+    html.admin-dark small.text-muted,
     .admin-dark small.text-muted {
         color: rgba(255,255,255,0.5) !important;
     }
     
+    html.admin-dark h6,
     .admin-dark h6 {
         color: #f1f5f9 !important;
     }
     
-    /* Metric boxes in dark mode */
-    .admin-dark .metric-box {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        color: #e2e8f0 !important;
-    }
-    
-    .admin-dark .metric-box h6 {
-        color: #f1f5f9 !important;
-    }
-    
-    .admin-dark .metric-box small {
-        color: rgba(255,255,255,0.6) !important;
-    }
-    
     /* Connection status boxes in dark mode */
+    html.admin-dark .connection-status-box,
     .admin-dark .connection-status-box {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
+        background: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
     }
     
+    html.admin-dark .connection-status-box.connected,
     .admin-dark .connection-status-box.connected {
-        background: rgba(25, 135, 84, 0.15) !important;
-        border-color: rgba(25, 135, 84, 0.4) !important;
+        background: rgba(25, 135, 84, 0.2) !important;
+        border-color: rgba(25, 135, 84, 0.5) !important;
     }
     
+    html.admin-dark .connection-status-box.disconnected,
     .admin-dark .connection-status-box.disconnected {
-        background: rgba(255, 193, 7, 0.15) !important;
-        border-color: rgba(255, 193, 7, 0.4) !important;
+        background: rgba(255, 193, 7, 0.2) !important;
+        border-color: rgba(255, 193, 7, 0.5) !important;
     }
     
+    html.admin-dark .connection-status-box h6,
     .admin-dark .connection-status-box h6 {
         color: #f1f5f9 !important;
     }
     
     /* Background utilities */
+    html.admin-dark .bg-primary.bg-opacity-10,
     .admin-dark .bg-primary.bg-opacity-10 {
         background: rgba(102, 126, 234, 0.2) !important;
         color: #b8c5ff !important;
     }
     
     /* Alert styles */
+    html.admin-dark .alert-info,
     .admin-dark .alert-info {
         background: rgba(13, 110, 253, 0.2) !important;
         border-color: rgba(13, 110, 253, 0.3) !important;
         color: #9ec5fe !important;
     }
     
+    html.admin-dark .alert-danger,
     .admin-dark .alert-danger {
         background: rgba(220, 53, 69, 0.2) !important;
         border-color: rgba(220, 53, 69, 0.3) !important;
         color: #ea868f !important;
     }
     
+    html.admin-dark .alert-warning,
     .admin-dark .alert-warning {
         background: rgba(255, 193, 7, 0.2) !important;
         border-color: rgba(255, 193, 7, 0.3) !important;
@@ -159,33 +193,33 @@
     }
     
     /* Modal styles */
+    html.admin-dark .modal-content,
     .admin-dark .modal-content {
         background: #1e293b !important;
         color: #e2e8f0 !important;
     }
     
+    html.admin-dark .modal-header,
     .admin-dark .modal-header {
         border-color: rgba(255,255,255,0.1) !important;
     }
     
+    html.admin-dark .modal-footer-custom,
     .admin-dark .modal-footer-custom {
         background: rgba(255,255,255,0.02) !important;
         border-color: rgba(255,255,255,0.1) !important;
     }
     
     /* Buttons */
+    html.admin-dark .btn-outline-primary,
+    html.admin-dark .btn-outline-warning,
+    html.admin-dark .btn-outline-danger,
+    html.admin-dark .btn-outline-info,
     .admin-dark .btn-outline-primary,
     .admin-dark .btn-outline-warning,
     .admin-dark .btn-outline-danger,
     .admin-dark .btn-outline-info {
         border-width: 2px !important;
-    }
-    
-    .admin-dark .btn-outline-primary:hover,
-    .admin-dark .btn-outline-warning:hover,
-    .admin-dark .btn-outline-danger:hover,
-    .admin-dark .btn-outline-info:hover {
-        color: #fff !important;
     }
     
     /* Gradient headers - stay vibrant */
@@ -194,43 +228,46 @@
     }
     
     /* Success/Danger headers */
+    html.admin-dark .bg-success,
     .admin-dark .bg-success {
         background: rgba(25, 135, 84, 0.9) !important;
     }
     
+    html.admin-dark .bg-danger,
     .admin-dark .bg-danger {
         background: rgba(220, 53, 69, 0.9) !important;
     }
     
-    /* Badge colors */
-    .admin-dark .badge {
-        font-weight: 600;
-    }
-    
     /* Icon colors */
+    html.admin-dark .text-primary,
     .admin-dark .text-primary {
         color: #8b9fff !important;
     }
     
+    html.admin-dark .text-info,
     .admin-dark .text-info {
         color: #54b4d3 !important;
     }
     
+    html.admin-dark .text-warning,
     .admin-dark .text-warning {
         color: #ffc107 !important;
     }
     
+    html.admin-dark .text-success,
     .admin-dark .text-success {
         color: #20c997 !important;
     }
     
     /* QR Code box - stays white */
+    html.admin-dark .qr-code-box,
     .admin-dark .qr-code-box {
         background: #ffffff !important;
         border: 2px solid rgba(255,255,255,0.2) !important;
     }
     
     /* Logs pre tag - GitHub style */
+    html.admin-dark .logs-pre,
     .admin-dark .logs-pre {
         background: #0d1117 !important;
         color: #c9d1d9 !important;
