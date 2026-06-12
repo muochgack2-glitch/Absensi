@@ -45,7 +45,7 @@ class WhatsAppController extends Controller
             ->get();
 
         // Get active server URL (with failover detection)
-        $activeServerUrl = $this->whatsappService->getActiveServerUrl();
+        $activeServerUrl = $this->whatsappService->getCurrentServerUrl();
 
         return view('whatsapp.index', compact('status', 'statistics', 'recentLogs', 'activeServerUrl'));
     }
