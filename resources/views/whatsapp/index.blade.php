@@ -11,9 +11,38 @@
             <p class="text-muted mb-0">Monitor dan kelola pengiriman pesan WhatsApp</p>
         </div>
         <div>
+            <a href="{{ route('gateway.index') }}" class="btn btn-outline-info me-2">
+                <i class="fas fa-server me-2"></i>Gateway Management
+            </a>
             <a href="{{ route('whatsapp.send') }}" class="btn btn-primary">
                 <i class="fas fa-paper-plane me-2"></i>Kirim Pesan
             </a>
+        </div>
+    </div>
+
+    <!-- Dual Gateway Info Banner -->
+    <div class="alert alert-info border-0 shadow-sm mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle fa-2x"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h6 class="alert-heading mb-1">
+                    <i class="fas fa-server me-2"></i>Dual Gateway Management
+                </h6>
+                <p class="mb-2 small">
+                    Sistem sekarang menggunakan <strong>2 WhatsApp Gateway</strong> dengan failover otomatis:
+                    <strong>Primary (Port 3000)</strong> dan <strong>Backup (Port 3001)</strong>.
+                </p>
+                <p class="mb-0">
+                    <a href="{{ route('gateway.index') }}" class="btn btn-sm btn-info">
+                        <i class="fas fa-arrow-right me-1"></i>Buka Gateway Management Dashboard
+                    </a>
+                    <small class="text-muted ms-3">
+                        <i class="fas fa-lightbulb me-1"></i>Monitor kedua gateway, lihat QR code, restart, dan logout dari satu dashboard
+                    </small>
+                </p>
+            </div>
         </div>
     </div>
 
