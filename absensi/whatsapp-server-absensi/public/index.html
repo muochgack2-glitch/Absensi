@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPMB WhatsApp Gateway - Testing Panel</title>
+    <title>SPMB WhatsApp Gateway BACKUP - Port 3001</title>
     <style>
         * {
             margin: 0;
@@ -225,8 +225,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📱 SPMB WhatsApp Gateway</h1>
-            <p>Testing Panel - Scan QR & Send Messages</p>
+            <h1>📱 SPMB WhatsApp Gateway - BACKUP</h1>
+            <p>Testing Panel - Port 3001 (Backup Gateway)</p>
         </div>
         
         <div class="grid">
@@ -277,7 +277,8 @@
     </div>
     
     <script>
-        const API_URL = 'http://localhost:3000';
+        // Auto-detect current port (works for both 3000 and 3001)
+        const API_URL = window.location.origin;
         
         // Load status on page load
         loadStatus();
