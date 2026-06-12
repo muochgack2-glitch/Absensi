@@ -675,6 +675,91 @@
             </div>
         </div>
     </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal fade" id="resetConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hard Reset
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-danger border-0" role="alert">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-power-off me-2"></i>WARNING: Hard Reset Gateway
+                        </h6>
+                        <p class="mb-2">Tindakan ini akan melakukan:</p>
+                        <ul class="mb-0 ps-3">
+                            <li>Restart PM2 process</li>
+                            <li>Hapus session WhatsApp</li>
+                            <li>Generate QR code baru</li>
+                        </ul>
+                    </div>
+                    <p class="mb-0">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        Gateway akan <strong>offline 10-15 detik</strong>. Pastikan tidak ada pengiriman pesan penting yang sedang berlangsung.
+                    </p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-danger" @click="confirmReset()">
+                        <i class="fas fa-power-off me-2"></i>Ya, Reset Gateway
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Result Modal -->
+    <div class="modal fade" id="resetResultModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0" :class="resetSuccess ? 'bg-success' : 'bg-danger'" class="text-white">
+                    <h5 class="modal-title text-white">
+                        <i :class="resetSuccess ? 'fas fa-check-circle' : 'fas fa-times-circle'" class="me-2"></i>
+                        <span x-text="resetSuccess ? 'Reset Berhasil' : 'Reset Gagal'"></span>
+                    </h5>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div x-show="resetSuccess">
+                        <i class="fas fa-check-circle text-success mb-3" style="font-size: 4rem;"></i>
+                        <h5 class="mb-3">Gateway Berhasil Di-reset!</h5>
+                        <p class="text-muted mb-3" x-text="resetMessage"></p>
+                        <div class="alert alert-info border-0 text-start" role="alert">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-info-circle me-2"></i>Langkah Selanjutnya:
+                            </h6>
+                            <ol class="mb-0 ps-3 small">
+                                <li>Halaman akan reload otomatis dalam <strong x-text="countdown"></strong> detik</li>
+                                <li>Setelah reload, klik tombol <strong>"Lihat QR"</strong></li>
+                                <li>Scan QR code dengan WhatsApp Anda</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div x-show="!resetSuccess">
+                        <i class="fas fa-times-circle text-danger mb-3" style="font-size: 4rem;"></i>
+                        <h5 class="mb-3">Reset Gagal</h5>
+                        <div class="alert alert-danger border-0 text-start" role="alert">
+                            <p class="mb-0" x-text="resetMessage"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" x-show="!resetSuccess">
+                        <i class="fas fa-times me-2"></i>Tutup
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="location.reload()" x-show="!resetSuccess">
+                        <i class="fas fa-sync-alt me-2"></i>Coba Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -686,6 +771,10 @@ function gatewayManager() {
         logs: '',
         currentGateway: null,
         failoverEnabled: {{ $failoverSettings['enabled'] ? 'true' : 'false' }},
+        resetSuccess: false,
+        resetMessage: '',
+        countdown: 15,
+        countdownInterval: null,
 
         viewQR(gateway) {
             this.currentGateway = gateway;
@@ -832,15 +921,27 @@ function gatewayManager() {
         },
 
         resetGateway(gateway) {
-            if (!confirm('⚠️ HARD RESET gateway ini?\n\n⚠️ WARNING: Ini akan:\n- Restart PM2 process\n- Hapus session WhatsApp\n- Generate QR code baru\n\nGateway akan offline 10-15 detik.\n\nLanjutkan?')) return;
+            this.currentGateway = gateway;
+            const modal = new bootstrap.Modal(document.getElementById('resetConfirmModal'));
+            modal.show();
+        },
 
-            // Show loading state
-            const btn = event.target.closest('button');
-            const originalHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+        confirmReset() {
+            // Close confirmation modal
+            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal'));
+            confirmModal.hide();
 
-            fetch(`/admin/gateway/${gateway}/reset`, {
+            // Find the button that triggered this
+            const gatewayName = this.currentGateway === 'spmb' ? 'SPMB' : 'Absensi';
+            
+            // Show loading state on button
+            const buttons = document.querySelectorAll(`button[onclick*="resetGateway('${this.currentGateway}')"]`);
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+            });
+
+            fetch(`/admin/gateway/${this.currentGateway}/reset`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -850,19 +951,43 @@ function gatewayManager() {
             })
                 .then(res => res.json())
                 .then(data => {
+                    this.resetSuccess = data.success;
+                    this.resetMessage = data.message;
+                    
+                    // Show result modal
+                    const resultModal = new bootstrap.Modal(document.getElementById('resetResultModal'));
+                    resultModal.show();
+
                     if (data.success) {
-                        alert('✅ ' + data.message + '\n\nHalaman akan reload dalam 15 detik...');
-                        setTimeout(() => location.reload(), 15000);
+                        // Start countdown
+                        this.countdown = 15;
+                        this.countdownInterval = setInterval(() => {
+                            this.countdown--;
+                            if (this.countdown <= 0) {
+                                clearInterval(this.countdownInterval);
+                                location.reload();
+                            }
+                        }, 1000);
                     } else {
-                        alert('❌ ' + data.message);
-                        btn.disabled = false;
-                        btn.innerHTML = originalHtml;
+                        // Reset button state on error
+                        buttons.forEach(btn => {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-power-off"></i> <span>Reset & Reconnect (Hard Reset)</span>';
+                        });
                     }
                 })
                 .catch(err => {
-                    alert('❌ Failed to reset: ' + err.message);
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
+                    this.resetSuccess = false;
+                    this.resetMessage = 'Failed to reset: ' + err.message;
+                    
+                    const resultModal = new bootstrap.Modal(document.getElementById('resetResultModal'));
+                    resultModal.show();
+
+                    // Reset button state
+                    buttons.forEach(btn => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-power-off"></i> <span>Reset & Reconnect (Hard Reset)</span>';
+                    });
                 });
         },
 
