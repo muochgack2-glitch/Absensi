@@ -10,29 +10,33 @@ use App\Models\WhatsAppSetting;
 class WhatsAppGatewayController extends Controller
 {
     /**
-     * Gateway configurations
+     * Get gateway configurations (dynamic from database)
      */
-    protected $gateways = [
-        'spmb' => [
-            'name' => 'Gateway SPMB',
-            'url' => 'http://localhost:3000',
-            'purpose' => 'Primary - SPMB System',
-        ],
-        'absensi' => [
-            'name' => 'Gateway Absensi',
-            'url' => 'http://localhost:3001',
-            'purpose' => 'Backup SPMB / Future: Absensi System',
-        ],
-    ];
+    protected function getGateways()
+    {
+        return [
+            'spmb' => [
+                'name' => 'Gateway SPMB',
+                'url' => WhatsAppSetting::get('wa_server_url', 'http://localhost:3000'),
+                'purpose' => 'Primary - SPMB System',
+            ],
+            'absensi' => [
+                'name' => 'Gateway Absensi',
+                'url' => WhatsAppSetting::get('wa_server_url_backup', 'http://localhost:3001'),
+                'purpose' => 'Backup SPMB / Future: Absensi System',
+            ],
+        ];
+    }
 
     /**
      * Show gateway management dashboard
      */
     public function index()
     {
+        $gateways = $this->getGateways();
         $statuses = [];
         
-        foreach ($this->gateways as $key => $gateway) {
+        foreach ($gateways as $key => $gateway) {
             try {
                 $response = Http::timeout(5)->get("{$gateway['url']}/status");
                 $health = Http::timeout(5)->get("{$gateway['url']}/health");
@@ -68,7 +72,8 @@ class WhatsAppGatewayController extends Controller
      */
     public function getQRCode($gateway)
     {
-        $url = $this->gateways[$gateway]['url'] ?? null;
+        $gateways = $this->getGateways();
+        $url = $gateways[$gateway]['url'] ?? null;
         if (!$url) {
             return response()->json([
                 'success' => false,
@@ -104,7 +109,8 @@ class WhatsAppGatewayController extends Controller
      */
     public function restart($gateway)
     {
-        $url = $this->gateways[$gateway]['url'] ?? null;
+        $gateways = $this->getGateways();
+        $url = $gateways[$gateway]['url'] ?? null;
         if (!$url) {
             return response()->json([
                 'success' => false,
@@ -138,7 +144,8 @@ class WhatsAppGatewayController extends Controller
      */
     public function logout($gateway)
     {
-        $url = $this->gateways[$gateway]['url'] ?? null;
+        $gateways = $this->getGateways();
+        $url = $gateways[$gateway]['url'] ?? null;
         if (!$url) {
             return response()->json([
                 'success' => false,
