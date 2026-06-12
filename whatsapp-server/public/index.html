@@ -277,7 +277,8 @@
     </div>
     
     <script>
-        const API_URL = 'http://localhost:3000';
+        // Auto-detect current port (works for any port)
+        const API_URL = window.location.origin;
         
         // Load status on page load
         loadStatus();
