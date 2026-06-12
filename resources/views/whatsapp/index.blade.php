@@ -186,7 +186,10 @@
                             </div>
                             <div class="col-md-3">
                                 <small class="text-muted d-block">Server URL</small>
-                                <strong class="text-muted small">{{ config('app.wa_server_url', 'http://localhost:3000') }}</strong>
+                                <strong class="text-muted small">{{ $activeServerUrl ?? config('app.wa_server_url', 'http://localhost:3000') }}</strong>
+                                @if(isset($activeServerUrl) && strpos($activeServerUrl, '3001') !== false)
+                                <br><span class="badge badge-sm bg-warning text-dark">Using Backup</span>
+                                @endif
                             </div>
                         </div>
                     </div>

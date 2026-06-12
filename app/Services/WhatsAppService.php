@@ -67,6 +67,16 @@ class WhatsAppService
     }
 
     /**
+     * Get current active server URL (public method for UI display)
+     * 
+     * @return string
+     */
+    public function getCurrentServerUrl(): string
+    {
+        return $this->getActiveServerUrl();
+    }
+
+    /**
      * Check if server is healthy
      * 
      * @param string $url
