@@ -66,7 +66,11 @@
     }
     
     .qr-image {
-        max-width: 300px;
+        width: 400px !important;
+        height: 400px !important;
+        max-width: 100%;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
     }
     
     .qr-code-box {
@@ -604,7 +608,7 @@
                     </div>
                     <div x-show="!loadingQR && qrCode" class="qr-code-container">
                         <div class="qr-code-box bg-white p-4 rounded shadow-sm d-inline-block mb-3">
-                            <img :src="qrCode" class="img-fluid qr-image" />
+                            <img :src="qrCode" alt="WhatsApp QR Code" class="img-fluid qr-image" style="display: block;" />
                         </div>
                         <div class="alert alert-info border-0 text-start" role="alert">
                             <h6 class="alert-heading">
@@ -615,6 +619,7 @@
                                 <li>Tap menu <strong>(⋮)</strong> → <strong>"Perangkat Tertaut"</strong></li>
                                 <li>Tap <strong>"Tautkan Perangkat"</strong></li>
                                 <li>Arahkan kamera ke QR code di atas</li>
+                                <li class="text-danger mt-2"><strong>Penting:</strong> QR code hanya berlaku 30-60 detik. Jika expired, klik tombol "Refresh QR".</li>
                             </ol>
                         </div>
                     </div>

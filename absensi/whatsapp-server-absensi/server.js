@@ -62,10 +62,21 @@ async function connectToWhatsApp() {
                 connectionState = 'qr';
                 logger.info('QR Code generated, scan with WhatsApp');
                 
-                // Generate QR code as data URL
+                // Generate QR code as data URL with high error correction
                 try {
-                    const qrDataURL = await QRCode.toDataURL(qr);
+                    const qrDataURL = await QRCode.toDataURL(qr, {
+                        errorCorrectionLevel: 'H',
+                        type: 'image/png',
+                        quality: 1,
+                        margin: 2,
+                        width: 512,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        }
+                    });
                     qrCodeData = qrDataURL;
+                    logger.info('QR Code data URL generated successfully');
                 } catch (err) {
                     logger.error('Failed to generate QR code:', err);
                 }
