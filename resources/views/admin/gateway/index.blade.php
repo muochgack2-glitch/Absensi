@@ -18,6 +18,30 @@
         color: #6c757d !important;
     }
     
+    .failover-box {
+        background: #f1f3f5 !important;
+        border: 1px solid #dee2e6 !important;
+        color: #212529 !important;
+    }
+    
+    .failover-box h5 {
+        color: #212529 !important;
+        font-weight: 600;
+    }
+    
+    .failover-box small {
+        color: #6c757d !important;
+    }
+    
+    .failover-box-primary {
+        background: rgba(102, 126, 234, 0.1) !important;
+        border: 1px solid rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    .failover-box-primary h5 {
+        font-weight: 600;
+    }
+    
     .spinner-lg {
         width: 3rem !important;
         height: 3rem !important;
@@ -121,6 +145,48 @@
     html.admin-dark .metric-box .text-muted,
     .admin-dark .metric-box .text-muted {
         color: #cbd5e0 !important;
+    }
+    
+    /* Failover boxes in dark mode */
+    html.admin-dark .failover-box,
+    .admin-dark .failover-box {
+        background: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
+        color: #f7fafc !important;
+    }
+    
+    html.admin-dark .failover-box h5,
+    .admin-dark .failover-box h5 {
+        color: #f7fafc !important;
+        font-weight: 600;
+    }
+    
+    html.admin-dark .failover-box small,
+    .admin-dark .failover-box small {
+        color: #cbd5e0 !important;
+    }
+    
+    html.admin-dark .failover-box-primary,
+    .admin-dark .failover-box-primary {
+        background: rgba(102, 126, 234, 0.2) !important;
+        border: 1px solid rgba(102, 126, 234, 0.4) !important;
+        color: #f7fafc !important;
+    }
+    
+    html.admin-dark .failover-box-primary h5,
+    .admin-dark .failover-box-primary h5 {
+        color: #8b9fff !important;
+        font-weight: 600;
+    }
+    
+    html.admin-dark .failover-box-primary small,
+    .admin-dark .failover-box-primary small {
+        color: #cbd5e0 !important;
+    }
+    
+    html.admin-dark .failover-box-primary .text-primary,
+    .admin-dark .failover-box-primary .text-primary {
+        color: #8b9fff !important;
     }
     
     /* Text colors in dark mode */
@@ -476,13 +542,13 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="text-center p-3 bg-light rounded">
+                            <div class="failover-box text-center p-3 rounded">
                                 <small class="text-muted d-block">Health Check Timeout</small>
                                 <h5 class="mb-0">{{ $failoverSettings['timeout'] }} <small>detik</small></h5>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                            <div class="failover-box-primary text-center p-3 rounded">
                                 <small class="text-muted d-block">Active Gateway</small>
                                 <h5 class="mb-0 text-primary">
                                     <i class="fas fa-server me-2"></i>Primary (Port 3000)
