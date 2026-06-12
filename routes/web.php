@@ -204,6 +204,7 @@ Route::middleware('admin')->group(function () {
         Route::get('/{gateway}/qr', [\App\Http\Controllers\WhatsAppGatewayController::class, 'getQRCode'])->name('qr');
         Route::post('/{gateway}/restart', [\App\Http\Controllers\WhatsAppGatewayController::class, 'restart'])->name('restart');
         Route::post('/{gateway}/logout', [\App\Http\Controllers\WhatsAppGatewayController::class, 'logout'])->name('logout');
+        Route::post('/{gateway}/reset', [\App\Http\Controllers\WhatsAppGatewayController::class, 'resetGateway'])->name('reset');
         Route::get('/{gateway}/logs', [\App\Http\Controllers\WhatsAppGatewayController::class, 'getLogs'])->name('logs');
         Route::post('/toggle-failover', [\App\Http\Controllers\WhatsAppGatewayController::class, 'toggleFailover'])->name('toggle-failover');
     });

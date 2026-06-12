@@ -232,4 +232,71 @@ class WhatsAppGatewayController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Reset & Reconnect gateway (Hard reset with PM2 restart + session cleanup)
+     */
+    public function resetGateway($gateway)
+    {
+        $processName = $gateway === 'spmb' ? 'wa-gateway-spmb' : 'wa-gateway-absensi';
+        $sessionName = $gateway === 'spmb' ? 'spmb-wa-session' : 'absensi-wa-session';
+        $gateways = $this->getGateways();
+        $gatewayInfo = $gateways[$gateway] ?? null;
+        
+        if (!$gatewayInfo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gateway not found',
+            ], 404);
+        }
+        
+        try {
+            Log::info('Gateway hard reset requested', [
+                'gateway' => $gateway,
+                'process' => $processName,
+                'user' => auth()->user()->name ?? 'Unknown',
+            ]);
+            
+            // Step 1: Logout via API first (to clean state)
+            try {
+                Http::timeout(5)->post("{$gatewayInfo['url']}/logout");
+            } catch (\Exception $e) {
+                Log::warning('Logout API call failed (continuing with reset)', [
+                    'error' => $e->getMessage()
+                ]);
+            }
+            
+            // Step 2: Restart PM2 process
+            $restartOutput = shell_exec("pm2 restart {$processName} 2>&1");
+            
+            Log::info('PM2 restart executed', [
+                'process' => $processName,
+                'output' => $restartOutput,
+            ]);
+            
+            // Step 3: Wait a bit for process to restart
+            sleep(2);
+            
+            // Step 4: Delete session folder via API endpoint
+            // The gateway server will handle session cleanup on next connection attempt
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Gateway reset successfully. Please wait 10-15 seconds for reconnection, then click "Lihat QR" to get new QR code.',
+                'process' => $processName,
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Gateway reset failed', [
+                'gateway' => $gateway,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset gateway: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -488,28 +488,37 @@
                 <!-- Card Footer -->
                 <div class="card-footer bg-white border-0">
                     <div class="row g-2">
-                        <div class="col-6 col-md-3">
+                        <!-- Row 1: Main Actions -->
+                        <div class="col-6 col-lg-3">
                             <button class="btn btn-outline-primary w-100" @click="viewQR('{{ $key }}')">
                                 <i class="fas fa-qrcode"></i>
                                 <span class="d-none d-md-inline ms-1">QR Code</span>
                             </button>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-lg-3">
                             <button class="btn btn-outline-warning w-100" @click="restart('{{ $key }}')">
                                 <i class="fas fa-sync"></i>
                                 <span class="d-none d-md-inline ms-1">Restart</span>
                             </button>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-lg-3">
                             <button class="btn btn-outline-danger w-100" @click="logout('{{ $key }}')">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span class="d-none d-md-inline ms-1">Logout</span>
                             </button>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-6 col-lg-3">
                             <button class="btn btn-outline-info w-100" @click="viewLogs('{{ $key }}')">
                                 <i class="fas fa-file-alt"></i>
                                 <span class="d-none d-md-inline ms-1">Logs</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Row 2: Critical Action -->
+                        <div class="col-12">
+                            <button class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2" @click="resetGateway('{{ $key }}')">
+                                <i class="fas fa-power-off"></i>
+                                <span>Reset & Reconnect (Hard Reset)</span>
                             </button>
                         </div>
                     </div>
@@ -819,6 +828,41 @@ function gatewayManager() {
                     // Revert toggle state on error
                     this.failoverEnabled = !enabled;
                     document.getElementById('failoverEnabled').checked = !enabled;
+                });
+        },
+
+        resetGateway(gateway) {
+            if (!confirm('⚠️ HARD RESET gateway ini?\n\n⚠️ WARNING: Ini akan:\n- Restart PM2 process\n- Hapus session WhatsApp\n- Generate QR code baru\n\nGateway akan offline 10-15 detik.\n\nLanjutkan?')) return;
+
+            // Show loading state
+            const btn = event.target.closest('button');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+
+            fetch(`/admin/gateway/${gateway}/reset`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ ' + data.message + '\n\nHalaman akan reload dalam 15 detik...');
+                        setTimeout(() => location.reload(), 15000);
+                    } else {
+                        alert('❌ ' + data.message);
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Failed to reset: ' + err.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
                 });
         },
 
