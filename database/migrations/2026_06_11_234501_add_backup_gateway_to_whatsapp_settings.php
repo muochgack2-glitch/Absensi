@@ -12,9 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add backup gateway settings
-        DB::table('whatsapp_settings')->insert([
-            [
+        // Check if settings already exist before inserting
+        $existingKeys = DB::table('whatsapp_settings')
+            ->whereIn('key', ['wa_server_url_backup', 'wa_failover_enabled', 'wa_failover_timeout'])
+            ->pluck('key')
+            ->toArray();
+
+        $settingsToInsert = [];
+
+        // Only add settings that don't exist yet
+        if (!in_array('wa_server_url_backup', $existingKeys)) {
+            $settingsToInsert[] = [
                 'key' => 'wa_server_url_backup',
                 'value' => 'http://localhost:3001',
                 'type' => 'string',
@@ -24,8 +32,11 @@ return new class extends Migration
                 'is_public' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
+            ];
+        }
+
+        if (!in_array('wa_failover_enabled', $existingKeys)) {
+            $settingsToInsert[] = [
                 'key' => 'wa_failover_enabled',
                 'value' => 'true',
                 'type' => 'boolean',
@@ -35,8 +46,11 @@ return new class extends Migration
                 'is_public' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            [
+            ];
+        }
+
+        if (!in_array('wa_failover_timeout', $existingKeys)) {
+            $settingsToInsert[] = [
                 'key' => 'wa_failover_timeout',
                 'value' => '5',
                 'type' => 'integer',
@@ -46,8 +60,13 @@ return new class extends Migration
                 'is_public' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-        ]);
+            ];
+        }
+
+        // Insert only new settings
+        if (!empty($settingsToInsert)) {
+            DB::table('whatsapp_settings')->insert($settingsToInsert);
+        }
     }
 
     /**
