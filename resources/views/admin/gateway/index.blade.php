@@ -1,11 +1,216 @@
 @extends('layouts.admin')
 
+@section('styles')
+<style>
+    /* Light Mode Base Styles */
+    .spinner-lg {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
+    
+    .qr-code-container {
+        display: none;
+    }
+    
+    .qr-code-container[style*="display: block"],
+    .qr-code-container[x-show] {
+        display: block !important;
+    }
+    
+    .qr-error-container {
+        display: none;
+    }
+    
+    .qr-error-container[style*="display: block"],
+    .qr-error-container[x-show] {
+        display: block !important;
+    }
+    
+    .qr-image {
+        max-width: 300px;
+    }
+    
+    .qr-code-box {
+        background: #ffffff !important;
+    }
+    
+    .logs-pre {
+        max-height: 70vh;
+        overflow-y: auto;
+        background: #1e1e1e !important;
+        color: #d4d4d4 !important;
+        font-size: 13px;
+        font-family: 'Courier New', monospace;
+        line-height: 1.6;
+    }
+    
+    .modal-footer-custom {
+        background: #f8f9fa !important;
+    }
+
+    /* Dark Mode Support for Gateway Management */
+    .admin-dark .card {
+        background: var(--bg-secondary) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    .admin-dark .card-header {
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    .admin-dark .card-body,
+    .admin-dark .card-footer {
+        color: var(--text-primary) !important;
+    }
+    
+    .admin-dark .text-muted {
+        color: rgba(255,255,255,0.6) !important;
+    }
+    
+    .admin-dark small.text-muted {
+        color: rgba(255,255,255,0.5) !important;
+    }
+    
+    .admin-dark .bg-light {
+        background: rgba(255,255,255,0.05) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .admin-dark .bg-primary.bg-opacity-10 {
+        background: rgba(102, 126, 234, 0.2) !important;
+        color: #b8c5ff !important;
+    }
+    
+    .admin-dark .alert-info {
+        background: rgba(13, 110, 253, 0.2) !important;
+        border-color: rgba(13, 110, 253, 0.3) !important;
+        color: #9ec5fe !important;
+    }
+    
+    .admin-dark .alert-danger {
+        background: rgba(220, 53, 69, 0.2) !important;
+        border-color: rgba(220, 53, 69, 0.3) !important;
+        color: #ea868f !important;
+    }
+    
+    .admin-dark .alert-warning {
+        background: rgba(255, 193, 7, 0.2) !important;
+        border-color: rgba(255, 193, 7, 0.3) !important;
+        color: #ffecb5 !important;
+    }
+    
+    .admin-dark .modal-content {
+        background: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .admin-dark .modal-header {
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    .admin-dark .modal-footer-custom {
+        background: rgba(255,255,255,0.02) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    
+    .admin-dark .btn-outline-primary,
+    .admin-dark .btn-outline-warning,
+    .admin-dark .btn-outline-danger,
+    .admin-dark .btn-outline-info {
+        border-width: 2px !important;
+    }
+    
+    .admin-dark .btn-outline-primary:hover,
+    .admin-dark .btn-outline-warning:hover,
+    .admin-dark .btn-outline-danger:hover,
+    .admin-dark .btn-outline-info:hover {
+        color: #fff !important;
+    }
+    
+    /* Gradient headers stay vibrant in dark mode */
+    .gradient-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    /* Connection status boxes in dark mode */
+    .admin-dark .connection-status-box {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    
+    .admin-dark .connection-status-box.connected {
+        background: rgba(25, 135, 84, 0.2) !important;
+        border-color: rgba(25, 135, 84, 0.4) !important;
+    }
+    
+    .admin-dark .connection-status-box.disconnected {
+        background: rgba(255, 193, 7, 0.2) !important;
+        border-color: rgba(255, 193, 7, 0.4) !important;
+    }
+    
+    /* Success/Danger headers in dark mode */
+    .admin-dark .bg-success {
+        background: rgba(25, 135, 84, 0.9) !important;
+    }
+    
+    .admin-dark .bg-danger {
+        background: rgba(220, 53, 69, 0.9) !important;
+    }
+    
+    /* Badge colors in dark mode */
+    .admin-dark .badge {
+        font-weight: 600;
+    }
+    
+    /* Health metrics boxes */
+    .admin-dark .health-metric-box {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    
+    /* Icon colors in dark mode */
+    .admin-dark .text-primary {
+        color: #8b9fff !important;
+    }
+    
+    .admin-dark .text-info {
+        color: #54b4d3 !important;
+    }
+    
+    .admin-dark .text-warning {
+        color: #ffc107 !important;
+    }
+    
+    .admin-dark .text-success {
+        color: #20c997 !important;
+    }
+    
+    /* QR Code box in dark mode */
+    .admin-dark .qr-code-box {
+        background: #ffffff !important;
+        border: 2px solid rgba(255,255,255,0.2) !important;
+    }
+    
+    /* Logs pre tag - darker in dark mode */
+    .admin-dark .logs-pre {
+        background: #0d1117 !important;
+        color: #c9d1d9 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    
+    /* Container background in dark mode */
+    .admin-dark .container-fluid {
+        background: transparent !important;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid" x-data="gatewayManager()">
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card border-0 shadow-sm gradient-header">
                 <div class="card-body py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -50,8 +255,7 @@
                 <div class="card-body">
                     @if($gateway['online'] && $gateway['status'])
                         <!-- Connection Status -->
-                        <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded" 
-                             style="background: {{ $gateway['status']['status'] === 'connected' ? '#d4edda' : '#fff3cd' }};">
+                        <div class="connection-status-box {{ $gateway['status']['status'] === 'connected' ? 'connected' : 'disconnected' }} d-flex align-items-center justify-content-between mb-3 p-3 rounded">
                             <div>
                                 <h6 class="mb-0">Connection Status</h6>
                                 <small class="text-muted">Port {{ parse_url($gateway['info']['url'], PHP_URL_PORT) }}</small>
@@ -66,7 +270,7 @@
                         <!-- Health Metrics -->
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <div class="p-3 rounded bg-light">
+                                <div class="health-metric-box p-3 rounded bg-light">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-clock text-primary me-2"></i>
                                         <small class="text-muted">Uptime</small>
@@ -89,7 +293,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-3 rounded bg-light">
+                                <div class="health-metric-box p-3 rounded bg-light">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-memory text-info me-2"></i>
                                         <small class="text-muted">Memory</small>
@@ -101,7 +305,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-3 rounded bg-light">
+                                <div class="health-metric-box p-3 rounded bg-light">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-microchip text-warning me-2"></i>
                                         <small class="text-muted">CPU Time</small>
@@ -112,7 +316,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="p-3 rounded bg-light">
+                                <div class="health-metric-box p-3 rounded bg-light">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="fas fa-qrcode text-success me-2"></i>
                                         <small class="text-muted">QR Status</small>
@@ -248,7 +452,7 @@
     <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="modal-header border-0 gradient-header">
                     <h5 class="modal-title text-white">
                         <i class="fas fa-qrcode me-2"></i>Scan QR Code WhatsApp
                     </h5>
@@ -256,14 +460,14 @@
                 </div>
                 <div class="modal-body p-4 text-center">
                     <div x-show="loadingQR" class="py-5">
-                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                        <div class="spinner-border text-primary mb-3 spinner-lg" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <p class="text-muted">Loading QR code...</p>
                     </div>
-                    <div x-show="!loadingQR && qrCode" style="display: none;">
-                        <div class="bg-white p-4 rounded shadow-sm d-inline-block mb-3">
-                            <img :src="qrCode" class="img-fluid" style="max-width: 300px;" />
+                    <div x-show="!loadingQR && qrCode" class="qr-code-container">
+                        <div class="qr-code-box bg-white p-4 rounded shadow-sm d-inline-block mb-3">
+                            <img :src="qrCode" class="img-fluid qr-image" />
                         </div>
                         <div class="alert alert-info border-0 text-start" role="alert">
                             <h6 class="alert-heading">
@@ -277,14 +481,14 @@
                             </ol>
                         </div>
                     </div>
-                    <div x-show="!loadingQR && !qrCode" style="display: none;">
+                    <div x-show="!loadingQR && !qrCode" class="qr-error-container">
                         <div class="alert alert-warning border-0" role="alert">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             <span x-text="qrError"></span>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 bg-light">
+                <div class="modal-footer border-0 modal-footer-custom">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Tutup
                     </button>
@@ -300,16 +504,16 @@
     <div class="modal fade" id="logsModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="modal-header border-0 gradient-header">
                     <h5 class="modal-title text-white">
                         <i class="fas fa-file-alt me-2"></i>Gateway Logs
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <pre x-text="logs" class="mb-0 p-4" style="max-height: 70vh; overflow-y: auto; background: #1e1e1e; color: #d4d4d4; font-size: 13px; font-family: 'Courier New', monospace; line-height: 1.6;"></pre>
+                    <pre x-text="logs" class="mb-0 p-4 logs-pre"></pre>
                 </div>
-                <div class="modal-footer border-0 bg-light">
+                <div class="modal-footer border-0 modal-footer-custom">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Tutup
                     </button>
