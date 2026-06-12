@@ -201,4 +201,35 @@ class WhatsAppGatewayController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Toggle failover setting
+     */
+    public function toggleFailover(Request $request)
+    {
+        try {
+            $enabled = $request->input('enabled', false);
+            
+            WhatsAppSetting::set('wa_failover_enabled', $enabled);
+            
+            // Clear cache
+            WhatsAppSetting::clearCache();
+            
+            Log::info('Failover setting changed', [
+                'enabled' => $enabled,
+                'user' => auth()->user()->name ?? 'Unknown',
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => $enabled ? 'Auto failover enabled' : 'Auto failover disabled',
+                'enabled' => $enabled,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to toggle failover: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

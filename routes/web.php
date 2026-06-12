@@ -205,6 +205,7 @@ Route::middleware('admin')->group(function () {
         Route::post('/{gateway}/restart', [\App\Http\Controllers\WhatsAppGatewayController::class, 'restart'])->name('restart');
         Route::post('/{gateway}/logout', [\App\Http\Controllers\WhatsAppGatewayController::class, 'logout'])->name('logout');
         Route::get('/{gateway}/logs', [\App\Http\Controllers\WhatsAppGatewayController::class, 'getLogs'])->name('logs');
+        Route::post('/toggle-failover', [\App\Http\Controllers\WhatsAppGatewayController::class, 'toggleFailover'])->name('toggle-failover');
     });
 });
 

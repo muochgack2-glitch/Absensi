@@ -534,13 +534,13 @@
                             <div class="d-flex align-items-center">
                                 <div class="form-check form-switch me-3">
                                     <input class="form-check-input" type="checkbox" id="failoverEnabled" 
-                                           {{ $failoverSettings['enabled'] ? 'checked' : '' }} disabled 
-                                           style="width: 3em; height: 1.5em;">
+                                           {{ $failoverSettings['enabled'] ? 'checked' : '' }}
+                                           @change="toggleFailover($event.target.checked)"
+                                           style="width: 3em; height: 1.5em; cursor: pointer;">
                                 </div>
                                 <div>
                                     <h6 class="mb-0">Auto Failover</h6>
-                                    <small class="text-muted">
-                                        {{ $failoverSettings['enabled'] ? 'Aktif - Backup otomatis digunakan jika primary offline' : 'Tidak aktif' }}
+                                    <small class="text-muted" x-text="failoverEnabled ? 'Aktif - Backup otomatis digunakan jika primary offline' : 'Tidak aktif'">
                                     </small>
                                 </div>
                             </div>
@@ -676,6 +676,7 @@ function gatewayManager() {
         qrError: null,
         logs: '',
         currentGateway: null,
+        failoverEnabled: {{ $failoverSettings['enabled'] ? 'true' : 'false' }},
 
         viewQR(gateway) {
             this.currentGateway = gateway;
@@ -786,6 +787,38 @@ function gatewayManager() {
                 })
                 .catch(err => {
                     this.logs = 'Failed to load logs: ' + err.message;
+                });
+        },
+
+        toggleFailover(enabled) {
+            this.failoverEnabled = enabled;
+
+            fetch('/admin/gateway/toggle-failover', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ enabled: enabled })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success notification (optional)
+                        console.log('✅ Failover setting updated:', enabled);
+                    } else {
+                        alert('❌ ' + data.message);
+                        // Revert toggle state on error
+                        this.failoverEnabled = !enabled;
+                        document.getElementById('failoverEnabled').checked = !enabled;
+                    }
+                })
+                .catch(err => {
+                    alert('❌ Failed to update setting: ' + err.message);
+                    // Revert toggle state on error
+                    this.failoverEnabled = !enabled;
+                    document.getElementById('failoverEnabled').checked = !enabled;
                 });
         },
 
