@@ -699,11 +699,23 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         
+        /* Light Theme - Tombol hamburger harus terlihat */
+        [data-theme="light"] .admin-mobile-menu-btn {
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.08);
+            color: #1e293b;
+        }
+        
         .admin-mobile-menu-btn:hover {
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.8);
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] .admin-mobile-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.12);
+            border-color: rgba(0, 0, 0, 0.3);
         }
         
         .admin-mobile-menu-btn:active {
