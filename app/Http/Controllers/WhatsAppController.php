@@ -497,6 +497,39 @@ class WhatsAppController extends Controller
     }
 
     /**
+     * Reset & Reconnect WhatsApp (Logout + Generate new QR)
+     */
+    public function reset()
+    {
+        // Check last reset time (cooldown 5 minutes)
+        $lastReset = cache()->get('wa_server_last_reset');
+        if ($lastReset && now()->diffInMinutes($lastReset) < 5) {
+            $remainingMinutes = 5 - now()->diffInMinutes($lastReset);
+            return response()->json([
+                'success' => false,
+                'message' => "Reset baru saja dilakukan. Tunggu {$remainingMinutes} menit lagi."
+            ], 429);
+        }
+
+        // Log activity
+        UserActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'wa_server_reset',
+            'description' => 'User initiated WA Gateway reset & reconnect',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        // Set cooldown
+        cache()->put('wa_server_last_reset', now(), 300); // 5 minutes
+
+        // Reset connection (logout + generate new QR)
+        $result = $this->whatsappService->logout();
+        
+        return response()->json($result);
+    }
+
+    /**
      * Phone list page - Rekap nomor HP pendaftar
      */
     public function phoneList(Request $request)

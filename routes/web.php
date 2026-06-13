@@ -196,6 +196,7 @@ Route::middleware('admin')->group(function () {
         // Logout & Restart
         Route::post('/logout', [\App\Http\Controllers\WhatsAppController::class, 'logout'])->name('logout');
         Route::post('/restart', [\App\Http\Controllers\WhatsAppController::class, 'restart'])->name('restart')->middleware('throttle:2,60'); // Max 2x per hour
+        Route::post('/reset', [\App\Http\Controllers\WhatsAppController::class, 'reset'])->name('reset')->middleware('throttle:2,60'); // Max 2x per hour
     });
 
     // Gateway Management - For Administrator and Admin WA
