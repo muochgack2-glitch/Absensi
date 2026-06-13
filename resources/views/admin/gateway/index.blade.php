@@ -351,7 +351,7 @@
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm gradient-header">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;">
                 <div class="card-body py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
