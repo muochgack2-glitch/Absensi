@@ -440,6 +440,103 @@
     </div>
 </div>
 
+<!-- Restart Server Confirmation Modal -->
+<div class="modal fade" id="restartConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-redo me-2"></i>Konfirmasi Restart Server
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-warning border-0" role="alert">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-info-circle me-2"></i>Restart Node.js Server
+                    </h6>
+                    <p class="mb-2">Tindakan ini akan:</p>
+                    <ul class="mb-0 ps-3">
+                        <li>Restart Node.js process</li>
+                        <li>Koneksi terputus sementara (5-10 detik)</li>
+                        <li><strong>Session WhatsApp tetap tersimpan</strong></li>
+                        <li><strong>Tidak perlu scan QR ulang</strong></li>
+                    </ul>
+                </div>
+                <p class="mb-0">
+                    <i class="fas fa-lightbulb text-info me-2"></i>
+                    Gunakan ini jika server hang, lambat, atau memory leak.
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Batal
+                </button>
+                <button type="button" class="btn btn-warning" onclick="confirmRestart()">
+                    <i class="fas fa-redo me-2"></i>Ya, Restart Server
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset & Reconnect Confirmation Modal -->
+<div class="modal fade" id="resetConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Reset & Reconnect
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-danger border-0" role="alert">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-power-off me-2"></i>WARNING: Reset Koneksi WhatsApp
+                    </h6>
+                    <p class="mb-2">Tindakan ini akan:</p>
+                    <ul class="mb-0 ps-3">
+                        <li>Logout dari WhatsApp</li>
+                        <li>Hapus session WhatsApp</li>
+                        <li>Generate QR code baru</li>
+                        <li><strong>Anda perlu scan QR ulang</strong></li>
+                    </ul>
+                </div>
+                <p class="mb-0">
+                    <i class="fas fa-info-circle text-info me-2"></i>
+                    Gunakan ini jika status Disconnected atau QR tidak muncul.
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Batal
+                </button>
+                <button type="button" class="btn btn-danger" onclick="confirmReset()">
+                    <i class="fas fa-power-off me-2"></i>Ya, Reset & Reconnect
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Result Modal (for both Restart and Reset) -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 text-white" id="resultModalHeader">
+                <h5 class="modal-title text-white" id="resultModalTitle"></h5>
+            </div>
+            <div class="modal-body p-4 text-center" id="resultModalBody">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer border-0" id="resultModalFooter">
+                <!-- Dynamic buttons -->
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 // Auto refresh status every 5 seconds
@@ -729,9 +826,14 @@ function resetConnection() {
 
 // Restart server (PM2 restart via process.exit)
 function restartServer() {
-    if (!confirm('Yakin ingin restart server? Koneksi akan terputus sebentar (5-10 detik). Session WhatsApp tetap tersimpan, tidak perlu scan QR ulang.')) {
-        return;
-    }
+    const modal = new bootstrap.Modal(document.getElementById('restartConfirmModal'));
+    modal.show();
+}
+
+function confirmRestart() {
+    // Close confirmation modal
+    const confirmModal = bootstrap.Modal.getInstance(document.getElementById('restartConfirmModal'));
+    confirmModal.hide();
     
     const restartBtn = document.getElementById('restartBtn');
     const originalHtml = restartBtn.innerHTML;
@@ -748,28 +850,151 @@ function restartServer() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success message
-            showAlert('success', 'Server restarting... Status akan update otomatis dalam 10 detik.');
-            
-            // Wait 10 seconds then refresh status
-            setTimeout(() => {
+            showResultModal(true, 'Server Restarting', 'Server sedang restart. Status akan update otomatis dalam 10 detik...', 10, () => {
                 refreshStatus();
                 restartBtn.disabled = false;
                 restartBtn.innerHTML = originalHtml;
-                showAlert('info', 'Server restart selesai. Checking koneksi...');
-            }, 10000);
+            });
         } else {
-            showAlert('error', data.message || 'Gagal restart server');
-            restartBtn.disabled = false;
-            restartBtn.innerHTML = originalHtml;
+            showResultModal(false, 'Restart Gagal', data.message || 'Gagal restart server', 0, () => {
+                restartBtn.disabled = false;
+                restartBtn.innerHTML = originalHtml;
+            });
         }
     })
     .catch(error => {
         console.error('Error restarting server:', error);
-        showAlert('error', 'Gagal restart server: ' + error.message);
-        restartBtn.disabled = false;
-        restartBtn.innerHTML = originalHtml;
+        showResultModal(false, 'Restart Gagal', 'Gagal restart server: ' + error.message, 0, () => {
+            restartBtn.disabled = false;
+            restartBtn.innerHTML = originalHtml;
+        });
     });
+}
+
+// Reset connection (logout + generate new QR)
+function resetConnection() {
+    const modal = new bootstrap.Modal(document.getElementById('resetConfirmModal'));
+    modal.show();
+}
+
+function confirmReset() {
+    // Close confirmation modal
+    const confirmModal = bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal'));
+    confirmModal.hide();
+    
+    const resetBtn = document.getElementById('resetBtn');
+    const originalHtml = resetBtn.innerHTML;
+    resetBtn.disabled = true;
+    resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Resetting...';
+    
+    fetch('{{ route("whatsapp.reset") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showResultModal(true, 'Reset Berhasil', 'Koneksi berhasil direset. QR code baru akan muncul dalam 3 detik...', 3, () => {
+                refreshStatus();
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalHtml;
+            });
+        } else {
+            showResultModal(false, 'Reset Gagal', data.message || 'Gagal reset koneksi', 0, () => {
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalHtml;
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error resetting connection:', error);
+        showResultModal(false, 'Reset Gagal', 'Gagal reset koneksi: ' + error.message, 0, () => {
+            resetBtn.disabled = false;
+            resetBtn.innerHTML = originalHtml;
+        });
+    });
+}
+
+// Show result modal with countdown
+let resultCountdownInterval = null;
+
+function showResultModal(success, title, message, countdown, callback) {
+    const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+    const header = document.getElementById('resultModalHeader');
+    const titleEl = document.getElementById('resultModalTitle');
+    const body = document.getElementById('resultModalBody');
+    const footer = document.getElementById('resultModalFooter');
+    
+    // Set header color
+    header.className = success ? 'modal-header border-0 bg-success text-white' : 'modal-header border-0 bg-danger text-white';
+    
+    // Set title
+    const icon = success ? 'check-circle' : 'times-circle';
+    titleEl.innerHTML = `<i class="fas fa-${icon} me-2"></i>${title}`;
+    
+    // Set body
+    let bodyHtml = `
+        <i class="fas fa-${icon} ${success ? 'text-success' : 'text-danger'} mb-3" style="font-size: 4rem;"></i>
+        <h5 class="mb-3">${title}</h5>
+        <p class="text-muted mb-3">${message}</p>
+    `;
+    
+    if (success && countdown > 0) {
+        bodyHtml += `
+            <div class="alert alert-info border-0 text-start" role="alert">
+                <p class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Auto reload dalam <strong><span id="countdown">${countdown}</span></strong> detik...
+                </p>
+            </div>
+        `;
+    }
+    
+    body.innerHTML = bodyHtml;
+    
+    // Set footer
+    if (success && countdown > 0) {
+        footer.innerHTML = ''; // No buttons during countdown
+    } else {
+        footer.innerHTML = `
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Tutup
+            </button>
+        `;
+    }
+    
+    modal.show();
+    
+    // Start countdown if needed
+    if (success && countdown > 0) {
+        let currentCountdown = countdown;
+        if (resultCountdownInterval) clearInterval(resultCountdownInterval);
+        
+        resultCountdownInterval = setInterval(() => {
+            currentCountdown--;
+            const countdownEl = document.getElementById('countdown');
+            if (countdownEl) {
+                countdownEl.textContent = currentCountdown;
+            }
+            
+            if (currentCountdown <= 0) {
+                clearInterval(resultCountdownInterval);
+                modal.hide();
+                if (callback) callback();
+            }
+        }, 1000);
+    }
+    
+    // Execute callback on modal close (if not countdown)
+    if (!success || countdown === 0) {
+        document.getElementById('resultModal').addEventListener('hidden.bs.modal', function handler() {
+            if (callback) callback();
+            this.removeEventListener('hidden.bs.modal', handler);
+        });
+    }
 }
 
 // Show alert helper
