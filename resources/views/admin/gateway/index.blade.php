@@ -932,9 +932,13 @@ function gatewayManager() {
                     cardHeader.className = `card-header border-0 ${gateway.online ? 'bg-success' : 'bg-danger'} text-white`;
                     
                     // Update badge
-                    statusBadge.innerHTML = `<span class="badge {{ gateway.online ? 'bg-success' : 'bg-danger' }} fs-6">
-                        <i class="fas fa-${gateway.online ? 'link' : 'qrcode'} me-1"></i>
-                        ${gateway.status?.status ? gateway.status.status.charAt(0).toUpperCase() + gateway.status.status.slice(1) : 'Unknown'}
+                    const badgeClass = gateway.online ? 'bg-success' : 'bg-danger';
+                    const badgeIcon = gateway.online ? 'link' : 'qrcode';
+                    const statusLabel = gateway.status?.status ? gateway.status.status.charAt(0).toUpperCase() + gateway.status.status.slice(1) : 'Unknown';
+                    
+                    statusBadge.innerHTML = `<span class="badge ${badgeClass} fs-6">
+                        <i class="fas fa-${badgeIcon} me-1"></i>
+                        ${statusLabel}
                     </span>`;
                     
                     // Update icon
