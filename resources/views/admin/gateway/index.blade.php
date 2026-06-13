@@ -355,17 +355,17 @@
                 <div class="card-body py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h1 class="h3 mb-1 text-white">
+                            <h1 class="h3 mb-1" style="color: #ffffff !important;">
                                 <i class="fab fa-whatsapp me-2"></i>WhatsApp Gateway Management
                             </h1>
-                            <p class="text-white-50 mb-0">Monitor dan kelola dual gateway dengan failover otomatis</p>
+                            <p class="mb-0" style="color: rgba(255, 255, 255, 0.85) !important;">Monitor dan kelola dual gateway dengan failover otomatis</p>
                         </div>
                         <div class="text-end">
-                            <div class="text-white small mb-2" style="opacity: 0.9;">
+                            <div class="small mb-2" style="color: rgba(255, 255, 255, 0.9) !important;">
                                 <i class="fas fa-clock me-1"></i>
                                 Last updated: <span x-text="lastUpdated" class="fw-bold"></span>
                             </div>
-                            <button class="btn btn-outline-light" @click="refreshAll()" :disabled="isRefreshing" style="border-width: 2px;">
+                            <button class="btn btn-light" @click="refreshAll()" :disabled="isRefreshing" style="font-weight: 600;">
                                 <i class="fas fa-sync-alt me-2" :class="{'fa-spin': isRefreshing}"></i>
                                 <span x-text="isRefreshing ? 'Refreshing...' : 'Refresh All'"></span>
                             </button>
