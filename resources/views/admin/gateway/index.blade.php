@@ -715,6 +715,86 @@
         </div>
     </div>
 
+    <!-- Restart Confirmation Modal -->
+    <div class="modal fade" id="restartConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-sync me-2"></i>Konfirmasi Restart Gateway
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-warning border-0" role="alert">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-redo me-2"></i>Restart Node.js Process
+                        </h6>
+                        <p class="mb-2">Tindakan ini akan:</p>
+                        <ul class="mb-0 ps-3">
+                            <li>Restart Node.js process</li>
+                            <li>Koneksi terputus sementara (5-10 detik)</li>
+                            <li><strong>Session WhatsApp tetap tersimpan</strong></li>
+                            <li><strong>Tidak perlu scan QR ulang</strong></li>
+                        </ul>
+                    </div>
+                    <p class="mb-0">
+                        <i class="fas fa-lightbulb text-info me-2"></i>
+                        Gunakan ini jika gateway hang, lambat, atau memory tinggi.
+                    </p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-warning" @click="confirmRestart()">
+                        <i class="fas fa-sync me-2"></i>Ya, Restart Gateway
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-sign-out-alt me-2"></i>Konfirmasi Logout WhatsApp
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-warning border-0" role="alert">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout dari WhatsApp
+                        </h6>
+                        <p class="mb-2">Tindakan ini akan:</p>
+                        <ul class="mb-0 ps-3">
+                            <li>Logout dari session WhatsApp</li>
+                            <li>Session akan dihapus</li>
+                            <li>Generate QR code baru</li>
+                            <li><strong>Anda perlu scan QR ulang</strong></li>
+                        </ul>
+                    </div>
+                    <p class="mb-0">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        Gunakan ini untuk generate QR baru atau ganti nomor WhatsApp.
+                    </p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-warning" @click="confirmLogout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>Ya, Logout WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Reset Result Modal -->
     <div class="modal fade" id="resetResultModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
@@ -802,13 +882,22 @@ function gatewayManager() {
         },
 
         restart(gateway) {
-            if (!confirm('⚠️ Restart gateway ini?\n\nKoneksi akan terputus sementara (5-10 detik). Anda tidak perlu scan QR code ulang.')) return;
+            this.currentGateway = gateway;
+            const modal = new bootstrap.Modal(document.getElementById('restartConfirmModal'));
+            modal.show();
+        },
 
-            // Show loading state
-            const btn = event.target.closest('button');
-            const originalHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restarting...';
+        confirmRestart() {
+            const gateway = this.currentGateway;
+            const modal = bootstrap.Modal.getInstance(document.getElementById('restartConfirmModal'));
+            modal.hide();
+
+            // Show loading in result modal
+            this.resetSuccess = true;
+            this.resetMessage = 'Restarting gateway...';
+            this.countdown = 8;
+            const resultModal = new bootstrap.Modal(document.getElementById('resetResultModal'));
+            resultModal.show();
 
             fetch(`/admin/gateway/${gateway}/restart`, { 
                 method: 'POST', 
@@ -821,29 +910,38 @@ function gatewayManager() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('✅ ' + data.message + '\n\nHalaman akan reload dalam 8 detik...');
-                        setTimeout(() => location.reload(), 8000);
+                        this.resetSuccess = true;
+                        this.resetMessage = data.message;
+                        this.countdown = 8;
+                        this.startCountdown(resultModal);
                     } else {
-                        alert('❌ ' + data.message);
-                        btn.disabled = false;
-                        btn.innerHTML = originalHtml;
+                        this.resetSuccess = false;
+                        this.resetMessage = data.message;
                     }
                 })
                 .catch(err => {
-                    alert('❌ Failed to restart: ' + err.message);
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
+                    this.resetSuccess = false;
+                    this.resetMessage = 'Failed to restart: ' + err.message;
                 });
         },
 
         logout(gateway) {
-            if (!confirm('⚠️ Logout dari WhatsApp?\n\nAnda perlu scan QR code lagi untuk reconnect.')) return;
+            this.currentGateway = gateway;
+            const modal = new bootstrap.Modal(document.getElementById('logoutConfirmModal'));
+            modal.show();
+        },
 
-            // Show loading state
-            const btn = event.target.closest('button');
-            const originalHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+        confirmLogout() {
+            const gateway = this.currentGateway;
+            const modal = bootstrap.Modal.getInstance(document.getElementById('logoutConfirmModal'));
+            modal.hide();
+
+            // Show loading in result modal
+            this.resetSuccess = true;
+            this.resetMessage = 'Logging out...';
+            this.countdown = 5;
+            const resultModal = new bootstrap.Modal(document.getElementById('resetResultModal'));
+            resultModal.show();
 
             fetch(`/admin/gateway/${gateway}/logout`, { 
                 method: 'POST', 
@@ -856,18 +954,18 @@ function gatewayManager() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('✅ ' + data.message + '\n\nHalaman akan reload dalam 5 detik...');
-                        setTimeout(() => location.reload(), 5000);
+                        this.resetSuccess = true;
+                        this.resetMessage = data.message;
+                        this.countdown = 5;
+                        this.startCountdown(resultModal);
                     } else {
-                        alert('❌ ' + data.message);
-                        btn.disabled = false;
-                        btn.innerHTML = originalHtml;
+                        this.resetSuccess = false;
+                        this.resetMessage = data.message;
                     }
                 })
                 .catch(err => {
-                    alert('❌ Failed to logout: ' + err.message);
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
+                    this.resetSuccess = false;
+                    this.resetMessage = 'Failed to logout: ' + err.message;
                 });
         },
 
