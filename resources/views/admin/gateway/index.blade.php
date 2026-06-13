@@ -402,16 +402,16 @@
                 <div class="card-header border-0 {{ $gateway['online'] ? 'bg-success' : 'bg-danger' }} text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="mb-0">
+                            <h5 class="mb-0 text-white">
                                 <i class="fas fa-server me-2"></i>{{ $gateway['info']['name'] }}
                             </h5>
-                            <small class="opacity-75">{{ $gateway['info']['purpose'] }}</small>
+                            <small class="text-white" style="opacity: 0.95;">{{ $gateway['info']['purpose'] }}</small>
                         </div>
                         <div class="text-end">
                             <h3 class="mb-0 text-white status-icon">
                                 <i class="fas fa-{{ $gateway['online'] ? 'check-circle' : 'times-circle' }}"></i>
                             </h3>
-                            <small class="text-white opacity-90 status-text">{{ $gateway['online'] ? 'Online' : 'Offline' }}</small>
+                            <small class="text-white status-text" style="opacity: 0.95;">{{ $gateway['online'] ? 'Online' : 'Offline' }}</small>
                         </div>
                     </div>
                 </div>
