@@ -7,7 +7,7 @@
         @endphp
         
         <!-- Mobile Menu Button (only show on mobile) -->
-        <button class="btn btn-sm btn-outline-light admin-mobile-menu-btn" type="button">
+        <button class="admin-mobile-menu-btn" type="button">
             <i class="fas fa-bars"></i>
         </button>
         

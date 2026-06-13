@@ -697,13 +697,14 @@
             font-weight: 700;
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
         }
         
-        /* Light Theme - Tombol hamburger harus terlihat */
+        /* Light Theme - Tombol hamburger harus terlihat dengan warna gelap */
         [data-theme="light"] .admin-mobile-menu-btn {
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            background: rgba(0, 0, 0, 0.08);
-            color: #1e293b;
+            border: 2px solid rgba(30, 41, 59, 0.3) !important;
+            background: rgba(30, 41, 59, 0.1) !important;
+            color: #1e293b !important;
         }
         
         .admin-mobile-menu-btn:hover {
@@ -714,8 +715,8 @@
         }
         
         [data-theme="light"] .admin-mobile-menu-btn:hover {
-            background: rgba(0, 0, 0, 0.12);
-            border-color: rgba(0, 0, 0, 0.3);
+            background: rgba(30, 41, 59, 0.15) !important;
+            border-color: rgba(30, 41, 59, 0.4) !important;
         }
         
         .admin-mobile-menu-btn:active {
