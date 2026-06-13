@@ -7,6 +7,7 @@ use App\Models\LogistikBayar;
 use App\Models\Jurusan;
 use App\Models\SettingSystem;
 use App\Services\WhatsAppService;
+use App\Services\TahunAjaranService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -14,29 +15,44 @@ use Illuminate\Support\Facades\Log;
 class RegistrationController extends Controller
 {
     protected WhatsAppService $whatsappService;
+    protected TahunAjaranService $tahunAjaranService;
 
-    public function __construct(WhatsAppService $whatsappService)
+    public function __construct(WhatsAppService $whatsappService, TahunAjaranService $tahunAjaranService)
     {
         $this->whatsappService = $whatsappService;
+        $this->tahunAjaranService = $tahunAjaranService;
     }
 
     /**
-     * Generate unique registration number
+     * Generate unique registration number using TahunAjaranService
      */
     private function generateRegistrationNumber()
     {
-        $tahun = Carbon::now()->year;
-        $lastRegistration = Pendaftar::where('no_registrasi', 'like', 'SPMB-' . $tahun . '-%')
-            ->orderByRaw('CAST(SUBSTRING(no_registrasi, -4) AS UNSIGNED) DESC')
-            ->first();
+        try {
+            // Get active tahun ajaran
+            $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
+            
+            // Generate using service
+            return $this->tahunAjaranService->generateNomorRegistrasi($activeTahun);
+        } catch (\Exception $e) {
+            // Fallback to old format if service fails
+            Log::error('Failed to generate registration number from service', [
+                'error' => $e->getMessage()
+            ]);
+            
+            $tahun = Carbon::now()->year;
+            $lastRegistration = Pendaftar::where('no_registrasi', 'like', 'SPMB-' . $tahun . '-%')
+                ->orderByRaw('CAST(SUBSTRING(no_registrasi, -4) AS UNSIGNED) DESC')
+                ->first();
 
-        $nextNumber = 1;
-        if ($lastRegistration) {
-            $lastNumber = (int) substr($lastRegistration->no_registrasi, -4);
-            $nextNumber = $lastNumber + 1;
+            $nextNumber = 1;
+            if ($lastRegistration) {
+                $lastNumber = (int) substr($lastRegistration->no_registrasi, -4);
+                $nextNumber = $lastNumber + 1;
+            }
+
+            return 'SPMB-' . $tahun . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
         }
-
-        return 'SPMB-' . $tahun . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -76,7 +92,14 @@ class RegistrationController extends Controller
 
         try {
             $setting = SettingSystem::first();
+            $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
             $noRegistrasi = $this->generateRegistrationNumber();
+
+            // Auto-fill nama_jaringan dengan "PANITIA" jika kosong
+            $namaJaringan = $request->nama_jaringan;
+            if (empty($namaJaringan)) {
+                $namaJaringan = 'PANITIA';
+            }
 
             // Create pendaftar
             $pendaftar = Pendaftar::create([
@@ -89,8 +112,9 @@ class RegistrationController extends Controller
                 'alamat' => $request->alamat,
                 'jurusan_id' => (int) $request->jurusan_id,
                 'jurusan' => Jurusan::find($request->jurusan_id)?->kode ?? '-',
-                'nama_jaringan' => $request->nama_jaringan,
+                'nama_jaringan' => $namaJaringan,
                 'gelombang' => $setting->gelombang_aktif,
+                'tahun_ajaran' => $activeTahun,
                 'tgl_daftar' => now(),
                 'status_siswa' => 'Belum Daftar Ulang',
                 'status_data' => 'awal',

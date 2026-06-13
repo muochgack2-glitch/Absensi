@@ -82,7 +82,7 @@
 
     <!-- Summary Stats -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3 col-sm-6">
+        <div class="col-md-4 col-sm-6">
             <x-stat-card 
                 icon="fas fa-users" 
                 label="Total Pendaftar" 
@@ -91,32 +91,22 @@
                 description="Semua data"
             />
         </div>
-        <div class="col-md-3 col-sm-6">
+        <div class="col-md-4 col-sm-6">
             <x-stat-card 
                 icon="fas fa-check-circle" 
                 label="Sudah Daftar Ulang" 
                 value="{{ $totalLunas }}"
                 color="green"
-                :trend="$totalPendaftar > 0 ? round($totalLunas/$totalPendaftar*100) . '%' : '0%'"
                 description="dari total"
             />
         </div>
-        <div class="col-md-3 col-sm-6">
+        <div class="col-md-4 col-sm-6">
             <x-stat-card 
                 icon="fas fa-hourglass-half" 
                 label="Belum Daftar Ulang" 
                 value="{{ $totalBelumBayar }}"
                 color="red"
                 description="Perlu tindak lanjut"
-            />
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <x-stat-card 
-                icon="fas fa-clipboard-check" 
-                label="Pendaftaran Selesai" 
-                value="{{ $totalSelesai }}"
-                color="purple"
-                description="Terverifikasi"
             />
         </div>
     </div>

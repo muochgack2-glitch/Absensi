@@ -55,6 +55,7 @@ class Pendaftar extends Model
         'tgl_daftar',
         'status_siswa',
         'status_data',
+        'tahun_ajaran',
         'deleted_by',
         'deleted_reason',
     ];
@@ -92,5 +93,13 @@ class Pendaftar extends Model
     public function whatsappLogs()
     {
         return $this->hasMany(WhatsAppLog::class, 'pendaftar_id', 'id_pendaftar');
+    }
+    
+    /**
+     * Relationship to TahunAjaran
+     */
+    public function tahunAjaranRelation(): BelongsTo
+    {
+        return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran', 'tahun');
     }
 }

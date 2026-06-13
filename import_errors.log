@@ -1,0 +1,3 @@
+Statement 5: SQLSTATE[HY000]: General error: 1007 Can't create database 'spmb-laravel'; database exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: spmb-laravel, SQL: CREATE DATABASE `spmb-laravel` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;)
+CREATE DATABASE `spmb-laravel` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+

@@ -41,23 +41,30 @@ Route::middleware('admin')->group(function () {
     })->name('demo.modals-preview');
     
     Route::get('/dashboard', function () {
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
+        // Recent pendaftar - FILTER BY ACTIVE YEAR ONLY
         $recentPendaftars = \App\Models\Pendaftar::with('logistik')
+            ->where('tahun_ajaran', $activeTahun)
             ->latest('id_pendaftar')
             ->take(8)
             ->get();
 
+        // Per Jaringan - FILTER BY ACTIVE YEAR ONLY
         $perJaringanDashboard = \App\Models\Pendaftar::query()
+            ->where('tahun_ajaran', $activeTahun)
             ->selectRaw("UPPER(TRIM(COALESCE(nama_jaringan, ''))) as nama_jaringan_normalized, COUNT(*) as total")
             ->groupByRaw("UPPER(TRIM(COALESCE(nama_jaringan, '')))")
             ->orderByDesc('total')
             ->take(8)
             ->get()
             ->map(function($item) {
-                $item->nama_jaringan_normalized = $item->nama_jaringan_normalized ?: '(Langsung)';
+                $item->nama_jaringan_normalized = $item->nama_jaringan_normalized ?: 'PANITIA';
                 return $item;
             });
 
-        return view('dashboard.index', compact('recentPendaftars', 'perJaringanDashboard'));
+        return view('dashboard.index', compact('recentPendaftars', 'perJaringanDashboard', 'activeTahun'));
     })->name('dashboard');
 
     // Dashboard stats endpoint - accessible by all authenticated users
@@ -131,6 +138,20 @@ Route::middleware('admin')->group(function () {
         Route::post('/settings/jurusan', [SettingsController::class, 'storeJurusan'])->name('settings.jurusan.store');
         Route::put('/settings/jurusan/{jurusan}', [SettingsController::class, 'updateJurusan'])->name('settings.jurusan.update');
         Route::delete('/settings/jurusan/{jurusan}', [SettingsController::class, 'destroyJurusan'])->name('settings.jurusan.destroy');
+
+        // Tahun Ajaran Management - Only for Administrator
+        Route::prefix('admin/tahun-ajaran')->name('admin.tahun-ajaran.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\TahunAjaranController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\TahunAjaranController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\TahunAjaranController::class, 'store'])->name('store');
+            Route::get('/{id}', [\App\Http\Controllers\TahunAjaranController::class, 'show'])->name('show');
+            Route::post('/{id}/activate', [\App\Http\Controllers\TahunAjaranController::class, 'activate'])->name('activate');
+            Route::post('/{id}/archive', [\App\Http\Controllers\TahunAjaranController::class, 'archive'])->name('archive');
+            Route::post('/{id}/update-statistics', [\App\Http\Controllers\TahunAjaranController::class, 'updateStatistics'])->name('update-statistics');
+            Route::post('/sync-all', [\App\Http\Controllers\TahunAjaranController::class, 'syncAllStatistics'])->name('sync-all');
+            Route::get('/statistics/get', [\App\Http\Controllers\TahunAjaranController::class, 'getStatistics'])->name('get-statistics');
+            Route::delete('/{id}', [\App\Http\Controllers\TahunAjaranController::class, 'destroy'])->name('destroy');
+        });
 
         // User Management - Only for Administrator
         Route::prefix('users')->name('users.')->group(function () {

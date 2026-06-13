@@ -198,23 +198,28 @@
     /* Dark Mode Styles */
     .admin-dark body { background-color: #0f172a !important; color: #e5e7eb; }
     
-    /* CSS Variables for Dark Mode */
-    .admin-dark {
-        --bg-primary: #111827;
-        --bg-secondary: #1e293b;
-        --text-primary: #e5e7eb;
-        --text-secondary: #cbd5e1;
-        --border-light: #334155;
-    }
+    /* CSS Variables for Dark Mode - Now defined in theme-vars.blade.php */
+    /* Removed duplicate definition to avoid conflict */
     
     /* Force dark mode on elements using CSS variables */
     .admin-dark [style*="background: var(--bg-primary)"],
     .admin-dark [style*="background-color: var(--bg-primary)"] {
-        background: #111827 !important;
-        background-color: #111827 !important;
+        background: var(--bg-primary) !important;
+        background-color: var(--bg-primary) !important;
+    }
+    .admin-dark [style*="background: var(--bg-secondary)"],
+    .admin-dark [style*="background-color: var(--bg-secondary)"] {
+        background: var(--bg-secondary) !important;
+        background-color: var(--bg-secondary) !important;
     }
     .admin-dark [style*="color: var(--text-primary)"] {
-        color: #e5e7eb !important;
+        color: var(--text-primary) !important;
+    }
+    .admin-dark [style*="color: var(--text-secondary)"] {
+        color: var(--text-secondary) !important;
+    }
+    .admin-dark [style*="border-color: var(--border-light)"] {
+        border-color: var(--border-light) !important;
     }
     .admin-dark .navbar { 
         box-shadow: 0 2px 20px rgba(0,0,0,.35) !important;

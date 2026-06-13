@@ -171,7 +171,7 @@
                                 <span class="fw-medium">{{ $pendaftar->nama_lengkap }}</span>
                             </td>
                             <td>
-                                <span class="badge bg-info">{{ $pendaftar->nama_jaringan ?: '(Langsung)' }}</span>
+                                <span class="badge bg-info">{{ $pendaftar->nama_jaringan ?: 'PANITIA' }}</span>
                             </td>
                             <td>{{ $pendaftar->jurusan ?: '-' }}</td>
                         </tr>
@@ -842,3 +842,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+

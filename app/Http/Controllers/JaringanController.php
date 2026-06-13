@@ -14,11 +14,15 @@ class JaringanController extends Controller
      */
     public function merge(Request $request)
     {
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
         $search = $request->get('search');
         $sort = $request->get('sort', 'name_asc');
         
-        // Get all unique jaringan with count
+        // Get all unique jaringan with count - FILTERED BY ACTIVE YEAR
         $query = Pendaftar::select('nama_jaringan', DB::raw('count(*) as total'))
+            ->where('tahun_ajaran', $activeTahun)
             ->whereNotNull('nama_jaringan')
             ->where('nama_jaringan', '!=', '')
             ->groupBy('nama_jaringan');
@@ -56,12 +60,15 @@ class JaringanController extends Controller
      */
     public function mergeSelective(Request $request)
     {
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
         $search = $request->get('search');
         $jaringanFilter = $request->get('jaringan');
         $sort = $request->get('sort', 'no_asc');
         
-        // Get all pendaftar
-        $query = Pendaftar::query();
+        // Get all pendaftar - FILTERED BY ACTIVE YEAR
+        $query = Pendaftar::where('tahun_ajaran', $activeTahun);
         
         // Search filter
         if ($search) {
@@ -108,8 +115,9 @@ class JaringanController extends Controller
             'per_page' => $perPage
         ]);
         
-        // Get all jaringan for filter
+        // Get all jaringan for filter - FILTERED BY ACTIVE YEAR
         $jaringans = Pendaftar::select('nama_jaringan')
+            ->where('tahun_ajaran', $activeTahun)
             ->whereNotNull('nama_jaringan')
             ->where('nama_jaringan', '!=', '')
             ->groupBy('nama_jaringan')
@@ -136,11 +144,17 @@ class JaringanController extends Controller
             return response()->json(['error' => 'Tidak bisa menggabungkan jaringan ke dirinya sendiri!'], 400);
         }
         
-        // Count affected pendaftar
-        $count = Pendaftar::where('nama_jaringan', $fromJaringan)->count();
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
         
-        // Get sample pendaftar (5 data)
+        // Count affected pendaftar - FILTERED BY ACTIVE YEAR
+        $count = Pendaftar::where('nama_jaringan', $fromJaringan)
+            ->where('tahun_ajaran', $activeTahun)
+            ->count();
+        
+        // Get sample pendaftar (5 data) - FILTERED BY ACTIVE YEAR
         $samples = Pendaftar::where('nama_jaringan', $fromJaringan)
+            ->where('tahun_ajaran', $activeTahun)
             ->select('no_registrasi', 'nama_lengkap', 'nama_jaringan')
             ->limit(5)
             ->get();
@@ -165,8 +179,12 @@ class JaringanController extends Controller
             return response()->json(['error' => 'Data tidak lengkap'], 400);
         }
         
-        // Get selected pendaftar
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
+        // Get selected pendaftar - FILTERED BY ACTIVE YEAR
         $pendaftars = Pendaftar::whereIn('id_pendaftar', $selectedIds)
+            ->where('tahun_ajaran', $activeTahun)
             ->select('id_pendaftar', 'no_registrasi', 'nama_lengkap', 'nama_jaringan')
             ->get();
         
@@ -211,15 +229,19 @@ class JaringanController extends Controller
         DB::beginTransaction();
         
         try {
-            // Get all pendaftar IDs
+            // Get active tahun ajaran
+            $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+            
+            // Get all pendaftar IDs - ONLY FROM ACTIVE YEAR
             $pendaftarIds = Pendaftar::where('nama_jaringan', $fromJaringan)
+                ->where('tahun_ajaran', $activeTahun)
                 ->pluck('id_pendaftar')
                 ->toArray();
             
             if (empty($pendaftarIds)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Tidak ada pendaftar dengan jaringan tersebut!'
+                    'message' => 'Tidak ada pendaftar dengan jaringan tersebut di tahun ajaran aktif!'
                 ], 400);
             }
             
@@ -243,7 +265,7 @@ class JaringanController extends Controller
             
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menggabungkan " . count($pendaftarIds) . " pendaftar dari '{$fromJaringan}' ke '{$toJaringan}'.",
+                'message' => "Berhasil menggabungkan " . count($pendaftarIds) . " pendaftar dari '{$fromJaringan}' ke '{$toJaringan}' (Tahun: {$activeTahun}).",
                 'total' => count($pendaftarIds)
             ]);
             
@@ -273,15 +295,30 @@ class JaringanController extends Controller
         DB::beginTransaction();
         
         try {
-            // Get pendaftar details for history
-            $pendaftars = Pendaftar::whereIn('id_pendaftar', $selectedIds)->get();
+            // Get active tahun ajaran
+            $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+            
+            // Get pendaftar details for history - ONLY FROM ACTIVE YEAR
+            $pendaftars = Pendaftar::whereIn('id_pendaftar', $selectedIds)
+                ->where('tahun_ajaran', $activeTahun)
+                ->get();
+            
+            if ($pendaftars->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada pendaftar yang valid untuk di-merge di tahun ajaran aktif!'
+                ], 400);
+            }
             
             // Get unique jaringan sources
             $fromJaringans = $pendaftars->pluck('nama_jaringan')->unique()->values()->toArray();
             $fromJaringanStr = implode(', ', $fromJaringans);
             
+            // Get valid IDs (only from active year)
+            $validIds = $pendaftars->pluck('id_pendaftar')->toArray();
+            
             // Update pendaftar
-            Pendaftar::whereIn('id_pendaftar', $selectedIds)
+            Pendaftar::whereIn('id_pendaftar', $validIds)
                      ->update(['nama_jaringan' => $toJaringan]);
             
             // Save to history
@@ -289,8 +326,8 @@ class JaringanController extends Controller
                 'merge_type' => 'selective',
                 'from_jaringan' => $fromJaringanStr,
                 'to_jaringan' => $toJaringan,
-                'affected_count' => count($selectedIds),
-                'pendaftar_ids' => $selectedIds,
+                'affected_count' => count($validIds),
+                'pendaftar_ids' => $validIds,
                 'merged_by' => auth()->id(),
                 'merged_by_name' => auth()->user()->name,
                 'merged_by_role' => auth()->user()->role,
@@ -300,8 +337,8 @@ class JaringanController extends Controller
             
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menggabungkan " . count($selectedIds) . " pendaftar terpilih ke '{$toJaringan}'.",
-                'total' => count($selectedIds)
+                'message' => "Berhasil menggabungkan " . count($validIds) . " pendaftar terpilih ke '{$toJaringan}' (Tahun: {$activeTahun}).",
+                'total' => count($validIds)
             ]);
             
         } catch (\Exception $e) {
@@ -434,16 +471,21 @@ class JaringanController extends Controller
     public function stats()
     {
         try {
-            // Count unique jaringan
+            // Get active tahun ajaran
+            $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+            
+            // Count unique jaringan - FILTERED BY ACTIVE YEAR
             $uniqueCount = Pendaftar::select('nama_jaringan')
+                ->where('tahun_ajaran', $activeTahun)
                 ->whereNotNull('nama_jaringan')
                 ->where('nama_jaringan', '!=', '')
                 ->groupBy('nama_jaringan')
                 ->get()
                 ->count();
             
-            // Get all jaringan for duplicate detection
+            // Get all jaringan for duplicate detection - FILTERED BY ACTIVE YEAR
             $jaringans = Pendaftar::select('nama_jaringan', DB::raw('count(*) as total'))
+                ->where('tahun_ajaran', $activeTahun)
                 ->whereNotNull('nama_jaringan')
                 ->where('nama_jaringan', '!=', '')
                 ->groupBy('nama_jaringan')
@@ -453,10 +495,26 @@ class JaringanController extends Controller
             $suggestions = $this->detectDuplicates($jaringans);
             $duplicateCount = count($suggestions);
             
-            // Count cleaned this month
+            // Count cleaned this month - FILTERED BY ACTIVE YEAR
+            // Ambil history merge bulan ini yang pendaftarnya dari tahun ajaran aktif
             $cleanedThisMonth = JaringanMergeHistory::where('is_undone', false)
                 ->whereYear('created_at', now()->year)
                 ->whereMonth('created_at', now()->month)
+                ->get()
+                ->filter(function($history) use ($activeTahun) {
+                    // Cek apakah pendaftar yang di-merge dari tahun ajaran aktif
+                    $pendaftarIds = $history->pendaftar_ids;
+                    if (empty($pendaftarIds)) {
+                        return false;
+                    }
+                    
+                    // Cek apakah ada pendaftar yang masih ada dan dari tahun ajaran aktif
+                    $count = Pendaftar::whereIn('id_pendaftar', $pendaftarIds)
+                        ->where('tahun_ajaran', $activeTahun)
+                        ->count();
+                    
+                    return $count > 0;
+                })
                 ->sum('affected_count');
             
             return response()->json([

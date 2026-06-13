@@ -14,10 +14,15 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
         $gelombang  = $request->get('gelombang', 'all');
         $jurusanId  = $request->get('jurusan_id', 'all');
 
-        $query = Pendaftar::with('logistik');
+        // FILTER BY ACTIVE YEAR
+        $query = Pendaftar::with('logistik')
+            ->where('tahun_ajaran', $activeTahun);
         if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
         if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
         $pendaftars = $query->get();
@@ -45,7 +50,7 @@ class ReportController extends Controller
         ])->sortKeys();
 
         $perJaringan = $pendaftars
-            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: '(Langsung)')))
+            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: 'PANITIA')))
             ->map(function ($group, $nama) use ($jurusanAktif) {
                 $jurusanCounts = [];
                 foreach ($jurusanAktif as $j) {
@@ -67,22 +72,33 @@ class ReportController extends Controller
             ->map->count()
             ->sortKeys();
 
-        $gelombangOptions = Pendaftar::select('gelombang')->distinct()->orderBy('gelombang')->pluck('gelombang');
+        // Get gelombang options - FILTERED BY ACTIVE YEAR
+        $gelombangOptions = Pendaftar::where('tahun_ajaran', $activeTahun)
+            ->select('gelombang')
+            ->distinct()
+            ->orderBy('gelombang')
+            ->pluck('gelombang');
 
         return view('reports.index', compact(
             'pendaftars', 'totalPendaftar', 'totalLunas', 'totalBelumBayar', 'totalSelesai',
             'perJurusan', 'perGelombang', 'perJaringan', 'perUkuranKaos',
-            'gelombangOptions', 'gelombang', 'jurusanId', 'jurusanAktif'
+            'gelombangOptions', 'gelombang', 'jurusanId', 'jurusanAktif', 'activeTahun'
         ));
     }
 
     public function stats(Request $request)
     {
         try {
+            // Get active tahun ajaran
+            $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+            
             $gelombang = $request->get('gelombang', 'all');
             $jurusanId = $request->get('jurusan_id', 'all');
 
-            $query = Pendaftar::with('logistik');
+            // FILTER BY ACTIVE YEAR ONLY
+            $query = Pendaftar::with('logistik')
+                ->where('tahun_ajaran', $activeTahun);
+                
             if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
             if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
             $pendaftars = $query->get();
@@ -174,10 +190,15 @@ class ReportController extends Controller
 
     public function exportExcel(Request $request)
     {
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
         $gelombang = $request->get('gelombang', 'all');
         $jurusanId = $request->get('jurusan_id', 'all');
 
-        $query = Pendaftar::with('logistik');
+        // FILTER BY ACTIVE YEAR
+        $query = Pendaftar::with('logistik')
+            ->where('tahun_ajaran', $activeTahun);
         if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
         if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
         $pendaftars = $query->orderBy('no_registrasi')->get();
@@ -188,11 +209,17 @@ class ReportController extends Controller
 
     public function exportJaringanExcel(Request $request)
     {
-        $pendaftars   = Pendaftar::with('logistik')->get();
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
+        // FILTER BY ACTIVE YEAR
+        $pendaftars   = Pendaftar::with('logistik')
+            ->where('tahun_ajaran', $activeTahun)
+            ->get();
         $jurusanAktif = Jurusan::where('aktif', true)->orderBy('kode')->pluck('kode');
 
         $perJaringan = $pendaftars
-            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: '(Langsung)')))
+            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: 'PANITIA')))
             ->map(function ($group, $nama) use ($jurusanAktif) {
                 $jurusanCounts = [];
                 foreach ($jurusanAktif as $kode) {
@@ -214,10 +241,15 @@ class ReportController extends Controller
 
     public function exportPdf(Request $request)
     {
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
         $gelombang = $request->get('gelombang', 'all');
         $jurusanId = $request->get('jurusan_id', 'all');
 
-        $query = Pendaftar::with('logistik');
+        // FILTER BY ACTIVE YEAR
+        $query = Pendaftar::with('logistik')
+            ->where('tahun_ajaran', $activeTahun);
         if ($gelombang !== 'all') $query->where('gelombang', $gelombang);
         if ($jurusanId !== 'all') $query->where('jurusan_id', $jurusanId);
         $pendaftars = $query->orderBy('no_registrasi')->get();
@@ -237,7 +269,7 @@ class ReportController extends Controller
         $totalLunas   = $pendaftars->filter(fn($p) => optional($p->logistik)->status_bayar === 'Lunas')->count();
 
         $perJaringan = $pendaftars
-            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: '(Langsung)')))
+            ->groupBy(fn($p) => strtoupper(trim($p->nama_jaringan ?: 'PANITIA')))
             ->map(function ($group, $nama) use ($jurusanAktif) {
                 $jurusanCounts = [];
                 foreach ($jurusanAktif as $j) {
@@ -257,7 +289,8 @@ class ReportController extends Controller
 
         return view('reports.pdf', compact(
             'pendaftars', 'perJurusan', 'perGelombang', 'totalLunas',
-            'perJaringan', 'gelombang', 'jurusan', 'jurusanAktif'
+            'perJaringan', 'gelombang', 'jurusan', 'jurusanAktif', 'activeTahun'
         ));
     }
 }
+

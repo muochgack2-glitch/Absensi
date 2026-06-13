@@ -140,11 +140,7 @@
                 color="blue"
                 description="Semua angkatan"
                 id="totalPendaftar"
-            >
-                <x-slot:sparkline>
-                    <svg class="sparkline" id="spark-totalPendaftar" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
-                </x-slot:sparkline>
-            </x-stat-card>
+            />
         </div>
         <div class="col-md-6 col-lg-3">
             <x-stat-card 
@@ -154,11 +150,7 @@
                 color="yellow"
                 description="Hari ini"
                 id="totalBaruHariIni"
-            >
-                <x-slot:sparkline>
-                    <svg class="sparkline" id="spark-totalBaruHariIni" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
-                </x-slot:sparkline>
-            </x-stat-card>
+            />
         </div>
         <div class="col-md-6 col-lg-3">
             <x-stat-card 
@@ -168,11 +160,7 @@
                 color="red"
                 description="Menunggu verifikasi"
                 id="totalBelumBayar"
-            >
-                <x-slot:sparkline>
-                    <svg class="sparkline" id="spark-totalBelumBayar" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
-                </x-slot:sparkline>
-            </x-stat-card>
+            />
         </div>
         <div class="col-md-6 col-lg-3">
             <x-stat-card 
@@ -182,84 +170,8 @@
                 color="green"
                 description="Terverifikasi"
                 id="totalLunas"
-            >
-                <x-slot:sparkline>
-                    <svg class="sparkline" id="spark-totalLunas" viewBox="0 0 120 28" preserveAspectRatio="none" style="width: 80px; height: 24px;"></svg>
-                </x-slot:sparkline>
-            </x-stat-card>
+            />
         </div>
-    </div>
-
-    @if(auth()->check() && (auth()->user()->isAdministrator() || auth()->user()->isPanitia()))
-    <!-- Kelola Jaringan Widget -->
-    <x-section-card title="Kelola Jaringan" icon="fas fa-code-branch" class="mb-4">
-        <x-slot:actions>
-            <x-button 
-                variant="primary" 
-                size="sm" 
-                icon="fas fa-layer-group" 
-                href="{{ route('jaringan.merge') }}"
-            >
-                Gabungkan Jaringan
-            </x-button>
-        </x-slot:actions>
-        
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="flex-shrink-0">
-                        <div class="stat-icon" style="width: 48px; height: 48px; background: #dbeafe; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-network-wired" style="font-size: 20px; color: #1e40af;"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1">
-                        <div class="text-muted small mb-1">Total Jaringan Unik</div>
-                        <div class="h4 mb-0" id="totalUniqueJaringan">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="flex-shrink-0">
-                        <div class="stat-icon" style="width: 48px; height: 48px; background: #fef3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 20px; color: #92400e;"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1">
-                        <div class="text-muted small mb-1">Potensi Duplikat</div>
-                        <div class="h4 mb-0" id="potentialDuplicates">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="flex-shrink-0">
-                        <div class="stat-icon" style="width: 48px; height: 48px; background: #dcfce7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check-circle" style="font-size: 20px; color: #166534;"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1">
-                        <div class="text-muted small mb-1">Dibersihkan Bulan Ini</div>
-                        <div class="h4 mb-0" id="cleanedThisMonth">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </x-section-card>
-    @endif
-
-    <!-- Update Info -->
-    <div class="update-info">
-        <small>
-            <i class="fas fa-sync-alt me-1"></i>
-            <span id="lastUpdated">Update terakhir: -</span>
-        </small>
     </div>
 
     <!-- Per Jurusan Stats -->
@@ -277,15 +189,15 @@
                     </th>
                     <th class="text-center">
                         <i class="fas fa-calendar-day me-1 text-muted"></i>
-                        Hari Ini
+                        Pendaftar Hari Ini
                     </th>
                     <th class="text-center">
                         <i class="fas fa-hourglass-half me-1 text-muted"></i>
-                        Belum
+                        Belum Daftar Ulang
                     </th>
                     <th class="text-center">
                         <i class="fas fa-check-double me-1 text-muted"></i>
-                        Sudah
+                        Sudah Daftar Ulang
                     </th>
                 </tr>
             </x-slot:header>
@@ -300,6 +212,14 @@
             </tbody>
         </x-table>
     </x-section-card>
+
+    <!-- Update Info -->
+    <div class="update-info">
+        <small>
+            <i class="fas fa-sync-alt me-1"></i>
+            <span id="lastUpdated">Update terakhir: -</span>
+        </small>
+    </div>
 
     <!-- Recent Activity & Network Stats -->
     <div class="row g-4">
@@ -391,15 +311,23 @@
         <div class="col-lg-4">
             <x-section-card title="Statistik Jaringan" icon="fas fa-chart-pie">
                 @forelse ($perJaringanDashboard as $j)
-                    <div class="network-stat-item">
-                        <div>
-                            <i class="fas fa-network-wired text-primary me-2"></i>
-                            <strong>{{ $j->nama_jaringan_normalized }}</strong>
+                    <div class="network-stat-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-light); transition: background 0.2s;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                            <i class="fas fa-network-wired text-primary"></i>
+                            <strong style="color: var(--text-primary);">{{ $j->nama_jaringan_normalized }}</strong>
                         </div>
-                        <span class="badge bg-primary bg-opacity-10 text-primary">
-                            <i class="fas fa-users me-1"></i>
-                            {{ $j->total }}
-                        </span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="badge bg-primary bg-opacity-10 text-primary">
+                                <i class="fas fa-users me-1"></i>
+                                {{ $j->total }}
+                            </span>
+                            <a href="{{ route('pendaftar.index', ['jaringan' => $j->nama_jaringan_normalized]) }}" 
+                               class="btn btn-sm btn-outline-primary" 
+                               style="padding: 4px 8px; font-size: 12px;"
+                               title="Lihat daftar siswa dari jaringan {{ $j->nama_jaringan_normalized }}">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
                     </div>
                 @empty
                     <x-empty-state 
@@ -604,54 +532,6 @@
     
     // Auto-refresh every 30 seconds
     setInterval(loadStats, 30000);
-
-    // Load Jaringan Stats
-    async function loadJaringanStats() {
-        try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            
-            const res = await fetch('{{ route('jaringan.stats') }}', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken || ''
-                },
-                credentials: 'same-origin'
-            });
-            
-            if (!res.ok) {
-                console.error('Jaringan stats API error:', res.status);
-                return;
-            }
-            
-            const data = await res.json();
-            
-            const uniqueEl = document.getElementById('totalUniqueJaringan');
-            const duplicatesEl = document.getElementById('potentialDuplicates');
-            const cleanedEl = document.getElementById('cleanedThisMonth');
-            
-            if (uniqueEl) {
-                animateCounter(uniqueEl, data.uniqueCount || 0);
-            }
-            
-            if (duplicatesEl) {
-                animateCounter(duplicatesEl, data.duplicateCount || 0);
-            }
-            
-            if (cleanedEl) {
-                animateCounter(cleanedEl, data.cleanedThisMonth || 0);
-            }
-            
-        } catch (e) {
-            console.error('Failed to load jaringan stats:', e);
-        }
-    }
-    
-    @if(auth()->check() && (auth()->user()->isAdministrator() || auth()->user()->isPanitia()))
-    loadJaringanStats();
-    setInterval(loadJaringanStats, 30000);
-    @endif
 
 </script>
 @endpush

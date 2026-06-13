@@ -118,19 +118,33 @@
 
 @section('content')
 @php
-    // Get all statistics from database (not just current page)
-    $totalPendaftar = \App\Models\Pendaftar::count();
-    $totalDiterima = \App\Models\Pendaftar::where('status_siswa', 'Diterima')->count();
-    $totalBelumDaftarUlang = \App\Models\Pendaftar::where('status_siswa', '!=', 'Diterima')->count();
-    $totalDataAwal = \App\Models\Pendaftar::where('status_data', 'awal')->count();
+    // Get all statistics from database (FILTERED BY SELECTED YEAR)
+    $totalPendaftar = \App\Models\Pendaftar::where('tahun_ajaran', $selectedTahun)->count();
+    $totalDiterima = \App\Models\Pendaftar::where('tahun_ajaran', $selectedTahun)->where('status_siswa', 'Diterima')->count();
+    $totalBelumDaftarUlang = \App\Models\Pendaftar::where('tahun_ajaran', $selectedTahun)->where('status_siswa', '!=', 'Diterima')->count();
+    $totalDataAwal = \App\Models\Pendaftar::where('tahun_ajaran', $selectedTahun)->where('status_data', 'awal')->count();
 @endphp
 
 <div class="dashboard-content">
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
         <div>
-            <h2 class="mb-2">Data Pendaftar</h2>
-            <p class="text-muted mb-0">Kelola daftar calon siswa, status pendaftaran, dan akses cepat ke dokumen penting.</p>
+            <h2 class="mb-2">
+                Data Pendaftar
+                @if($selectedTahun !== $activeTahun)
+                    <span class="badge bg-secondary ms-2">Tahun {{ $selectedTahun }}</span>
+                @else
+                    <span class="badge bg-success ms-2">Tahun Aktif: {{ $activeTahun }}</span>
+                @endif
+            </h2>
+            <p class="text-muted mb-0">
+                Kelola daftar calon siswa, status pendaftaran, dan akses cepat ke dokumen penting.
+                @if($selectedTahun !== $activeTahun)
+                    <a href="{{ route('pendaftar.index') }}" class="text-decoration-none ms-2">
+                        <i class="fas fa-arrow-left"></i> Kembali ke tahun aktif
+                    </a>
+                @endif
+            </p>
         </div>
         <div class="d-flex gap-2">
             <div class="btn-group">
@@ -363,14 +377,16 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if ($logistik->status_bayar === 'Belum')
+                                        @if ($logistik && $logistik->status_bayar === 'Belum')
                                             <span class="text-muted">-</span>
-                                        @else
+                                        @elseif($logistik)
                                             <span class="badge bg-success-subtle text-success border border-success-subtle" data-bs-toggle="tooltip" data-bs-placement="top" title="Kaos otomatis dipesankan setelah verifikasi daftar ulang.">Kaos dipesankan</span>
+                                        @else
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($logistik->ukuran_kaos)
+                                        @if ($logistik && $logistik->ukuran_kaos)
                                             <span class="size-pill">{{ $logistik->ukuran_kaos }}</span>
                                         @else
                                             <span class="text-muted">-</span>

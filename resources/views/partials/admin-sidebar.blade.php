@@ -183,6 +183,16 @@
                 <i class="fas fa-user-shield"></i> <span class="nav-text">Manajemen User</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.tahun-ajaran.*') ? 'active' : '' }}" href="{{ route('admin.tahun-ajaran.index') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Tahun Pelajaran">
+                <i class="fas fa-calendar-alt"></i> <span class="nav-text">Tahun Pelajaran</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('gateway.*') ? 'active' : '' }}" href="{{ route('gateway.index') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Gateway Management">
+                <i class="fas fa-server"></i> <span class="nav-text">Gateway Management</span>
+            </a>
+        </li>
         @endif
         
     </ul>

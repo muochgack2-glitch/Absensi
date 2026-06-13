@@ -17,7 +17,13 @@ class PendaftarExport implements FromCollection, WithHeadings, WithMapping, With
     */
     public function collection()
     {
-        return Pendaftar::with(['logistik', 'masterJurusan'])->get();
+        // Get active tahun ajaran
+        $activeTahun = \App\Models\SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
+        // FILTER BY ACTIVE YEAR ONLY
+        return Pendaftar::with(['logistik', 'masterJurusan'])
+            ->where('tahun_ajaran', $activeTahun)
+            ->get();
     }
 
     /**
@@ -77,7 +83,7 @@ class PendaftarExport implements FromCollection, WithHeadings, WithMapping, With
             $pendaftar->tahun_lulus,
             $pendaftar->alamat,
             $pendaftar->masterJurusan ? $pendaftar->masterJurusan->nama : $pendaftar->jurusan,
-            $pendaftar->nama_jaringan ?: '(Langsung)',
+            $pendaftar->nama_jaringan ?: 'PANITIA',
             $pendaftar->gelombang,
             $pendaftar->status_siswa,
             ucfirst($pendaftar->status_data ?? 'awal'),

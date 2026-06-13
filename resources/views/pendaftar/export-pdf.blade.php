@@ -104,7 +104,7 @@
                 <td>{{ $p->nama_lengkap }}</td>
                 <td>{{ $p->asal_sekolah }}</td>
                 <td>{{ $p->masterJurusan ? $p->masterJurusan->kode : $p->jurusan }}</td>
-                <td>{{ $p->nama_jaringan ?: '(Langsung)' }}</td>
+                <td>{{ $p->nama_jaringan ?: 'PANITIA' }}</td>
                 <td style="text-align: center;">{{ $p->gelombang }}</td>
                 <td>
                     <span class="status-badge {{ $p->status_siswa === 'Diterima' ? 'status-diterima' : 'status-belum' }}">
@@ -132,3 +132,4 @@
     </script>
 </body>
 </html>
+

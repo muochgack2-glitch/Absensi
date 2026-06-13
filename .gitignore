@@ -49,3 +49,4 @@ absensi/whatsapp-server-absensi/spmb-wa-session-absensi/
 absensi/whatsapp-server-absensi/spmb-wa-session-backup/
 absensi/whatsapp-server-absensi/*.log
 absensi/whatsapp-server-absensi/logs/
+spmb-laravel.sql

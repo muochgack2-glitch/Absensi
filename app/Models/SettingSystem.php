@@ -92,4 +92,52 @@ class SettingSystem extends Model
             'gelombang_aktif'       => $this->gelombang_aktif       ?? 1,
         ];
     }
+    
+    /**
+     * Get setting value by column name (support untuk tahun ajaran)
+     * Usage: SettingSystem::get('academic_year', 'default_value')
+     */
+    public static function get($key, $default = null)
+    {
+        $setting = static::instance();
+        
+        // Mapping key ke column name untuk backward compatibility
+        $keyMap = [
+            'active_tahun_ajaran' => 'academic_year',
+        ];
+        
+        $column = $keyMap[$key] ?? $key;
+        
+        return $setting->$column ?? $default;
+    }
+    
+    /**
+     * Set setting value by column name
+     * Usage: SettingSystem::set('academic_year', '2027/2028')
+     */
+    public static function set($key, $value)
+    {
+        $setting = static::instance();
+        
+        // Mapping key ke column name untuk backward compatibility
+        $keyMap = [
+            'active_tahun_ajaran' => 'academic_year',
+        ];
+        
+        $column = $keyMap[$key] ?? $key;
+        
+        $setting->$column = $value;
+        $setting->save();
+        
+        return $setting;
+    }
+    
+    /**
+     * Clear cache (placeholder untuk future caching implementation)
+     */
+    public static function clearCache()
+    {
+        // Placeholder - implement if you add caching later
+        return true;
+    }
 }

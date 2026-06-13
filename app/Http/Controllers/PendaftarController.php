@@ -6,6 +6,7 @@ use App\Models\Pendaftar;
 use App\Models\LogistikBayar;
 use App\Models\Jurusan;
 use App\Models\SettingSystem;
+use App\Services\TahunAjaranService;
 use Illuminate\Http\Request;
 use Twilio\Rest\Client;
 use Illuminate\Support\Carbon;
@@ -14,6 +15,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class PendaftarController extends Controller
 {
+    protected $tahunAjaranService;
+    
+    public function __construct(TahunAjaranService $tahunAjaranService)
+    {
+        $this->tahunAjaranService = $tahunAjaranService;
+    }
     /**
      * Send WhatsApp message via Twilio.
      */
@@ -39,22 +46,35 @@ class PendaftarController extends Controller
 
 
     /**
-     * Generate unique registration number
+     * Generate unique registration number using TahunAjaranService
      */
     private function generateRegistrationNumber()
     {
-        $tahun = Carbon::now()->year;
-        $lastRegistration = Pendaftar::where('no_registrasi', 'like', 'SPMB-' . $tahun . '-%')
-            ->orderByRaw('CAST(SUBSTRING(no_registrasi, -4) AS UNSIGNED) DESC')
-            ->first();
+        try {
+            // Get active tahun ajaran
+            $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
+            
+            // Generate using service
+            return $this->tahunAjaranService->generateNomorRegistrasi($activeTahun);
+        } catch (\Exception $e) {
+            // Fallback to old format if service fails
+            \Log::error('Failed to generate registration number', [
+                'error' => $e->getMessage()
+            ]);
+            
+            $tahun = Carbon::now()->year;
+            $lastRegistration = Pendaftar::where('no_registrasi', 'like', 'SPMB-' . $tahun . '-%')
+                ->orderByRaw('CAST(SUBSTRING(no_registrasi, -4) AS UNSIGNED) DESC')
+                ->first();
 
-        $nextNumber = 1;
-        if ($lastRegistration) {
-            $lastNumber = (int) substr($lastRegistration->no_registrasi, -4);
-            $nextNumber = $lastNumber + 1;
+            $nextNumber = 1;
+            if ($lastRegistration) {
+                $lastNumber = (int) substr($lastRegistration->no_registrasi, -4);
+                $nextNumber = $lastNumber + 1;
+            }
+
+            return 'SPMB-' . $tahun . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
         }
-
-        return 'SPMB-' . $tahun . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -83,6 +103,13 @@ class PendaftarController extends Controller
 
         $setting = SettingSystem::first();
         $noRegistrasi = $this->generateRegistrationNumber();
+        $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
+
+        // Auto-fill nama_jaringan dengan "PANITIA" jika kosong
+        $namaJaringan = $request->nama_jaringan;
+        if (empty($namaJaringan)) {
+            $namaJaringan = 'PANITIA';
+        }
 
         // Create pendaftar
         $pendaftar = Pendaftar::create([
@@ -93,10 +120,11 @@ class PendaftarController extends Controller
             'alamat' => $request->alamat,
             'jurusan_id' => (int) $request->jurusan_id,
             'jurusan' => Jurusan::find($request->jurusan_id)?->kode ?? '-',
-            'nama_jaringan' => $request->nama_jaringan,
+            'nama_jaringan' => $namaJaringan,
             'gelombang' => $setting->gelombang_aktif,
             'status_siswa' => 'Belum Daftar Ulang',
             'status_data' => 'awal',
+            'tahun_ajaran' => $activeTahun,
         ]);
 
         // Create logistik entry
@@ -122,7 +150,16 @@ class PendaftarController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Pendaftar::with('logistik');
+        // Get tahun from URL parameter or default to active year
+        $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        $selectedTahun = $request->get('tahun', $activeTahun);
+        
+        // Get available tahun ajaran for dropdown (if needed in future)
+        $availableTahun = \App\Models\TahunAjaran::orderBy('tahun', 'desc')->pluck('tahun');
+        
+        // FILTER BY SELECTED YEAR (default: active year)
+        $query = Pendaftar::with('logistik')
+            ->where('tahun_ajaran', $selectedTahun);
         
         // Search filter
         if ($request->filled('search')) {
@@ -168,7 +205,7 @@ class PendaftarController extends Controller
         
         $pendaftars = $query->paginate($perPage)->appends($request->except('page'));
         
-        return view('pendaftar.index', compact('pendaftars'));
+        return view('pendaftar.index', compact('pendaftars', 'activeTahun', 'selectedTahun', 'availableTahun'));
     }
 
     /**
@@ -176,7 +213,12 @@ class PendaftarController extends Controller
      */
     public function verificationIndex(Request $request)
     {
-        $query = Pendaftar::with(['logistik', 'masterJurusan']);
+        // Get active tahun ajaran
+        $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
+        // FILTER BY ACTIVE YEAR ONLY
+        $query = Pendaftar::with(['logistik', 'masterJurusan'])
+            ->where('tahun_ajaran', $activeTahun);
         
         // Search filter
         if ($request->filled('search')) {
@@ -264,6 +306,11 @@ class PendaftarController extends Controller
 
         $jurusan = Jurusan::find((int) $validated['jurusan_id']);
         $validated['jurusan'] = $jurusan?->kode ?? $pendaftar->jurusan;
+
+        // Auto-fill nama_jaringan dengan "PANITIA" jika kosong saat update
+        if (empty($validated['nama_jaringan'])) {
+            $validated['nama_jaringan'] = 'PANITIA';
+        }
 
         $pendaftar->update($validated);
 
@@ -415,7 +462,14 @@ class PendaftarController extends Controller
      */
     public function exportPdf()
     {
-        $pendaftars = Pendaftar::with(['logistik', 'masterJurusan'])->get();
+        // Get active tahun ajaran
+        $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
+        // FILTER BY ACTIVE YEAR ONLY
+        $pendaftars = Pendaftar::with(['logistik', 'masterJurusan'])
+            ->where('tahun_ajaran', $activeTahun)
+            ->get();
+            
         $settings = SettingSystem::first();
         
         return view('pendaftar.export-pdf', compact('pendaftars', 'settings'));
@@ -469,7 +523,13 @@ class PendaftarController extends Controller
      */
     public function trashed(Request $request)
     {
-        $query = Pendaftar::onlyTrashed()->with(['logistik', 'deletedBy']);
+        // Get active tahun ajaran
+        $activeTahun = SettingSystem::get('active_tahun_ajaran', '2026/2027');
+        
+        // FILTER BY ACTIVE YEAR ONLY
+        $query = Pendaftar::onlyTrashed()
+            ->with(['logistik', 'deletedBy'])
+            ->where('tahun_ajaran', $activeTahun);
         
         // Search filter
         if ($request->filled('search')) {

@@ -35,6 +35,70 @@
     </div>
     @endif
 
+    <!-- Statistik Jaringan -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2 text-primary"></i>Statistik Jaringan</h5>
+                    <p class="text-muted small mb-0 mt-1">Overview data jaringan tahun pelajaran aktif</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon" style="width: 56px; height: 56px; background: #dbeafe; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-network-wired" style="font-size: 24px; color: #1e40af;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="text-muted small mb-1">Total Jaringan Unik</div>
+                            <div class="h3 mb-0" id="totalUniqueJaringan">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <small class="text-muted">Variasi nama jaringan</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon" style="width: 56px; height: 56px; background: #fef3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 24px; color: #92400e;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="text-muted small mb-1">Potensi Duplikat</div>
+                            <div class="h3 mb-0" id="potentialDuplicates">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <small class="text-muted">Nama yang mirip</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon" style="width: 56px; height: 56px; background: #dcfce7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check-circle" style="font-size: 24px; color: #166534;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="text-muted small mb-1">Dibersihkan Bulan Ini</div>
+                            <div class="h3 mb-0" id="cleanedThisMonth">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <small class="text-muted">Total merge berhasil</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Info Card -->
     <div class="alert alert-info mb-4">
         <div class="d-flex">
@@ -224,6 +288,81 @@
 @push('scripts')
 <script>
 let previewData = null;
+
+// Animation counter function
+function animateCounter(element, targetValue, duration = 600) {
+    const startValue = Number(element.dataset.value ?? element.textContent.replace(/[^0-9]/g, '')) || 0;
+    const endValue = Number(targetValue) || 0;
+
+    if (startValue === endValue) {
+        element.textContent = endValue;
+        element.dataset.value = endValue;
+        return;
+    }
+
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const currentValue = Math.round(startValue + (endValue - startValue) * eased);
+        element.textContent = currentValue;
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            element.dataset.value = endValue;
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+
+// Load Jaringan Statistics
+async function loadJaringanStats() {
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        const res = await fetch('{{ route('jaringan.stats') }}', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken || ''
+            },
+            credentials: 'same-origin'
+        });
+        
+        if (!res.ok) {
+            console.error('Jaringan stats API error:', res.status);
+            return;
+        }
+        
+        const data = await res.json();
+        
+        const uniqueEl = document.getElementById('totalUniqueJaringan');
+        const duplicatesEl = document.getElementById('potentialDuplicates');
+        const cleanedEl = document.getElementById('cleanedThisMonth');
+        
+        if (uniqueEl) {
+            animateCounter(uniqueEl, data.uniqueCount || 0);
+        }
+        
+        if (duplicatesEl) {
+            animateCounter(duplicatesEl, data.duplicateCount || 0);
+        }
+        
+        if (cleanedEl) {
+            animateCounter(cleanedEl, data.cleanedThisMonth || 0);
+        }
+        
+    } catch (e) {
+        console.error('Failed to load jaringan stats:', e);
+    }
+}
+
+// Load stats on page load
+loadJaringanStats();
 
 // Toast notification function
 function showToast(message, type = 'info') {
