@@ -360,10 +360,34 @@
                             </h1>
                             <p class="text-white-50 mb-0">Monitor dan kelola dual gateway dengan failover otomatis</p>
                         </div>
-                        <button class="btn btn-light" @click="refreshAll()">
-                            <i class="fas fa-sync-alt me-2"></i>Refresh All
-                        </button>
+                        <div class="text-end">
+                            <div class="text-white-50 small mb-2">
+                                <i class="fas fa-clock me-1"></i>
+                                Last updated: <span x-text="lastUpdated"></span>
+                            </div>
+                            <button class="btn btn-light" @click="refreshAll()" :disabled="isRefreshing">
+                                <i class="fas fa-sync-alt me-2" :class="{'fa-spin': isRefreshing}"></i>
+                                <span x-text="isRefreshing ? 'Refreshing...' : 'Refresh All'"></span>
+                            </button>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-Refresh Indicator -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info border-0 d-flex align-items-center justify-content-between" role="alert">
+                <div>
+                    <i class="fas fa-sync-alt me-2"></i>
+                    <strong>Auto-refresh aktif</strong> - Status gateway akan diperbarui otomatis setiap 10 detik
+                </div>
+                <div>
+                    <span class="badge bg-primary">
+                        <i class="fas fa-circle fa-fade me-1"></i>Real-time monitoring
+                    </span>
                 </div>
             </div>
         </div>
@@ -372,7 +396,7 @@
     <!-- Gateway Cards -->
     <div class="row">
         @foreach($statuses as $key => $gateway)
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-6 mb-4" id="gateway-{{ $key }}">
             <div class="card border-0 shadow-sm h-100">
                 <!-- Card Header -->
                 <div class="card-header border-0 {{ $gateway['online'] ? 'bg-success' : 'bg-danger' }} text-white">
@@ -384,10 +408,10 @@
                             <small class="opacity-75">{{ $gateway['info']['purpose'] }}</small>
                         </div>
                         <div class="text-end">
-                            <h3 class="mb-0">
+                            <h3 class="mb-0 text-white status-icon">
                                 <i class="fas fa-{{ $gateway['online'] ? 'check-circle' : 'times-circle' }}"></i>
                             </h3>
-                            <small>{{ $gateway['online'] ? 'Online' : 'Offline' }}</small>
+                            <small class="text-white opacity-90 status-text">{{ $gateway['online'] ? 'Online' : 'Offline' }}</small>
                         </div>
                     </div>
                 </div>
@@ -401,7 +425,7 @@
                                 <h6 class="mb-0">Connection Status</h6>
                                 <small class="text-muted">Port {{ parse_url($gateway['info']['url'], PHP_URL_PORT) }}</small>
                             </div>
-                            <span class="badge {{ $gateway['status']['status'] === 'connected' ? 'bg-success' : 'bg-warning' }} fs-6">
+                            <span class="badge {{ $gateway['status']['status'] === 'connected' ? 'bg-success' : 'bg-warning' }} fs-6 status-badge">
                                 <i class="fas fa-{{ $gateway['status']['status'] === 'connected' ? 'link' : 'qrcode' }} me-1"></i>
                                 {{ ucfirst($gateway['status']['status']) }}
                             </span>
@@ -855,6 +879,72 @@ function gatewayManager() {
         resetMessage: '',
         countdown: 15,
         countdownInterval: null,
+        isRefreshing: false,
+        lastUpdated: '{{ now()->format("H:i:s") }}',
+        autoRefreshInterval: null,
+        gatewayStatuses: @json($statuses),
+
+        init() {
+            // Start auto-refresh every 10 seconds
+            this.startAutoRefresh();
+        },
+
+        startAutoRefresh() {
+            this.autoRefreshInterval = setInterval(() => {
+                this.fetchStatuses();
+            }, 10000); // 10 seconds
+        },
+
+        stopAutoRefresh() {
+            if (this.autoRefreshInterval) {
+                clearInterval(this.autoRefreshInterval);
+            }
+        },
+
+        async fetchStatuses() {
+            try {
+                const response = await fetch('/admin/gateway/statuses');
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.gatewayStatuses = data.statuses;
+                    this.lastUpdated = new Date().toLocaleTimeString('id-ID');
+                    
+                    // Update DOM dynamically
+                    this.updateGatewayCards(data.statuses);
+                }
+            } catch (error) {
+                console.error('Failed to fetch statuses:', error);
+            }
+        },
+
+        updateGatewayCards(statuses) {
+            // Update each gateway card with new data
+            Object.keys(statuses).forEach(key => {
+                const gateway = statuses[key];
+                const cardHeader = document.querySelector(`#gateway-${key} .card-header`);
+                const statusBadge = document.querySelector(`#gateway-${key} .status-badge`);
+                const statusText = document.querySelector(`#gateway-${key} .status-text`);
+                const statusIcon = document.querySelector(`#gateway-${key} .status-icon`);
+                
+                if (cardHeader && statusBadge && statusText && statusIcon) {
+                    // Update header background
+                    cardHeader.className = `card-header border-0 ${gateway.online ? 'bg-success' : 'bg-danger'} text-white`;
+                    
+                    // Update badge
+                    statusBadge.innerHTML = `<span class="badge {{ gateway.online ? 'bg-success' : 'bg-danger' }} fs-6">
+                        <i class="fas fa-${gateway.online ? 'link' : 'qrcode'} me-1"></i>
+                        ${gateway.status?.status ? gateway.status.status.charAt(0).toUpperCase() + gateway.status.status.slice(1) : 'Unknown'}
+                    </span>`;
+                    
+                    // Update icon
+                    statusIcon.className = `fas fa-${gateway.online ? 'check-circle' : 'times-circle'}`;
+                    
+                    // Update text
+                    statusText.textContent = gateway.online ? 'Online' : 'Offline';
+                }
+            });
+        },
 
         viewQR(gateway) {
             this.currentGateway = gateway;
@@ -1090,7 +1180,10 @@ function gatewayManager() {
         },
 
         refreshAll() {
-            location.reload();
+            this.isRefreshing = true;
+            this.fetchStatuses().finally(() => {
+                this.isRefreshing = false;
+            });
         }
     }
 }

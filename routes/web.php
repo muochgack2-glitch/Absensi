@@ -202,6 +202,7 @@ Route::middleware('admin')->group(function () {
     // Gateway Management - For Administrator and Admin WA
     Route::middleware(['checkRole:administrator,admin_wa'])->prefix('admin/gateway')->name('gateway.')->group(function () {
         Route::get('/', [\App\Http\Controllers\WhatsAppGatewayController::class, 'index'])->name('index');
+        Route::get('/statuses', [\App\Http\Controllers\WhatsAppGatewayController::class, 'getStatuses'])->name('statuses');
         Route::get('/{gateway}/qr', [\App\Http\Controllers\WhatsAppGatewayController::class, 'getQRCode'])->name('qr');
         Route::post('/{gateway}/restart', [\App\Http\Controllers\WhatsAppGatewayController::class, 'restart'])->name('restart');
         Route::post('/{gateway}/logout', [\App\Http\Controllers\WhatsAppGatewayController::class, 'logout'])->name('logout');

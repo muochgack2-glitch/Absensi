@@ -203,6 +203,45 @@ class WhatsAppGatewayController extends Controller
     }
 
     /**
+     * Get real-time gateway statuses (AJAX endpoint)
+     */
+    public function getStatuses()
+    {
+        $gateways = $this->getGateways();
+        $statuses = [];
+        
+        foreach ($gateways as $key => $gateway) {
+            try {
+                $response = Http::timeout(5)->get("{$gateway['url']}/status");
+                $health = Http::timeout(5)->get("{$gateway['url']}/health");
+                
+                $statuses[$key] = [
+                    'info' => $gateway,
+                    'status' => $response->successful() ? $response->json() : null,
+                    'health' => $health->successful() ? $health->json() : null,
+                    'online' => $response->successful(),
+                    'last_check' => now()->format('Y-m-d H:i:s'),
+                ];
+            } catch (\Exception $e) {
+                $statuses[$key] = [
+                    'info' => $gateway,
+                    'status' => null,
+                    'health' => null,
+                    'online' => false,
+                    'error' => $e->getMessage(),
+                    'last_check' => now()->format('Y-m-d H:i:s'),
+                ];
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'statuses' => $statuses,
+            'timestamp' => now()->format('Y-m-d H:i:s'),
+        ]);
+    }
+
+    /**
      * Toggle failover setting
      */
     public function toggleFailover(Request $request)
