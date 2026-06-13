@@ -361,11 +361,11 @@
                             <p class="text-white-50 mb-0">Monitor dan kelola dual gateway dengan failover otomatis</p>
                         </div>
                         <div class="text-end">
-                            <div class="text-white-50 small mb-2">
+                            <div class="text-white small mb-2" style="opacity: 0.9;">
                                 <i class="fas fa-clock me-1"></i>
-                                Last updated: <span x-text="lastUpdated"></span>
+                                Last updated: <span x-text="lastUpdated" class="fw-bold"></span>
                             </div>
-                            <button class="btn btn-light" @click="refreshAll()" :disabled="isRefreshing">
+                            <button class="btn btn-outline-light" @click="refreshAll()" :disabled="isRefreshing" style="border-width: 2px;">
                                 <i class="fas fa-sync-alt me-2" :class="{'fa-spin': isRefreshing}"></i>
                                 <span x-text="isRefreshing ? 'Refreshing...' : 'Refresh All'"></span>
                             </button>
