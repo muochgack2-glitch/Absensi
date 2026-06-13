@@ -430,14 +430,22 @@
         }
 
         /* Navbar in Content Area */
-        .navbar {
+        .navbar,
+        .admin-navbar {
             min-height: 68px !important;
-            background: #ffffff !important;
+            background: var(--navbar-bg, #ffffff) !important;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
             position: sticky;
             top: 0;
             z-index: 999;
-            border-bottom: 1px solid #e2e8f0 !important;
+            border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+        }
+        
+        /* Dark mode navbar */
+        [data-theme="dark"] .navbar,
+        [data-theme="dark"] .admin-navbar {
+            --navbar-bg: #1e293b;
+            --border-color: #334155;
         }
 
         .navbar > .container-fluid {
@@ -689,39 +697,39 @@
         .admin-mobile-menu-btn {
             display: none !important;
             padding: 10px 14px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            border: 2px solid #cbd5e1 !important;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.15);
-            color: #ffffff;
+            background: #f1f5f9 !important;
+            color: #1e293b !important;
             font-size: 22px;
             font-weight: 700;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
             cursor: pointer;
         }
         
-        /* Light Theme - Tombol hamburger harus terlihat dengan warna gelap */
-        [data-theme="light"] .admin-mobile-menu-btn {
-            border: 2px solid rgba(30, 41, 59, 0.3) !important;
-            background: rgba(30, 41, 59, 0.1) !important;
-            color: #1e293b !important;
+        /* Dark Theme - Tombol hamburger putih */
+        [data-theme="dark"] .admin-mobile-menu-btn {
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
         }
         
         .admin-mobile-menu-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.8);
+            background: #e2e8f0 !important;
+            border-color: #94a3b8 !important;
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
         }
         
-        [data-theme="light"] .admin-mobile-menu-btn:hover {
-            background: rgba(30, 41, 59, 0.15) !important;
-            border-color: rgba(30, 41, 59, 0.4) !important;
+        [data-theme="dark"] .admin-mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
         }
         
         .admin-mobile-menu-btn:active {
             transform: scale(0.98);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15) !important;
         }
 
         @media (max-width: 991px) {

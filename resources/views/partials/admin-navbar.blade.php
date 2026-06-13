@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark">
+<nav class="navbar navbar-expand-lg admin-navbar">
     <div class="container-fluid">
         @php
             $settings = \App\Models\SettingSystem::instance()->toSettingsArray();
@@ -7,7 +7,7 @@
         @endphp
         
         <!-- Mobile Menu Button (only show on mobile) -->
-        <button class="admin-mobile-menu-btn" type="button">
+        <button class="admin-mobile-menu-btn" type="button" aria-label="Toggle Menu">
             <i class="fas fa-bars"></i>
         </button>
         
